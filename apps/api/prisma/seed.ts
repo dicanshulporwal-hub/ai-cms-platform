@@ -1,4 +1,5 @@
 import { PrismaClient, UserStatus } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -70,20 +71,23 @@ async function main() {
       where: { name: 'Super Admin' },
     });
 
-    const email =
-      process.env.DEFAULT_SUPER_ADMIN_EMAIL ?? 'superadmin@example.com';
+    const email = process.env.DEFAULT_SUPER_ADMIN_EMAIL ?? 'admin@example.com';
     const name = process.env.DEFAULT_SUPER_ADMIN_NAME ?? 'Super Admin';
+    const password = process.env.DEFAULT_SUPER_ADMIN_PASSWORD ?? 'Admin@12345';
+    const passwordHash = await bcrypt.hash(password, 12);
 
     await prisma.user.upsert({
       where: { email },
       update: {
         name,
+        passwordHash,
         roleId: superAdminRole.id,
         status: UserStatus.ACTIVE,
       },
       create: {
         email,
         name,
+        passwordHash,
         roleId: superAdminRole.id,
         status: UserStatus.ACTIVE,
       },

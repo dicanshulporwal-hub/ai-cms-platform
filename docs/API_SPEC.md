@@ -2,7 +2,7 @@
 
 ## Status
 
-The initial NestJS API foundation is in place. Authentication and CMS domain endpoints are not implemented yet.
+The initial NestJS API foundation is in place with JWT authentication, role-based authorization, Prisma, and health checks. CMS domain CRUD endpoints are not implemented yet.
 
 ## Base Path
 
@@ -26,7 +26,37 @@ Response:
 
 ### Auth
 
-- Authentication and session endpoints to be defined later.
+- `POST /auth/login`: login with email and password.
+- `GET /auth/me`: return the authenticated user. Requires bearer token.
+- `POST /auth/logout`: stateless logout acknowledgement. Requires bearer token.
+- `GET /auth/admin-only`: protected role-based authorization example. Requires `Super Admin` or `Admin`.
+
+Login request:
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "Admin@12345"
+}
+```
+
+Login response:
+
+```json
+{
+  "accessToken": "jwt-token",
+  "user": {
+    "id": "user-id",
+    "name": "Super Admin",
+    "email": "admin@example.com",
+    "role": "Super Admin"
+  }
+}
+```
+
+### Roles
+
+- `GET /roles`: list roles. Requires `Super Admin` or `Admin`.
 
 ### Content
 

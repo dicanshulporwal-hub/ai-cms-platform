@@ -27,11 +27,11 @@ packages/
 docs/
 ```
 
-No frontend or backend application code has been generated yet. This repository currently contains only the initial project foundation.
+The backend API has been started under `apps/api`. Frontend applications have not been generated yet.
 
 ## Backend API
 
-The backend API lives in `apps/api` and is a NestJS TypeScript application. The initial API includes environment validation, Prisma configured for MySQL, and a health endpoint.
+The backend API lives in `apps/api` and is a NestJS TypeScript application. The API includes environment validation, Prisma configured for MySQL, JWT authentication, role-based guards, Swagger docs, and a health endpoint.
 
 ```text
 GET /health
@@ -43,6 +43,50 @@ Response:
 {
   "status": "ok"
 }
+```
+
+Swagger/OpenAPI docs are available after the API starts:
+
+```text
+http://localhost:3001/docs
+```
+
+## Authentication
+
+Default seeded Super Admin:
+
+```text
+email: admin@example.com
+password: Admin@12345
+```
+
+Login:
+
+```bash
+curl -X POST http://localhost:3001/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"admin@example.com\",\"password\":\"Admin@12345\"}"
+```
+
+Use the returned JWT as a bearer token:
+
+```bash
+curl http://localhost:3001/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+Protected route example:
+
+```bash
+curl http://localhost:3001/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+Role-protected route example:
+
+```bash
+curl http://localhost:3001/auth/admin-only \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 ## Local Infrastructure
@@ -82,13 +126,19 @@ cp .env.example .env
 Generate Prisma Client:
 
 ```bash
-npm run api:prisma:generate
+npm run prisma:generate
 ```
 
-Run local database migrations later, after models are added:
+Run local database migrations:
 
 ```bash
-npm run api:prisma:migrate
+npm run prisma:migrate -- --name migration_name
+```
+
+Seed default roles and Super Admin:
+
+```bash
+npm run prisma:seed
 ```
 
 Start the API locally:
