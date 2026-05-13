@@ -1,0 +1,105 @@
+import { PrismaClient, UserStatus } from '@prisma/client';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const roles = [
+  {
+    name: 'Super Admin',
+    description: 'Full platform access, including user and system management.',
+  },
+  {
+    name: 'Admin',
+    description: 'Administrative access for day-to-day CMS operations.',
+  },
+  {
+    name: 'Editor',
+    description: 'Creates and edits CMS content.',
+  },
+  {
+    name: 'Reviewer',
+    description: 'Reviews submitted content before approval.',
+  },
+  {
+    name: 'Publisher',
+    description: 'Publishes approved content.',
+  },
+  {
+    name: 'Viewer',
+    description: 'Read-only access to CMS content and reports.',
+  },
+];
+
+function loadEnvFile() {
+  const candidates = [resolve(process.cwd(), '.env'), resolve(process.cwd(), '../../.env')];
+  const envPath = candidates.find((candidate) => existsSync(candidate));
+
+  if (!envPath) {
+    return;
+  }
+
+  for (const line of readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+    const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
+
+    if (!match) {
+      continue;
+    }
+
+    const [, key, rawValue] = match;
+    const value = rawValue.replace(/^"|"$/g, '');
+
+    if (!process.env[key]) {
+      process.env[key] = value;
+    }
+  }
+}
+
+async function main() {
+  loadEnvFile();
+  const prisma = new PrismaClient();
+
+  try {
+    for (const role of roles) {
+      await prisma.role.upsert({
+        where: { name: role.name },
+        update: { description: role.description },
+        create: role,
+      });
+    }
+
+    const superAdminRole = await prisma.role.findUniqueOrThrow({
+      where: { name: 'Super Admin' },
+    });
+
+    const email =
+      process.env.DEFAULT_SUPER_ADMIN_EMAIL ?? 'superadmin@example.com';
+    const name = process.env.DEFAULT_SUPER_ADMIN_NAME ?? 'Super Admin';
+
+    await prisma.user.upsert({
+      where: { email },
+      update: {
+        name,
+        roleId: superAdminRole.id,
+        status: UserStatus.ACTIVE,
+      },
+      create: {
+        email,
+        name,
+        roleId: superAdminRole.id,
+        status: UserStatus.ACTIVE,
+      },
+    });
+
+    console.log(`Seeded ${roles.length} roles and Super Admin user: ${email}`);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

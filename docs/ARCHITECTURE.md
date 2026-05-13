@@ -16,7 +16,7 @@ Planned Next.js application for public content rendering.
 
 ### `apps/api`
 
-Planned NestJS API for content management, publishing, authentication, and future AI workflows.
+NestJS API for content management, publishing, authentication, and future AI workflows. The initial app includes environment validation, Prisma setup, and `GET /health`.
 
 ## Packages
 
@@ -41,6 +41,7 @@ Planned for caching, queues, rate limiting, sessions, and short-lived workflow s
 ## Data Layer
 
 Prisma will be used later for schema management, migrations, and database access from the NestJS API.
+The Prisma schema is located at `apps/api/prisma/schema.prisma` and is configured for MySQL through `DATABASE_URL`.
 
 ## AI Layer
 

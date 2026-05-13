@@ -2,19 +2,27 @@
 
 ## Status
 
-No API endpoints are implemented yet. This document captures the planned API surface for the future NestJS service.
+The initial NestJS API foundation is in place. Authentication and CMS domain endpoints are not implemented yet.
 
-## Planned Base Path
+## Base Path
 
 ```text
-/api
+/
 ```
 
 ## Future Resource Areas
 
 ### Health
 
-- `GET /api/health`: service health check.
+- `GET /health`: service health check.
+
+Response:
+
+```json
+{
+  "status": "ok"
+}
+```
 
 ### Auth
 

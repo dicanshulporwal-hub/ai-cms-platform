@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ContentStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum SenderType {
+  VISITOR
+  BOT
+  ADMIN
+}
+
+model User {
+  id                 String       @id @default(cuid())
+  email              String       @unique @db.VarChar(191)
+  name               String       @db.VarChar(191)
+  passwordHash       String?      @db.VarChar(255)
+  status             UserStatus   @default(ACTIVE)
+  roleId             String
+  role               Role         @relation(fields: [roleId], references: [id])
+  authoredPages      Page[]       @relation("PageAuthor")
+  reviewedPages      Page[]       @relation("PageReviewer")
+  publishedPages     Page[]       @relation("PagePublisher")
+  authoredBlogPosts  BlogPost[]   @relation("BlogPostAuthor")
+  reviewedBlogPosts  BlogPost[]   @relation("BlogPostReviewer")
+  publishedBlogPosts BlogPost[]   @relation("BlogPostPublisher")
+  uploadedMedia      Media[]      @relation("MediaUploadedBy")
+  submittedWorkflows Workflow[]   @relation("WorkflowSubmittedBy")
+  reviewWorkflows    Workflow[]   @relation("WorkflowReviewer")
+  auditLogs          AuditLog[]
+  aiUsageLogs        AIUsageLog[]
+  assignedLeads      Lead[]       @relation("LeadAssignee")
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([roleId])
+  @@index([status])
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique @db.VarChar(191)
+  description String?  @db.Text
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model Page {
+  id              String        @id @default(cuid())
+  title           String        @db.VarChar(255)
+  slug            String        @unique @db.VarChar(191)
+  excerpt         String?       @db.Text
+  content         String?       @db.LongText
+  status          ContentStatus @default(DRAFT)
+  metaTitle       String?       @db.VarChar(255)
+  metaDescription String?       @db.Text
+  publishedAt     DateTime?
+  authorId        String?
+  reviewerId      String?
+  publisherId     String?
+  author          User?         @relation("PageAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  reviewer        User?         @relation("PageReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  publisher       User?         @relation("PagePublisher", fields: [publisherId], references: [id], onDelete: SetNull)
+  categories      Category[]    @relation("PageCategories")
+  tags            Tag[]         @relation("PageTags")
+  media           Media[]       @relation("PageMedia")
+  workflows       Workflow[]
+  auditLogs       AuditLog[]
+  aiUsageLogs     AIUsageLog[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([authorId])
+  @@index([reviewerId])
+  @@index([publisherId])
+  @@index([status])
+  @@map("pages")
+}
+
+model BlogPost {
+  id              String        @id @default(cuid())
+  title           String        @db.VarChar(255)
+  slug            String        @unique @db.VarChar(191)
+  excerpt         String?       @db.Text
+  content         String?       @db.LongText
+  status          ContentStatus @default(DRAFT)
+  metaTitle       String?       @db.VarChar(255)
+  metaDescription String?       @db.Text
+  publishedAt     DateTime?
+  authorId        String?
+  reviewerId      String?
+  publisherId     String?
+  author          User?         @relation("BlogPostAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  reviewer        User?         @relation("BlogPostReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  publisher       User?         @relation("BlogPostPublisher", fields: [publisherId], references: [id], onDelete: SetNull)
+  categories      Category[]    @relation("BlogPostCategories")
+  tags            Tag[]         @relation("BlogPostTags")
+  media           Media[]       @relation("BlogPostMedia")
+  workflows       Workflow[]
+  auditLogs       AuditLog[]
+  aiUsageLogs     AIUsageLog[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([authorId])
+  @@index([reviewerId])
+  @@index([publisherId])
+  @@index([status])
+  @@map("blog_posts")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @db.VarChar(191)
+  slug        String     @unique @db.VarChar(191)
+  description String?    @db.Text
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryHierarchy")
+  pages       Page[]     @relation("PageCategories")
+  blogPosts   BlogPost[] @relation("BlogPostCategories")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @db.VarChar(191)
+  slug      String     @unique @db.VarChar(191)
+  pages     Page[]     @relation("PageTags")
+  blogPosts BlogPost[] @relation("BlogPostTags")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("tags")
+}
+
+model Media {
+  id           String     @id @default(cuid())
+  fileName     String     @db.VarChar(255)
+  url          String     @db.VarChar(2048)
+  mimeType     String     @db.VarChar(191)
+  sizeBytes    Int?
+  altText      String?    @db.VarChar(255)
+  uploadedById String?
+  uploadedBy   User?      @relation("MediaUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+  pages        Page[]     @relation("PageMedia")
+  blogPosts    BlogPost[] @relation("BlogPostMedia")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([uploadedById])
+  @@map("media")
+}
+
+model Workflow {
+  id            String        @id @default(cuid())
+  status        ContentStatus @default(SUBMITTED)
+  note          String?       @db.Text
+  pageId        String?
+  blogPostId    String?
+  submittedById String?
+  reviewerId    String?
+  page          Page?         @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  blogPost      BlogPost?     @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  submittedBy   User?         @relation("WorkflowSubmittedBy", fields: [submittedById], references: [id], onDelete: SetNull)
+  reviewer      User?         @relation("WorkflowReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([pageId])
+  @@index([blogPostId])
+  @@index([submittedById])
+  @@index([reviewerId])
+  @@index([status])
+  @@map("workflows")
+}
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  action     String    @db.VarChar(191)
+  entityType String    @db.VarChar(191)
+  entityId   String    @db.VarChar(191)
+  metadata   Json?
+  userId     String?
+  pageId     String?
+  blogPostId String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  page       Page?     @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  blogPost   BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([pageId])
+  @@index([blogPostId])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+model AIUsageLog {
+  id               String    @id @default(cuid())
+  provider         String    @db.VarChar(191)
+  modelName        String?   @db.VarChar(191)
+  feature          String    @db.VarChar(191)
+  promptTokens     Int       @default(0)
+  completionTokens Int       @default(0)
+  totalTokens      Int       @default(0)
+  costUsd          Decimal?  @db.Decimal(10, 4)
+  metadata         Json?
+  userId           String?
+  pageId           String?
+  blogPostId       String?
+  user             User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  page             Page?     @relation(fields: [pageId], references: [id], onDelete: SetNull)
+  blogPost         BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: SetNull)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([pageId])
+  @@index([blogPostId])
+  @@index([provider])
+  @@index([feature])
+  @@map("ai_usage_logs")
+}
+
+model ChatbotConversation {
+  id        String           @id @default(cuid())
+  sessionId String           @unique @db.VarChar(191)
+  visitorId String?          @db.VarChar(191)
+  leadId    String?          @unique
+  lead      Lead?            @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  messages  ChatbotMessage[]
+  endedAt   DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([visitorId])
+  @@map("chatbot_conversations")
+}
+
+model ChatbotMessage {
+  id             String              @id @default(cuid())
+  conversationId String
+  senderType     SenderType
+  content        String              @db.LongText
+  metadata       Json?
+  conversation   ChatbotConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([conversationId])
+  @@index([senderType])
+  @@map("chatbot_messages")
+}
+
+model Lead {
+  id           String               @id @default(cuid())
+  name         String?              @db.VarChar(191)
+  email        String?              @db.VarChar(191)
+  phone        String?              @db.VarChar(50)
+  company      String?              @db.VarChar(191)
+  message      String?              @db.Text
+  source       String?              @db.VarChar(191)
+  status       String               @default("NEW") @db.VarChar(50)
+  assignedToId String?
+  assignedTo   User?                @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  conversation ChatbotConversation?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([assignedToId])
+  @@index([email])
+  @@index([status])
+  @@map("leads")
+}

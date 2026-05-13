@@ -8,9 +8,22 @@
     "packages/*"
   ],
   "scripts": {
+    "api:build": "npm run build -w @ai-cms/api",
+    "api:dev": "npm run start:dev -w @ai-cms/api",
+    "api:prisma:deploy": "prisma migrate deploy --schema apps/api/prisma/schema.prisma",
+    "api:prisma:generate": "prisma generate --schema apps/api/prisma/schema.prisma",
+    "api:prisma:migrate": "prisma migrate dev --schema apps/api/prisma/schema.prisma",
+    "api:prisma:studio": "prisma studio --schema apps/api/prisma/schema.prisma",
     "infra:up": "docker compose up -d mysql redis",
     "infra:down": "docker compose down",
-    "infra:logs": "docker compose logs -f mysql redis"
+    "infra:logs": "docker compose logs -f mysql redis",
+    "prisma:generate": "prisma generate --schema apps/api/prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema apps/api/prisma/schema.prisma",
+    "prisma:seed": "ts-node apps/api/prisma/seed.ts",
+    "prisma:studio": "prisma studio --schema apps/api/prisma/schema.prisma"
+  },
+  "prisma": {
+    "seed": "ts-node apps/api/prisma/seed.ts"
   },
   "engines": {
     "node": ">=20.0.0"
