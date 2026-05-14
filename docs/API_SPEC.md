@@ -31,6 +31,12 @@ Response:
 - `POST /auth/logout`: stateless logout acknowledgement. Requires bearer token.
 - `GET /auth/admin-only`: protected role-based authorization example. Requires `Super Admin` or `Admin`.
 
+The admin web app also exposes proxy routes:
+
+- `POST /api/auth/login`: forwards login to the backend and stores the JWT in an httpOnly cookie.
+- `GET /api/auth/me`: forwards the current cookie token to the backend.
+- `POST /api/auth/logout`: clears the admin auth cookie.
+
 Login request:
 
 ```json

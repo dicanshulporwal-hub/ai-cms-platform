@@ -8,6 +8,9 @@
     "packages/*"
   ],
   "scripts": {
+    "admin:build": "npm run build -w @ai-cms/admin-web",
+    "admin:dev": "npm run dev -w @ai-cms/admin-web",
+    "admin:start": "npm run start -w @ai-cms/admin-web",
     "api:build": "npm run build -w @ai-cms/api",
     "api:dev": "npm run start:dev -w @ai-cms/api",
     "api:prisma:deploy": "prisma migrate deploy --schema apps/api/prisma/schema.prisma",

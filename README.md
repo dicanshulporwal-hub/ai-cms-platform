@@ -146,3 +146,40 @@ Start the API locally:
 ```bash
 npm run api:dev
 ```
+
+## Admin Web
+
+The admin web app lives in `apps/admin-web` and is a Next.js TypeScript application using Tailwind CSS, React Query, and shadcn/ui-style local components.
+
+Start the admin app:
+
+```bash
+npm run admin:dev
+```
+
+Open:
+
+```text
+http://localhost:3000/login
+```
+
+Default login:
+
+```text
+email: admin@example.com
+password: Admin@12345
+```
+
+The admin app stores the backend JWT in an httpOnly cookie through Next.js API routes. Client components call `/api/auth/*`, and those routes proxy to the NestJS backend at `API_BASE_URL`.
+
+Protected routes:
+
+```text
+/dashboard
+```
+
+Unauthenticated users are redirected to:
+
+```text
+/login
+```

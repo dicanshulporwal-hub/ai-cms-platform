@@ -8,7 +8,7 @@ This repository is structured as a monorepo with separate applications and share
 
 ### `apps/admin-web`
 
-Planned Next.js application for CMS admins and editors.
+Next.js admin application for CMS admins and editors. It uses Tailwind CSS, shadcn/ui-style local components, React Query, and Next.js middleware for protected routes.
 
 ### `apps/public-web`
 
@@ -46,6 +46,8 @@ The Prisma schema is located at `apps/api/prisma/schema.prisma` and is configure
 ## Auth Layer
 
 Authentication uses email/password login, bcrypt password hashing, and JWT access tokens. Authorization is handled with route guards and role metadata. Refresh tokens and OAuth are intentionally out of scope for the MVP auth slice.
+
+The admin web app stores JWTs in an httpOnly cookie set by its own Next.js API routes. Browser code calls the admin app's `/api/auth/*` routes, and those routes proxy authenticated requests to the NestJS backend.
 
 ## AI Layer
 
