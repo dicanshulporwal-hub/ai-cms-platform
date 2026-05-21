@@ -72,6 +72,7 @@ model Page {
   slug            String        @unique @db.VarChar(191)
   excerpt         String?       @db.Text
   content         String?       @db.LongText
+  featuredImage   String?       @db.VarChar(2048)
   status          ContentStatus @default(DRAFT)
   metaTitle       String?       @db.VarChar(255)
   metaDescription String?       @db.Text
@@ -88,6 +89,7 @@ model Page {
   workflows       Workflow[]
   auditLogs       AuditLog[]
   aiUsageLogs     AIUsageLog[]
+  deletedAt       DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -95,6 +97,7 @@ model Page {
   @@index([reviewerId])
   @@index([publisherId])
   @@index([status])
+  @@index([deletedAt])
   @@map("pages")
 }
 
@@ -104,13 +107,16 @@ model BlogPost {
   slug            String        @unique @db.VarChar(191)
   excerpt         String?       @db.Text
   content         String?       @db.LongText
+  featuredImage   String?       @db.VarChar(2048)
   status          ContentStatus @default(DRAFT)
   metaTitle       String?       @db.VarChar(255)
   metaDescription String?       @db.Text
   publishedAt     DateTime?
+  categoryId      String?
   authorId        String?
   reviewerId      String?
   publisherId     String?
+  category        Category?     @relation("BlogPostCategory", fields: [categoryId], references: [id], onDelete: SetNull)
   author          User?         @relation("BlogPostAuthor", fields: [authorId], references: [id], onDelete: SetNull)
   reviewer        User?         @relation("BlogPostReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
   publisher       User?         @relation("BlogPostPublisher", fields: [publisherId], references: [id], onDelete: SetNull)
@@ -120,30 +126,36 @@ model BlogPost {
   workflows       Workflow[]
   auditLogs       AuditLog[]
   aiUsageLogs     AIUsageLog[]
+  deletedAt       DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
+  @@index([categoryId])
   @@index([authorId])
   @@index([reviewerId])
   @@index([publisherId])
   @@index([status])
+  @@index([deletedAt])
   @@map("blog_posts")
 }
 
 model Category {
-  id          String     @id @default(cuid())
-  name        String     @db.VarChar(191)
-  slug        String     @unique @db.VarChar(191)
-  description String?    @db.Text
-  parentId    String?
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children    Category[] @relation("CategoryHierarchy")
-  pages       Page[]     @relation("PageCategories")
-  blogPosts   BlogPost[] @relation("BlogPostCategories")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id               String     @id @default(cuid())
+  name             String     @db.VarChar(191)
+  slug             String     @unique @db.VarChar(191)
+  description      String?    @db.Text
+  parentId         String?
+  parent           Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children         Category[] @relation("CategoryHierarchy")
+  pages            Page[]     @relation("PageCategories")
+  blogPosts        BlogPost[] @relation("BlogPostCategories")
+  primaryBlogPosts BlogPost[] @relation("BlogPostCategory")
+  deletedAt        DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   @@index([parentId])
+  @@index([deletedAt])
   @@map("categories")
 }
 
@@ -153,27 +165,37 @@ model Tag {
   slug      String     @unique @db.VarChar(191)
   pages     Page[]     @relation("PageTags")
   blogPosts BlogPost[] @relation("BlogPostTags")
+  deletedAt DateTime?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
+  @@index([deletedAt])
   @@map("tags")
 }
 
 model Media {
   id           String     @id @default(cuid())
+  originalName String     @db.VarChar(255)
   fileName     String     @db.VarChar(255)
-  url          String     @db.VarChar(2048)
+  fileUrl      String     @db.VarChar(2048)
   mimeType     String     @db.VarChar(191)
-  sizeBytes    Int?
+  fileSize     Int
   altText      String?    @db.VarChar(255)
+  caption      String?    @db.Text
+  folder       String?    @db.VarChar(191)
   uploadedById String?
   uploadedBy   User?      @relation("MediaUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
   pages        Page[]     @relation("PageMedia")
   blogPosts    BlogPost[] @relation("BlogPostMedia")
+  auditLogs    AuditLog[]
+  deletedAt    DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
   @@index([uploadedById])
+  @@index([folder])
+  @@index([mimeType])
+  @@index([deletedAt])
   @@map("media")
 }
 
@@ -209,15 +231,18 @@ model AuditLog {
   userId     String?
   pageId     String?
   blogPostId String?
+  mediaId    String?
   user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   page       Page?     @relation(fields: [pageId], references: [id], onDelete: SetNull)
   blogPost   BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: SetNull)
+  media      Media?    @relation(fields: [mediaId], references: [id], onDelete: SetNull)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
   @@index([userId])
   @@index([pageId])
   @@index([blogPostId])
+  @@index([mediaId])
   @@index([entityType, entityId])
   @@map("audit_logs")
 }

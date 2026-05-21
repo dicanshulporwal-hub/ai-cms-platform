@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 220 24% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 24% 12%;
+    --muted: 210 18% 93%;
+    --muted-foreground: 218 12% 42%;
+    --primary: 173 76% 26%;
+    --primary-foreground: 0 0% 100%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 16% 86%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  .cms-editor-content h1,
+  .cms-rendered-html h1 {
+    @apply mb-4 mt-5 text-3xl font-semibold;
+  }
+
+  .cms-editor-content h2,
+  .cms-rendered-html h2 {
+    @apply mb-3 mt-5 text-2xl font-semibold;
+  }
+
+  .cms-editor-content h3,
+  .cms-rendered-html h3 {
+    @apply mb-2 mt-4 text-xl font-semibold;
+  }
+
+  .cms-editor-content p,
+  .cms-rendered-html p {
+    @apply my-3 leading-7;
+  }
+
+  .cms-editor-content ul,
+  .cms-rendered-html ul {
+    @apply my-3 list-disc pl-6;
+  }
+
+  .cms-editor-content ol,
+  .cms-rendered-html ol {
+    @apply my-3 list-decimal pl-6;
+  }
+
+  .cms-editor-content blockquote,
+  .cms-rendered-html blockquote {
+    @apply my-4 border-l-4 border-border pl-4 italic text-muted-foreground;
+  }
+
+  .cms-editor-content a,
+  .cms-rendered-html a {
+    @apply text-primary underline underline-offset-4;
+  }
+
+  .cms-editor-content img,
+  .cms-rendered-html img {
+    @apply my-4 max-w-full rounded-md border border-border;
+  }
+}

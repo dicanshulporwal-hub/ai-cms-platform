@@ -1,11 +1,18 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { resolveMediaUploadDir } from './media/media-storage';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = Number(process.env.PORT ?? 3001);
+  const uploadDir = process.env.MEDIA_UPLOAD_DIR ?? 'uploads/media';
+
+  app.useStaticAssets(resolveMediaUploadDir(uploadDir), {
+    prefix: '/uploads/media/',
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

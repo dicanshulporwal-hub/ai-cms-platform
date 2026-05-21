@@ -1,11 +1,19 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { AUTH_COOKIE } from './lib/auth-cookie';
+import { AUTH_COOKIE } from '@/lib/auth-cookie';
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get(AUTH_COOKIE)?.value;
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith('/dashboard') && !token) {
+  if (
+    (pathname.startsWith('/dashboard') ||
+      pathname.startsWith('/pages') ||
+      pathname.startsWith('/blogs') ||
+      pathname.startsWith('/media') ||
+      pathname.startsWith('/categories') ||
+      pathname.startsWith('/tags')) &&
+    !token
+  ) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', pathname);
 
@@ -20,5 +28,13 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  matcher: [
+    '/dashboard/:path*',
+    '/pages/:path*',
+    '/blogs/:path*',
+    '/media/:path*',
+    '/categories/:path*',
+    '/tags/:path*',
+    '/login',
+  ],
 };

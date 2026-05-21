@@ -37,6 +37,10 @@ The admin web app also exposes proxy routes:
 - `GET /api/auth/me`: forwards the current cookie token to the backend.
 - `POST /api/auth/logout`: clears the admin auth cookie.
 
+The admin frontend uses `NEXT_PUBLIC_API_URL` for browser requests to its own proxy routes and `API_BASE_URL` for server-side proxy requests to the NestJS backend.
+
+Admin page management proxy routes mirror the backend `/pages` endpoints under `/api/pages`.
+
 Login request:
 
 ```json
@@ -66,10 +70,103 @@ Login response:
 
 ### Content
 
+Implemented page management endpoints:
+
+- `GET /pages`: list pages with `page`, `limit`, `search`, and `status` query params.
+- `GET /pages/:id`: get one page.
+- `POST /pages`: create a draft page.
+- `PUT /pages/:id`: update a page.
+- `DELETE /pages/:id`: soft delete a page as `ARCHIVED`.
+- `POST /pages/:id/submit`: submit a draft for review.
+- `POST /pages/:id/approve`: approve a submitted page.
+- `POST /pages/:id/publish`: publish an approved page and set `publishedAt`.
+
+Page statuses:
+
+```text
+DRAFT
+SUBMITTED
+UNDER_REVIEW
+APPROVED
+PUBLISHED
+ARCHIVED
+```
+
+Page permissions:
+
+```text
+Editor       create drafts, edit drafts, submit drafts
+Reviewer     approve submitted pages
+Publisher    publish approved pages
+Super Admin  all page actions
+Admin/Viewer read only
+```
+
+Page request fields:
+
+```json
+{
+  "title": "About Us",
+  "slug": "about-us",
+  "content": "<p>HTML content</p>",
+  "excerpt": "Short summary",
+  "featuredImage": "https://example.com/image.jpg",
+  "metaTitle": "About Us",
+  "metaDescription": "Learn more about us."
+}
+```
+
+Slug values must be URL-friendly and unique. `metaTitle` is limited to 60 characters and `metaDescription` to 160 characters.
+
+Future content areas:
+
 - Content type management.
-- Content entry CRUD.
-- Draft and publish actions.
 - Public content delivery.
+
+### Blogs
+
+- `GET /blogs`: list blogs with `page`, `limit`, `search`, `status`, `categoryId`, and `tagId` query params.
+- `GET /blogs/:id`: get one blog.
+- `POST /blogs`: create a draft blog.
+- `PUT /blogs/:id`: update a blog.
+- `DELETE /blogs/:id`: soft delete a blog as `ARCHIVED`.
+- `POST /blogs/:id/submit`: submit a draft for review.
+- `POST /blogs/:id/approve`: approve a submitted blog.
+- `POST /blogs/:id/publish`: publish an approved blog and set `publishedAt`.
+
+Blog request fields:
+
+```json
+{
+  "title": "How AI Changes CMS Workflows",
+  "slug": "how-ai-changes-cms-workflows",
+  "content": "<p>HTML content</p>",
+  "excerpt": "Short summary",
+  "featuredImage": "https://example.com/image.jpg",
+  "categoryId": "category-id",
+  "tagIds": ["tag-id"],
+  "metaTitle": "How AI Changes CMS Workflows",
+  "metaDescription": "A concise search description."
+}
+```
+
+Blog slugs are unique and URL-friendly. Blogs support one optional category and multiple tags.
+
+### Categories
+
+- `GET /categories`: list active categories.
+- `POST /categories`: create a category.
+- `PUT /categories/:id`: update a category.
+- `DELETE /categories/:id`: soft delete a category.
+
+### Tags
+
+- `GET /tags`: list active tags.
+- `POST /tags`: create a tag.
+- `PUT /tags/:id`: update a tag.
+- `DELETE /tags/:id`: soft delete a tag.
+
+Admin blog, category, and tag proxy routes mirror these backend endpoints under `/api/blogs`, `/api/categories`, and `/api/tags`.
 
 ### Media
 

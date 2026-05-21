@@ -11,11 +11,19 @@ The AI CMS Platform is an MVP for creating, managing, publishing, and eventually
 - Prepare for AI-assisted content creation and editing.
 - Prepare for future chatbot/RAG capabilities over published content.
 
-## Non-Goals for Initial Foundation
+## Completed Foundation Slices
 
-- No frontend app implementation yet.
-- No backend API implementation yet.
-- No authentication implementation yet.
+- Monorepo structure and local infrastructure.
+- NestJS API foundation with health checks and Swagger.
+- Prisma/MySQL schema, migrations, and seed data.
+- JWT authentication and role-based authorization.
+- Admin frontend login and protected dashboard.
+- Page management with draft, review, approval, publish, and preview.
+- Blog management with categories, tags, draft, review, approval, publish, and preview.
+
+## Non-Goals for Current Slice
+
+- No media upload implementation yet.
 - No AI provider integration yet.
 - No vector database integration yet.
 

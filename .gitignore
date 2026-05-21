@@ -28,6 +28,7 @@ Thumbs.db
 
 # Docker and local data
 *.pid
+uploads/
 
 # Prisma generated artifacts can be regenerated
 generated/
