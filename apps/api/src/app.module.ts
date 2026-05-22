@@ -5,10 +5,12 @@ import { BlogsModule } from './blogs/blogs.module';
 import { validateEnvironment } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { PagesModule } from './pages/pages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
+import { WorkflowModule } from './workflow/workflow.module';
 
 @Module({
   imports: [
@@ -21,10 +23,12 @@ import { UsersModule } from './users/users.module';
     BlogsModule,
     HealthModule,
     MediaModule,
+    NotificationsModule,
     PagesModule,
     PrismaModule,
     RolesModule,
     UsersModule,
+    WorkflowModule,
   ],
 })
 export class AppModule {}

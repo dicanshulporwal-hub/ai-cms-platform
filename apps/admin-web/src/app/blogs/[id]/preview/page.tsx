@@ -5,6 +5,7 @@ import { Loader2, Pencil } from 'lucide-react';
 import { AdminPageShell } from '@/components/layout/admin-page-shell';
 import { SafeHtml } from '@/components/pages/safe-html';
 import { StatusBadge } from '@/components/pages/status-badge';
+import { WorkflowHistory } from '@/components/workflow/workflow-history';
 import { buttonClassName } from '@/components/ui/button';
 import {
   Card,
@@ -127,6 +128,8 @@ function PreviewBlogContent({ id, user }: { id: string; user: AuthUser }) {
           </div>
         </CardContent>
       </Card>
+
+      <WorkflowHistory contentId={blog.id} contentType="BLOG" />
     </div>
   );
 }

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode } from 'react';
 import {
+  Bell,
+  ClipboardCheck,
   FileText,
   FolderTree,
   Images,
@@ -13,6 +15,7 @@ import {
   Tags,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useUnreadNotificationCount } from '@/hooks/use-notifications';
 import type { AuthUser } from '@/types/auth';
 
 interface AppShellProps {
@@ -27,6 +30,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/pages', label: 'Pages', icon: FileText },
   { href: '/blogs', label: 'Blogs', icon: Newspaper },
+  { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
   { href: '/media', label: 'Media', icon: Images },
   { href: '/categories', label: 'Categories', icon: FolderTree },
   { href: '/tags', label: 'Tags', icon: Tags },
@@ -40,6 +44,8 @@ export function AppShell({
   sectionTitle = 'Dashboard',
 }: AppShellProps) {
   const pathname = usePathname();
+  const unreadCountQuery = useUnreadNotificationCount();
+  const unreadCount = unreadCountQuery.data?.count ?? 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,6 +90,17 @@ export function AppShell({
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <Link
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card transition-colors hover:bg-muted"
+              href="/notifications"
+            >
+              <Bell className="h-4 w-4" />
+              {unreadCount > 0 ? (
+                <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-destructive px-1.5 py-0.5 text-center text-xs font-medium text-destructive-foreground">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              ) : null}
+            </Link>
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium">{user.name}</p>
               <p className="text-xs text-muted-foreground">{user.role}</p>

@@ -9,6 +9,8 @@ export function middleware(request: NextRequest) {
     (pathname.startsWith('/dashboard') ||
       pathname.startsWith('/pages') ||
       pathname.startsWith('/blogs') ||
+      pathname.startsWith('/workflow') ||
+      pathname.startsWith('/notifications') ||
       pathname.startsWith('/media') ||
       pathname.startsWith('/categories') ||
       pathname.startsWith('/tags')) &&
@@ -32,6 +34,8 @@ export const config = {
     '/dashboard/:path*',
     '/pages/:path*',
     '/blogs/:path*',
+    '/workflow/:path*',
+    '/notifications/:path*',
     '/media/:path*',
     '/categories/:path*',
     '/tags/:path*',

@@ -10,15 +10,21 @@ export function canEditBlog(user: AuthUser, blog?: Pick<CmsBlog, 'status'>) {
     return true;
   }
 
-  return user.role === 'Editor' && (!blog || blog.status === 'DRAFT');
+  return (
+    user.role === 'Editor' &&
+    (!blog || blog.status === 'DRAFT' || blog.status === 'CHANGES_REQUESTED')
+  );
 }
 
 export function canSubmitBlog(user: AuthUser, blog?: Pick<CmsBlog, 'status'>) {
-  if (user.role === 'Super Admin' && (!blog || blog.status === 'DRAFT')) {
+  const canSubmitStatus =
+    !blog || blog.status === 'DRAFT' || blog.status === 'CHANGES_REQUESTED';
+
+  if (user.role === 'Super Admin' && canSubmitStatus) {
     return true;
   }
 
-  return user.role === 'Editor' && (!blog || blog.status === 'DRAFT');
+  return user.role === 'Editor' && canSubmitStatus;
 }
 
 export function canApproveBlog(user: AuthUser, blog: Pick<CmsBlog, 'status'>) {
@@ -59,6 +65,7 @@ export const blogStatuses: BlogStatus[] = [
   'DRAFT',
   'SUBMITTED',
   'UNDER_REVIEW',
+  'CHANGES_REQUESTED',
   'APPROVED',
   'PUBLISHED',
   'ARCHIVED',

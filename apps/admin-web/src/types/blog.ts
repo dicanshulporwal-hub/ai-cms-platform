@@ -5,6 +5,7 @@ export type BlogStatus =
   | 'DRAFT'
   | 'SUBMITTED'
   | 'UNDER_REVIEW'
+  | 'CHANGES_REQUESTED'
   | 'APPROVED'
   | 'PUBLISHED'
   | 'ARCHIVED';

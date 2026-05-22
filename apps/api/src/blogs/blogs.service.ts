@@ -8,6 +8,7 @@ import {
 import { ContentStatus, Prisma } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { PrismaService } from '../prisma/prisma.service';
+import { WorkflowService } from '../workflow/workflow.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { ListBlogsQueryDto } from './dto/list-blogs-query.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
@@ -48,7 +49,10 @@ type BlogWithRelations = Prisma.BlogPostGetPayload<{
 
 @Injectable()
 export class BlogsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly workflowService: WorkflowService,
+  ) {}
 
   async findAll(query: ListBlogsQueryDto) {
     const page = query.page ?? 1;
@@ -208,84 +212,15 @@ export class BlogsService {
   }
 
   async submit(id: string, user: AuthenticatedUser) {
-    const blog = await this.getActiveBlog(id);
-
-    if (blog.status !== ContentStatus.DRAFT) {
-      throw new BadRequestException('Only draft blogs can be submitted.');
-    }
-
-    const submittedBlog = await this.prisma.blogPost.update({
-      data: { status: ContentStatus.SUBMITTED },
-      include: blogInclude,
-      where: { id },
-    });
-
-    await this.prisma.workflow.create({
-      data: {
-        blogPostId: id,
-        status: ContentStatus.SUBMITTED,
-        submittedById: user.id,
-      },
-    });
-    await this.audit('blog.submitted', submittedBlog, user, {
-      status: submittedBlog.status,
-      title: submittedBlog.title,
-    });
-
-    return this.toResponse(submittedBlog);
+    return this.workflowService.submitBlog(id, user);
   }
 
   async approve(id: string, user: AuthenticatedUser) {
-    const blog = await this.getActiveBlog(id);
-
-    if (
-      blog.status !== ContentStatus.SUBMITTED &&
-      blog.status !== ContentStatus.UNDER_REVIEW
-    ) {
-      throw new BadRequestException('Only submitted blogs can be approved.');
-    }
-
-    const approvedBlog = await this.prisma.blogPost.update({
-      data: {
-        reviewerId: user.id,
-        status: ContentStatus.APPROVED,
-      },
-      include: blogInclude,
-      where: { id },
-    });
-
-    await this.audit('blog.approved', approvedBlog, user, {
-      status: approvedBlog.status,
-      title: approvedBlog.title,
-    });
-
-    return this.toResponse(approvedBlog);
+    return this.workflowService.approveBlog(id, user);
   }
 
   async publish(id: string, user: AuthenticatedUser) {
-    const blog = await this.getActiveBlog(id);
-
-    if (blog.status !== ContentStatus.APPROVED) {
-      throw new BadRequestException('Only approved blogs can be published.');
-    }
-
-    const publishedBlog = await this.prisma.blogPost.update({
-      data: {
-        publishedAt: new Date(),
-        publisherId: user.id,
-        status: ContentStatus.PUBLISHED,
-      },
-      include: blogInclude,
-      where: { id },
-    });
-
-    await this.audit('blog.published', publishedBlog, user, {
-      publishedAt: publishedBlog.publishedAt?.toISOString(),
-      status: publishedBlog.status,
-      title: publishedBlog.title,
-    });
-
-    return this.toResponse(publishedBlog);
+    return this.workflowService.publishBlog(id, user);
   }
 
   private async getActiveBlog(id: string) {
@@ -306,8 +241,13 @@ export class BlogsService {
       return;
     }
 
-    if (blog.status !== ContentStatus.DRAFT) {
-      throw new ForbiddenException('Editors can only edit draft blogs.');
+    if (
+      blog.status !== ContentStatus.DRAFT &&
+      blog.status !== ContentStatus.CHANGES_REQUESTED
+    ) {
+      throw new ForbiddenException(
+        'Editors can only edit draft or changes requested blogs.',
+      );
     }
   }
 

@@ -10,15 +10,21 @@ export function canEditPage(user: AuthUser, page?: Pick<CmsPage, 'status'>) {
     return true;
   }
 
-  return user.role === 'Editor' && (!page || page.status === 'DRAFT');
+  return (
+    user.role === 'Editor' &&
+    (!page || page.status === 'DRAFT' || page.status === 'CHANGES_REQUESTED')
+  );
 }
 
 export function canSubmitPage(user: AuthUser, page?: Pick<CmsPage, 'status'>) {
-  if (user.role === 'Super Admin' && (!page || page.status === 'DRAFT')) {
+  const canSubmitStatus =
+    !page || page.status === 'DRAFT' || page.status === 'CHANGES_REQUESTED';
+
+  if (user.role === 'Super Admin' && canSubmitStatus) {
     return true;
   }
 
-  return user.role === 'Editor' && (!page || page.status === 'DRAFT');
+  return user.role === 'Editor' && canSubmitStatus;
 }
 
 export function canApprovePage(user: AuthUser, page: Pick<CmsPage, 'status'>) {
@@ -51,6 +57,7 @@ export const pageStatuses: PageStatus[] = [
   'DRAFT',
   'SUBMITTED',
   'UNDER_REVIEW',
+  'CHANGES_REQUESTED',
   'APPROVED',
   'PUBLISHED',
   'ARCHIVED',

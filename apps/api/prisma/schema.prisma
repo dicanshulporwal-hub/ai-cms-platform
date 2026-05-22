@@ -11,9 +11,15 @@ enum ContentStatus {
   DRAFT
   SUBMITTED
   UNDER_REVIEW
+  CHANGES_REQUESTED
   APPROVED
   PUBLISHED
   ARCHIVED
+}
+
+enum ContentType {
+  PAGE
+  BLOG
 }
 
 enum UserStatus {
@@ -28,27 +34,29 @@ enum SenderType {
 }
 
 model User {
-  id                 String       @id @default(cuid())
-  email              String       @unique @db.VarChar(191)
-  name               String       @db.VarChar(191)
-  passwordHash       String?      @db.VarChar(255)
-  status             UserStatus   @default(ACTIVE)
+  id                 String            @id @default(cuid())
+  email              String            @unique @db.VarChar(191)
+  name               String            @db.VarChar(191)
+  passwordHash       String?           @db.VarChar(255)
+  status             UserStatus        @default(ACTIVE)
   roleId             String
-  role               Role         @relation(fields: [roleId], references: [id])
-  authoredPages      Page[]       @relation("PageAuthor")
-  reviewedPages      Page[]       @relation("PageReviewer")
-  publishedPages     Page[]       @relation("PagePublisher")
-  authoredBlogPosts  BlogPost[]   @relation("BlogPostAuthor")
-  reviewedBlogPosts  BlogPost[]   @relation("BlogPostReviewer")
-  publishedBlogPosts BlogPost[]   @relation("BlogPostPublisher")
-  uploadedMedia      Media[]      @relation("MediaUploadedBy")
-  submittedWorkflows Workflow[]   @relation("WorkflowSubmittedBy")
-  reviewWorkflows    Workflow[]   @relation("WorkflowReviewer")
+  role               Role              @relation(fields: [roleId], references: [id])
+  authoredPages      Page[]            @relation("PageAuthor")
+  reviewedPages      Page[]            @relation("PageReviewer")
+  publishedPages     Page[]            @relation("PagePublisher")
+  authoredBlogPosts  BlogPost[]        @relation("BlogPostAuthor")
+  reviewedBlogPosts  BlogPost[]        @relation("BlogPostReviewer")
+  publishedBlogPosts BlogPost[]        @relation("BlogPostPublisher")
+  uploadedMedia      Media[]           @relation("MediaUploadedBy")
+  submittedWorkflows Workflow[]        @relation("WorkflowSubmittedBy")
+  reviewWorkflows    Workflow[]        @relation("WorkflowReviewer")
+  workflowHistory    WorkflowHistory[] @relation("WorkflowHistoryPerformedBy")
+  notifications      Notification[]
   auditLogs          AuditLog[]
   aiUsageLogs        AIUsageLog[]
-  assignedLeads      Lead[]       @relation("LeadAssignee")
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+  assignedLeads      Lead[]            @relation("LeadAssignee")
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   @@index([roleId])
   @@index([status])
@@ -220,6 +228,42 @@ model Workflow {
   @@index([reviewerId])
   @@index([status])
   @@map("workflows")
+}
+
+model WorkflowHistory {
+  id            String         @id @default(cuid())
+  contentType   ContentType
+  contentId     String         @db.VarChar(191)
+  fromStatus    ContentStatus?
+  toStatus      ContentStatus
+  action        String         @db.VarChar(191)
+  comment       String?        @db.Text
+  performedById String?
+  performedBy   User?          @relation("WorkflowHistoryPerformedBy", fields: [performedById], references: [id], onDelete: SetNull)
+  createdAt     DateTime       @default(now())
+
+  @@index([contentType, contentId])
+  @@index([performedById])
+  @@index([toStatus])
+  @@map("workflow_history")
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String   @db.VarChar(255)
+  message    String   @db.Text
+  type       String   @db.VarChar(50)
+  isRead     Boolean  @default(false)
+  entityType String?  @db.VarChar(50)
+  entityId   String?  @db.VarChar(191)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, isRead])
+  @@index([entityType, entityId])
+  @@map("notifications")
 }
 
 model AuditLog {

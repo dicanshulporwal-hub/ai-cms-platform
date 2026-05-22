@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -8,6 +7,7 @@ import {
 import { ContentStatus, Prisma } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { PrismaService } from '../prisma/prisma.service';
+import { WorkflowService } from '../workflow/workflow.service';
 import { CreatePageDto } from './dto/create-page.dto';
 import { ListPagesQueryDto } from './dto/list-pages-query.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
@@ -26,7 +26,10 @@ type PageWithAuthor = Prisma.PageGetPayload<{ include: typeof pageInclude }>;
 
 @Injectable()
 export class PagesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly workflowService: WorkflowService,
+  ) {}
 
   async findAll(query: ListPagesQueryDto) {
     const page = query.page ?? 1;
@@ -146,84 +149,15 @@ export class PagesService {
   }
 
   async submit(id: string, user: AuthenticatedUser) {
-    const page = await this.getActivePage(id);
-
-    if (page.status !== ContentStatus.DRAFT) {
-      throw new BadRequestException('Only draft pages can be submitted.');
-    }
-
-    const submittedPage = await this.prisma.page.update({
-      data: { status: ContentStatus.SUBMITTED },
-      include: pageInclude,
-      where: { id },
-    });
-
-    await this.prisma.workflow.create({
-      data: {
-        pageId: id,
-        status: ContentStatus.SUBMITTED,
-        submittedById: user.id,
-      },
-    });
-    await this.audit('page.submitted', submittedPage, user, {
-      status: submittedPage.status,
-      title: submittedPage.title,
-    });
-
-    return this.toResponse(submittedPage);
+    return this.workflowService.submitPage(id, user);
   }
 
   async approve(id: string, user: AuthenticatedUser) {
-    const page = await this.getActivePage(id);
-
-    if (
-      page.status !== ContentStatus.SUBMITTED &&
-      page.status !== ContentStatus.UNDER_REVIEW
-    ) {
-      throw new BadRequestException('Only submitted pages can be approved.');
-    }
-
-    const approvedPage = await this.prisma.page.update({
-      data: {
-        reviewerId: user.id,
-        status: ContentStatus.APPROVED,
-      },
-      include: pageInclude,
-      where: { id },
-    });
-
-    await this.audit('page.approved', approvedPage, user, {
-      status: approvedPage.status,
-      title: approvedPage.title,
-    });
-
-    return this.toResponse(approvedPage);
+    return this.workflowService.approvePage(id, user);
   }
 
   async publish(id: string, user: AuthenticatedUser) {
-    const page = await this.getActivePage(id);
-
-    if (page.status !== ContentStatus.APPROVED) {
-      throw new BadRequestException('Only approved pages can be published.');
-    }
-
-    const publishedPage = await this.prisma.page.update({
-      data: {
-        publishedAt: new Date(),
-        publisherId: user.id,
-        status: ContentStatus.PUBLISHED,
-      },
-      include: pageInclude,
-      where: { id },
-    });
-
-    await this.audit('page.published', publishedPage, user, {
-      publishedAt: publishedPage.publishedAt,
-      status: publishedPage.status,
-      title: publishedPage.title,
-    });
-
-    return this.toResponse(publishedPage);
+    return this.workflowService.publishPage(id, user);
   }
 
   private async getActivePage(id: string) {
@@ -244,8 +178,13 @@ export class PagesService {
       return;
     }
 
-    if (page.status !== ContentStatus.DRAFT) {
-      throw new ForbiddenException('Editors can only edit draft pages.');
+    if (
+      page.status !== ContentStatus.DRAFT &&
+      page.status !== ContentStatus.CHANGES_REQUESTED
+    ) {
+      throw new ForbiddenException(
+        'Editors can only edit draft or changes requested pages.',
+      );
     }
   }
 

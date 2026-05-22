@@ -223,6 +223,8 @@ Protected routes:
 /blogs/new
 /blogs/:id/edit
 /blogs/:id/preview
+/workflow
+/notifications
 /media
 /categories
 /tags
@@ -418,4 +420,124 @@ import { MediaPicker } from '@/components/media/media-picker';
   selectedUrl={featuredImage}
   onSelect={(media) => setFeaturedImage(media.fileUrl)}
 />;
+```
+
+## Workflow Approval and Notifications
+
+The workflow module tracks page and blog status changes with comments, audit logs, history records, and in-app notifications.
+
+Supported content types:
+
+```text
+PAGE
+BLOG
+```
+
+Workflow statuses:
+
+```text
+DRAFT
+SUBMITTED
+UNDER_REVIEW
+CHANGES_REQUESTED
+APPROVED
+PUBLISHED
+ARCHIVED
+```
+
+Valid transitions:
+
+```text
+DRAFT -> SUBMITTED
+CHANGES_REQUESTED -> SUBMITTED
+SUBMITTED -> UNDER_REVIEW
+SUBMITTED -> CHANGES_REQUESTED
+UNDER_REVIEW -> CHANGES_REQUESTED
+SUBMITTED -> APPROVED
+UNDER_REVIEW -> APPROVED
+APPROVED -> PUBLISHED
+```
+
+Role permissions:
+
+```text
+Editor       submit draft or changes requested content
+Reviewer     mark submitted content under review, request changes, approve
+Publisher    publish approved content
+Super Admin  perform all workflow actions
+Admin/Viewer read workflow history only
+```
+
+Workflow endpoints:
+
+```text
+GET  /workflow/history/:contentType/:contentId
+POST /workflow/pages/:id/submit
+POST /workflow/pages/:id/start-review
+POST /workflow/pages/:id/request-changes
+POST /workflow/pages/:id/approve
+POST /workflow/pages/:id/publish
+POST /workflow/blogs/:id/submit
+POST /workflow/blogs/:id/start-review
+POST /workflow/blogs/:id/request-changes
+POST /workflow/blogs/:id/approve
+POST /workflow/blogs/:id/publish
+```
+
+Backward-compatible page and blog workflow endpoints still work and route through the same workflow service:
+
+```text
+POST /pages/:id/submit
+POST /pages/:id/approve
+POST /pages/:id/publish
+POST /blogs/:id/submit
+POST /blogs/:id/approve
+POST /blogs/:id/publish
+```
+
+Notification endpoints:
+
+```text
+GET   /notifications
+GET   /notifications/unread-count
+PATCH /notifications/:id/read
+PATCH /notifications/read-all
+```
+
+Notification rules:
+
+```text
+Editor submits content      -> notify Reviewers and Super Admins
+Reviewer requests changes   -> notify original author
+Reviewer approves content   -> notify Publishers and Super Admins
+Publisher publishes content -> notify original author
+```
+
+Admin screens:
+
+```text
+http://localhost:3000/workflow
+http://localhost:3000/notifications
+```
+
+Manual workflow test:
+
+1. Login at `http://localhost:3000/login`
+2. Create a page or blog as an Editor or Super Admin
+3. Submit it for review
+4. Open `http://localhost:3000/workflow`
+5. Mark it under review, request changes, approve, or publish based on your role
+6. Open the page/blog preview to see workflow history
+7. Open `http://localhost:3000/notifications` or the notification bell to review unread notifications
+
+Manual API test:
+
+```bash
+curl http://localhost:3001/workflow/history/PAGE/PAGE_ID \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+curl -X POST http://localhost:3001/workflow/pages/PAGE_ID/request-changes \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"comment\":\"Please tighten the intro.\"}"
 ```

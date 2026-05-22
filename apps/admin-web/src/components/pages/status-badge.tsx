@@ -4,6 +4,7 @@ import type { PageStatus } from '@/types/page';
 const statusStyles: Record<PageStatus, string> = {
   APPROVED: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   ARCHIVED: 'border-slate-200 bg-slate-50 text-slate-600',
+  CHANGES_REQUESTED: 'border-rose-200 bg-rose-50 text-rose-700',
   DRAFT: 'border-zinc-200 bg-zinc-50 text-zinc-700',
   PUBLISHED: 'border-teal-200 bg-teal-50 text-teal-700',
   SUBMITTED: 'border-amber-200 bg-amber-50 text-amber-700',
