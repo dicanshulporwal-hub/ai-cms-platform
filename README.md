@@ -663,3 +663,42 @@ npm run public:dev
 ```
 
 Then open `http://localhost:3002`, click the floating chat button, ask a question that matches a published page or blog, and submit the lead form when prompted.
+
+# Admin Dashboard Analytics
+
+The admin dashboard now uses a NestJS dashboard module to provide role-aware CMS analytics.
+
+Backend:
+
+- `GET /dashboard/summary`
+- `GET /dashboard/content-stats`
+- `GET /dashboard/ai-stats`
+- `GET /dashboard/chatbot-stats`
+- `GET /dashboard/recent-activity`
+
+The summary response includes page/blog counts, media and user counts, pending workflow items, AI request totals, chatbot conversations, leads, recent audit activity, recent pages, recent blogs, and recent leads.
+
+Role visibility:
+
+- Admin and Super Admin see full system analytics.
+- Editors see their own authored page/blog stats where practical.
+- Reviewers see review queue content.
+- Publishers see approved content waiting for publish.
+- Viewers get a read-only content overview.
+
+Admin UI:
+
+- `/dashboard` shows responsive stat cards, quick actions, recent activity, recent pages, recent blogs, recent leads, and system overview cards.
+- Reusable components live in `apps/admin-web/src/components/dashboard`.
+- Sidebar navigation now includes Dashboard, Pages, Blogs, Categories, Tags, Media, Workflow, AI Usage, Chatbot, Leads, Notifications, and Settings.
+
+Manual test:
+
+```bash
+npm run api:build
+npm run admin:build
+npm run api:dev
+npm run admin:dev
+```
+
+Then sign in and open `http://localhost:3000/dashboard`.

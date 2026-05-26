@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import {
   Bell,
+  ChevronDown,
   ClipboardCheck,
   FileText,
   FolderTree,
@@ -13,8 +14,11 @@ import {
   LogOut,
   MessageCircle,
   Newspaper,
+  Settings,
   Sparkles,
   Tags,
+  UserRound,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUnreadNotificationCount } from '@/hooks/use-notifications';
@@ -29,15 +33,18 @@ interface AppShellProps {
 }
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/pages', label: 'Pages', icon: FileText },
   { href: '/blogs', label: 'Blogs', icon: Newspaper },
-  { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
-  { href: '/ai/usage', label: 'AI Usage', icon: Sparkles },
-  { href: '/chatbot', label: 'Chatbot', icon: MessageCircle },
-  { href: '/media', label: 'Media', icon: Images },
   { href: '/categories', label: 'Categories', icon: FolderTree },
   { href: '/tags', label: 'Tags', icon: Tags },
+  { href: '/media', label: 'Media', icon: Images },
+  { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
+  { href: '/ai/usage', label: 'AI Usage', icon: Sparkles },
+  { href: '/chatbot', label: 'Chatbot', icon: MessageCircle, exact: true },
+  { href: '/chatbot/leads', label: 'Leads', icon: Users },
+  { href: '/notifications', label: 'Notifications', icon: Bell },
+  { href: '/chatbot/settings', label: 'Settings', icon: Settings },
 ];
 
 export function AppShell({
@@ -48,6 +55,7 @@ export function AppShell({
   sectionTitle = 'Dashboard',
 }: AppShellProps) {
   const pathname = usePathname();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const unreadCountQuery = useUnreadNotificationCount();
   const unreadCount = unreadCountQuery.data?.count ?? 0;
 
@@ -63,8 +71,9 @@ export function AppShell({
         <nav className="space-y-1 p-3">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const active = item.exact
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link
@@ -105,19 +114,38 @@ export function AppShell({
                 </span>
               ) : null}
             </Link>
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium">{user.name}</p>
-              <p className="text-xs text-muted-foreground">{user.role}</p>
+            <div className="relative">
+              <button
+                className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card px-3 text-sm transition-colors hover:bg-muted"
+                onClick={() => setUserMenuOpen((isOpen) => !isOpen)}
+                type="button"
+              >
+                <UserRound className="h-4 w-4" />
+                <span className="hidden sm:inline">{user.name}</span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </button>
+              {userMenuOpen ? (
+                <div className="absolute right-0 top-12 z-20 w-72 rounded-md border border-border bg-card p-3 shadow-lg">
+                  <div className="border-b border-border pb-3">
+                    <p className="text-sm font-medium">{user.name}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <p className="mt-2 inline-flex rounded-md border border-border bg-muted px-2 py-1 text-xs font-medium">
+                      {user.role}
+                    </p>
+                  </div>
+                  <Button
+                    className="mt-3 w-full"
+                    disabled={isLoggingOut}
+                    onClick={onLogout}
+                    type="button"
+                    variant="outline"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {isLoggingOut ? 'Signing out' : 'Logout'}
+                  </Button>
+                </div>
+              ) : null}
             </div>
-            <Button
-              disabled={isLoggingOut}
-              onClick={onLogout}
-              type="button"
-              variant="outline"
-            >
-              <LogOut className="h-4 w-4" />
-              {isLoggingOut ? 'Signing out' : 'Logout'}
-            </Button>
           </div>
         </header>
         <main className="p-4 lg:p-8">{children}</main>

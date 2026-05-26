@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { validateEnvironment } from './config/env.validation';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -25,6 +26,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     AuthModule,
     BlogsModule,
     ChatbotModule,
+    DashboardModule,
     HealthModule,
     MediaModule,
     NotificationsModule,
