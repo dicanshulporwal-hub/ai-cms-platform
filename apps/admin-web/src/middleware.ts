@@ -10,6 +10,8 @@ export function middleware(request: NextRequest) {
       pathname.startsWith('/pages') ||
       pathname.startsWith('/blogs') ||
       pathname.startsWith('/workflow') ||
+      pathname.startsWith('/ai') ||
+      pathname.startsWith('/chatbot') ||
       pathname.startsWith('/notifications') ||
       pathname.startsWith('/media') ||
       pathname.startsWith('/categories') ||
@@ -35,6 +37,8 @@ export const config = {
     '/pages/:path*',
     '/blogs/:path*',
     '/workflow/:path*',
+    '/ai/:path*',
+    '/chatbot/:path*',
     '/notifications/:path*',
     '/media/:path*',
     '/categories/:path*',

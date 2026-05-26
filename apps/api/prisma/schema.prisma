@@ -294,6 +294,11 @@ model AuditLog {
 model AIUsageLog {
   id               String    @id @default(cuid())
   provider         String    @db.VarChar(191)
+  action           String    @default("unknown") @db.VarChar(191)
+  model            String?   @db.VarChar(191)
+  promptSummary    String?   @db.Text
+  tokenInput       Int       @default(0)
+  tokenOutput      Int       @default(0)
   modelName        String?   @db.VarChar(191)
   feature          String    @db.VarChar(191)
   promptTokens     Int       @default(0)
@@ -314,20 +319,23 @@ model AIUsageLog {
   @@index([pageId])
   @@index([blogPostId])
   @@index([provider])
+  @@index([action])
   @@index([feature])
   @@map("ai_usage_logs")
 }
 
 model ChatbotConversation {
-  id        String           @id @default(cuid())
-  sessionId String           @unique @db.VarChar(191)
-  visitorId String?          @db.VarChar(191)
-  leadId    String?          @unique
-  lead      Lead?            @relation(fields: [leadId], references: [id], onDelete: SetNull)
-  messages  ChatbotMessage[]
-  endedAt   DateTime?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id         String           @id @default(cuid())
+  sessionId  String           @unique @db.VarChar(191)
+  visitorId  String?          @db.VarChar(191)
+  sourcePage String?          @db.VarChar(2048)
+  startedAt  DateTime         @default(now())
+  leadId     String?          @unique
+  lead       Lead?            @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  messages   ChatbotMessage[]
+  endedAt    DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   @@index([visitorId])
   @@map("chatbot_conversations")
@@ -356,6 +364,7 @@ model Lead {
   company      String?              @db.VarChar(191)
   message      String?              @db.Text
   source       String?              @db.VarChar(191)
+  sourcePage   String?              @db.VarChar(2048)
   status       String               @default("NEW") @db.VarChar(50)
   assignedToId String?
   assignedTo   User?                @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
@@ -367,4 +376,17 @@ model Lead {
   @@index([email])
   @@index([status])
   @@map("leads")
+}
+
+model ChatbotSettings {
+  id                 String   @id @default(cuid())
+  isEnabled          Boolean  @default(true)
+  greetingMessage    String   @default("Hi! How can I help you today?") @db.Text
+  fallbackMessage    String   @default("I do not have that information yet. Please contact support and we will help you.") @db.Text
+  leadCaptureEnabled Boolean  @default(true)
+  supportEmail       String?  @db.VarChar(191)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("chatbot_settings")
 }

@@ -3,6 +3,9 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Loader2, Send, Stamp, UploadCloud } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { AIContentPanel } from '@/components/ai/ai-content-panel';
+import { AISeoPanel } from '@/components/ai/ai-seo-panel';
+import { canUseAiTools } from '@/components/ai/ai-utils';
 import { TiptapEditor } from '@/components/pages/tiptap-editor';
 import { StatusBadge } from '@/components/pages/status-badge';
 import { Button } from '@/components/ui/button';
@@ -123,6 +126,10 @@ function toFormInput(blog?: CmsBlog): BlogFormInput {
   };
 }
 
+function appendHtml(currentContent: string, html: string) {
+  return [currentContent.trim(), html.trim()].filter(Boolean).join('\n');
+}
+
 export function BlogForm({ initialBlog, user }: BlogFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<BlogFormInput>(() => toFormInput(initialBlog));
@@ -138,6 +145,7 @@ export function BlogForm({ initialBlog, user }: BlogFormProps) {
 
   const canEdit = canEditBlog(user, initialBlog);
   const canSubmit = canSubmitBlog(user, initialBlog);
+  const canUseAi = canUseAiTools(user.role);
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const isActionPending =
     submitMutation.isPending ||
@@ -369,6 +377,20 @@ export function BlogForm({ initialBlog, user }: BlogFormProps) {
         </CardContent>
       </Card>
 
+      {canUseAi ? (
+        <AIContentPanel
+          applyDisabled={!canEdit || isSaving}
+          contentType="BLOG"
+          currentContent={form.content}
+          disabled={isSaving}
+          onApplySummary={(summary) => updateField('excerpt', summary)}
+          onInsertContent={(html) =>
+            updateField('content', appendHtml(form.content, html))
+          }
+          onReplaceContent={(html) => updateField('content', html)}
+        />
+      ) : null}
+
       <Card>
         <CardHeader>
           <CardTitle>SEO and media</CardTitle>
@@ -425,6 +447,21 @@ export function BlogForm({ initialBlog, user }: BlogFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      {canUseAi ? (
+        <AISeoPanel
+          applyDisabled={!canEdit || isSaving}
+          content={form.content}
+          disabled={isSaving}
+          metaDescription={form.metaDescription ?? ''}
+          metaTitle={form.metaTitle ?? ''}
+          onApplyMetaDescription={(value) =>
+            updateField('metaDescription', value)
+          }
+          onApplyMetaTitle={(value) => updateField('metaTitle', value)}
+          title={form.title}
+        />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
         {canEdit ? (

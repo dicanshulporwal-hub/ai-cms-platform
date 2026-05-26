@@ -541,3 +541,125 @@ curl -X POST http://localhost:3001/workflow/pages/PAGE_ID/request-changes \
   -H "Content-Type: application/json" \
   -d "{\"comment\":\"Please tighten the intro.\"}"
 ```
+# AI Content And SEO Assistant
+
+The CMS now includes authenticated AI tools for page and blog editors. The NestJS API exposes `/ai/generate-content`, `/ai/rewrite-content`, `/ai/summarize-content`, `/ai/generate-faq`, `/ai/generate-seo`, `/ai/improve-seo`, `/ai/generate-alt-text`, and `/ai/usage`.
+
+Configure AI locally with these environment variables:
+
+```env
+AI_PROVIDER=openai
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
+AI_MAX_TOKENS=1200
+AI_TEMPERATURE=0.4
+```
+
+Supported providers are `openai` and `gemini`. To switch the whole AI layer to Google Gemini, set:
+
+```env
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your-google-gemini-api-key
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+To switch back to OpenAI, set:
+
+```env
+AI_PROVIDER=openai
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_MODEL=gpt-4o-mini
+```
+
+Do not expose `OPENAI_API_KEY` to the frontend. The admin UI calls Next.js API routes under `/api/ai/*`, and those routes forward authenticated requests to the NestJS backend with the existing JWT cookie.
+
+Do not expose `GEMINI_API_KEY` to the frontend either. Gemini uses the same backend provider abstraction, so the AI content assistant, AI SEO assistant, and chatbot all use the configured provider without frontend changes.
+
+Every AI request is logged in `AIUsageLog` with the user, action, provider, model, prompt summary, token input/output, and created date. Admin and Super Admin users can view all logs at `/ai/usage`; other allowed CMS roles see their own logs.
+
+Allowed AI roles are Editor, Reviewer, Publisher, Admin, and Super Admin. AI output is never auto-published; users can copy, insert, replace after confirmation, or apply generated SEO metadata manually.
+
+Manual API test after signing in:
+
+```bash
+curl -X POST http://localhost:3001/ai/generate-seo \
+  -H "Authorization: Bearer <JWT>" \
+  -H "Content-Type: application/json" \
+  -d "{\"title\":\"AI CMS\",\"content\":\"<p>AI-first content operations.</p>\"}"
+```
+
+Manual admin UI test:
+
+1. Start the API and admin web app.
+2. Sign in as `admin@example.com`.
+3. Open `/pages/new` or `/blogs/new`.
+4. Use the AI content assistant to generate or rewrite content.
+5. Use the AI SEO assistant to generate metadata.
+6. Open `/ai/usage` to confirm the request was logged.
+
+# AI Chatbot And Lead Capture
+
+The CMS now includes an MVP public chatbot backed by published CMS content and simple keyword/context retrieval. It does not use Qdrant, Pinecone, or another vector database yet.
+
+Backend module:
+
+- `apps/api/src/chatbot`: NestJS chatbot module, DTOs, public APIs, admin APIs, knowledge retrieval, settings, analytics, and lead capture.
+- Public APIs:
+  - `POST /chatbot/message`
+  - `POST /chatbot/lead`
+  - `GET /chatbot/public-settings`
+- Admin APIs:
+  - `GET /chatbot/conversations`
+  - `GET /chatbot/conversations/:id`
+  - `GET /chatbot/leads`
+  - `GET /chatbot/settings`
+  - `PUT /chatbot/settings`
+  - `GET /chatbot/analytics`
+
+Public website module:
+
+- `apps/public-web` runs on port `3002`.
+- The floating chatbot widget is mounted globally in the public layout.
+- The browser calls public-web routes under `/api/chatbot/*`, and those routes forward to the NestJS backend with `PUBLIC_API_BASE_URL`.
+
+Admin screens:
+
+- `/chatbot`: analytics dashboard.
+- `/chatbot/conversations`: conversation list and search.
+- `/chatbot/conversations/:id`: full message transcript.
+- `/chatbot/leads`: captured lead list and search.
+- `/chatbot/settings`: enable/disable chatbot, edit greeting/fallback, enable lead capture, and set support email.
+
+Knowledge retrieval:
+
+- Only `PUBLISHED` pages and blogs are used.
+- HTML is stripped before content is sent to the AI provider.
+- The visitor question is tokenized and matched against published title/excerpt/content.
+- The top matching sources are trimmed into a small context prompt.
+- If no content matches, the configured fallback message is returned.
+
+Lead capture:
+
+- The chatbot suggests lead capture when it cannot answer from content or when the visitor asks about contact, demo, pricing, sales, or support.
+- Leads store name, email, optional phone, message, source page, and a conversation link.
+- Lead capture creates an audit log entry.
+
+Future RAG upgrade path:
+
+- Replace the keyword retrieval method in `ChatbotService` with a retrieval provider interface.
+- Add a Qdrant/Pinecone implementation that indexes published page/blog chunks.
+- Keep the public `/chatbot/message` contract unchanged while swapping the retrieval source.
+
+Manual chatbot test:
+
+```bash
+docker compose up -d mysql redis
+npm run api:prisma:deploy
+npm run prisma:generate
+npm run api:dev
+npm run public:dev
+```
+
+Then open `http://localhost:3002`, click the floating chat button, ask a question that matches a published page or blog, and submit the lead form when prompted.

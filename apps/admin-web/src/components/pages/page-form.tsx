@@ -3,6 +3,9 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Loader2, Send, Stamp, UploadCloud } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { AIContentPanel } from '@/components/ai/ai-content-panel';
+import { AISeoPanel } from '@/components/ai/ai-seo-panel';
+import { canUseAiTools } from '@/components/ai/ai-utils';
 import { TiptapEditor } from '@/components/pages/tiptap-editor';
 import { StatusBadge } from '@/components/pages/status-badge';
 import { Button } from '@/components/ui/button';
@@ -117,6 +120,10 @@ function toFormInput(page?: CmsPage): PageFormInput {
   };
 }
 
+function appendHtml(currentContent: string, html: string) {
+  return [currentContent.trim(), html.trim()].filter(Boolean).join('\n');
+}
+
 export function PageForm({ initialPage, user }: PageFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<PageFormInput>(() => toFormInput(initialPage));
@@ -130,6 +137,7 @@ export function PageForm({ initialPage, user }: PageFormProps) {
 
   const canEdit = canEditPage(user, initialPage);
   const canSubmit = canSubmitPage(user, initialPage);
+  const canUseAi = canUseAiTools(user.role);
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const isActionPending =
     submitMutation.isPending ||
@@ -303,6 +311,20 @@ export function PageForm({ initialPage, user }: PageFormProps) {
         </CardContent>
       </Card>
 
+      {canUseAi ? (
+        <AIContentPanel
+          applyDisabled={!canEdit || isSaving}
+          contentType="PAGE"
+          currentContent={form.content}
+          disabled={isSaving}
+          onApplySummary={(summary) => updateField('excerpt', summary)}
+          onInsertContent={(html) =>
+            updateField('content', appendHtml(form.content, html))
+          }
+          onReplaceContent={(html) => updateField('content', html)}
+        />
+      ) : null}
+
       <Card>
         <CardHeader>
           <CardTitle>SEO and media</CardTitle>
@@ -359,6 +381,21 @@ export function PageForm({ initialPage, user }: PageFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      {canUseAi ? (
+        <AISeoPanel
+          applyDisabled={!canEdit || isSaving}
+          content={form.content}
+          disabled={isSaving}
+          metaDescription={form.metaDescription ?? ''}
+          metaTitle={form.metaTitle ?? ''}
+          onApplyMetaDescription={(value) =>
+            updateField('metaDescription', value)
+          }
+          onApplyMetaTitle={(value) => updateField('metaTitle', value)}
+          title={form.title}
+        />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
         {canEdit ? (

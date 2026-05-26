@@ -11,7 +11,9 @@ import {
   Images,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   Newspaper,
+  Sparkles,
   Tags,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,6 +33,8 @@ const navItems = [
   { href: '/pages', label: 'Pages', icon: FileText },
   { href: '/blogs', label: 'Blogs', icon: Newspaper },
   { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
+  { href: '/ai/usage', label: 'AI Usage', icon: Sparkles },
+  { href: '/chatbot', label: 'Chatbot', icon: MessageCircle },
   { href: '/media', label: 'Media', icon: Images },
   { href: '/categories', label: 'Categories', icon: FolderTree },
   { href: '/tags', label: 'Tags', icon: Tags },

@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AiModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
 import { BlogsModule } from './blogs/blogs.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 import { validateEnvironment } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
@@ -19,8 +21,10 @@ import { WorkflowModule } from './workflow/workflow.module';
       isGlobal: true,
       validate: validateEnvironment,
     }),
+    AiModule,
     AuthModule,
     BlogsModule,
+    ChatbotModule,
     HealthModule,
     MediaModule,
     NotificationsModule,
