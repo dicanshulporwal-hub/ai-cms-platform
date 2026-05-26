@@ -13,6 +13,7 @@ import { PagesModule } from './pages/pages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RolesModule } from './roles/roles.module';
 import { SettingsModule } from './settings/settings.module';
+import { TemplatesModule } from './templates/templates.module';
 import { UsersModule } from './users/users.module';
 import { WorkflowModule } from './workflow/workflow.module';
 
@@ -35,6 +36,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     PrismaModule,
     RolesModule,
     SettingsModule,
+    TemplatesModule,
     UsersModule,
     WorkflowModule,
   ],

@@ -33,6 +33,43 @@ enum UserStatus {
   INACTIVE
 }
 
+enum TemplateStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum TemplateType {
+  GOVERNMENT
+  CORPORATE
+  BLOG
+  LANDING_PAGE
+  CUSTOM
+}
+
+enum ComplianceStatus {
+  PASS
+  WARNING
+  FAIL
+  NOT_CHECKED
+}
+
+enum ComplianceSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AITemplateGenerationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  SAVED_AS_TEMPLATE
+}
+
 model User {
   id                 String            @id @default(cuid())
   email              String            @unique @db.VarChar(191)
@@ -410,4 +447,90 @@ model ChatbotSettings {
   updatedAt          DateTime @updatedAt
 
   @@map("chatbot_settings")
+}
+
+model WebsiteTemplate {
+  id              String           @id @default(cuid())
+  name            String           @db.VarChar(255)
+  slug            String           @unique @db.VarChar(191)
+  description     String?          @db.Text
+  version         String           @db.VarChar(50)
+  templateType    TemplateType     @default(CUSTOM)
+  status          TemplateStatus   @default(DRAFT)
+  isActive        Boolean          @default(false)
+  thumbnailUrl    String?          @db.VarChar(2048)
+  configJson      Json?            @db.Json
+  complianceJson  Json?            @db.Json
+  fileKey         String?          @db.VarChar(500)
+  fileUrl         String?          @db.VarChar(2048)
+  storageProvider String           @default("local") @db.VarChar(50)
+  uploadedById    String?
+  deletedAt       DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  versions        TemplateVersion[]
+  complianceChecks TemplateComplianceCheck[]
+
+  @@index([status])
+  @@index([isActive])
+  @@index([templateType])
+  @@index([deletedAt])
+  @@map("website_templates")
+}
+
+model TemplateVersion {
+  id             String          @id @default(cuid())
+  templateId     String
+  template       WebsiteTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  version        String          @db.VarChar(50)
+  fileKey        String?         @db.VarChar(500)
+  fileUrl        String?         @db.VarChar(2048)
+  configJson     Json?           @db.Json
+  complianceJson Json?           @db.Json
+  uploadedById   String?
+  createdAt      DateTime        @default(now())
+
+  @@index([templateId])
+  @@map("template_versions")
+}
+
+model TemplateComplianceCheck {
+  id             String             @id @default(cuid())
+  templateId     String
+  template       WebsiteTemplate    @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  checkKey       String             @db.VarChar(191)
+  checkTitle     String             @db.VarChar(255)
+  checkCategory  String             @db.VarChar(100)
+  status         ComplianceStatus   @default(NOT_CHECKED)
+  severity       ComplianceSeverity @default(MEDIUM)
+  message        String?            @db.Text
+  recommendation String?            @db.Text
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([templateId])
+  @@index([checkCategory])
+  @@index([status])
+  @@map("template_compliance_checks")
+}
+
+model AITemplateGenerationJob {
+  id                String                      @id @default(cuid())
+  screenshotUrl     String?                     @db.VarChar(2048)
+  status            AITemplateGenerationStatus  @default(PENDING)
+  prompt            String?                     @db.Text
+  templateType      TemplateType                @default(GOVERNMENT)
+  aiProvider        String?                     @db.VarChar(100)
+  aiModel           String?                     @db.VarChar(100)
+  generatedConfigJson Json?                     @db.Json
+  generatedHtml     String?                     @db.LongText
+  generatedCss      String?                     @db.LongText
+  errorMessage      String?                     @db.Text
+  createdById       String?
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
+
+  @@index([status])
+  @@index([createdById])
+  @@map("ai_template_generation_jobs")
 }

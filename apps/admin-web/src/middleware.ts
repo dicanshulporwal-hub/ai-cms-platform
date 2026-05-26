@@ -18,6 +18,7 @@ export function middleware(request: NextRequest) {
       pathname.startsWith('/tags') ||
       pathname.startsWith('/users') ||
       pathname.startsWith('/roles') ||
+      pathname.startsWith('/templates') ||
       pathname.startsWith('/settings')) &&
     !token
   ) {
@@ -48,6 +49,7 @@ export const config = {
     '/tags/:path*',
     '/users/:path*',
     '/roles/:path*',
+    '/templates/:path*',
     '/settings/:path*',
     '/login',
   ],

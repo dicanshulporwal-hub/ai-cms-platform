@@ -10,6 +10,7 @@ import {
   FileText,
   FolderTree,
   Images,
+  Layout,
   LayoutDashboard,
   LogOut,
   MessageCircle,
@@ -55,6 +56,7 @@ const navItems: NavItem[] = [
   { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/users', label: 'Users', icon: Users, adminOnly: true },
   { href: '/roles', label: 'Roles', icon: Shield, adminOnly: true },
+  { href: '/templates', label: 'Templates', icon: Layout, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
 
