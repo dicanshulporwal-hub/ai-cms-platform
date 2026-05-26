@@ -58,7 +58,7 @@ export class TemplatesController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', { storage: undefined }))
   upload(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.templatesService.upload(file, user);

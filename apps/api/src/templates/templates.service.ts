@@ -46,7 +46,7 @@ export class TemplatesService {
   }
 
   async upload(
-    file: Express.Multer.File,
+    file: { buffer: Buffer; originalname: string; size: number },
     user: AuthenticatedUser,
   ) {
     if (!file) throw new BadRequestException('No file uploaded.');
