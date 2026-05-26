@@ -12,6 +12,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { PagesModule } from './pages/pages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RolesModule } from './roles/roles.module';
+import { SettingsModule } from './settings/settings.module';
 import { UsersModule } from './users/users.module';
 import { WorkflowModule } from './workflow/workflow.module';
 
@@ -33,6 +34,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     PagesModule,
     PrismaModule,
     RolesModule,
+    SettingsModule,
     UsersModule,
     WorkflowModule,
   ],

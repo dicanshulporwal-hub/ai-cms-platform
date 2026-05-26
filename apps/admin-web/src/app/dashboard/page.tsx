@@ -53,18 +53,21 @@ function getQuickActions(user: AuthUser) {
         href: '/pages/new',
         icon: FilePlus2,
         title: 'Create Page',
+        variant: 'default' as const,
       },
       {
         description: 'Write a new blog post draft.',
         href: '/blogs/new',
         icon: PenLine,
         title: 'Create Blog',
+        variant: 'default' as const,
       },
       {
         description: 'Add images to the media library.',
         href: '/media',
         icon: ImageUp,
         title: 'Upload Media',
+        variant: 'default' as const,
       },
     );
   }
@@ -75,6 +78,7 @@ function getQuickActions(user: AuthUser) {
       href: '/workflow',
       icon: Send,
       title: 'View Workflow',
+      variant: 'default' as const,
     });
   }
 
@@ -84,6 +88,7 @@ function getQuickActions(user: AuthUser) {
       href: '/chatbot/leads',
       icon: Users,
       title: 'View Chatbot Leads',
+      variant: 'default' as const,
     });
   }
 
@@ -92,6 +97,7 @@ function getQuickActions(user: AuthUser) {
     href: '/ai/usage',
     icon: Sparkles,
     title: 'AI Usage',
+    variant: 'default' as const,
   });
 
   return actions;
@@ -108,21 +114,21 @@ function DashboardContent({ user }: { user: AuthUser }) {
 
   if (dashboardQuery.isError || !summary) {
     return (
-      <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-        <p className="font-medium">Dashboard could not be loaded.</p>
-        <p className="mt-1">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-6 py-8 text-center">
+        <p className="font-medium text-destructive">Dashboard could not be loaded</p>
+        <p className="mt-2 text-sm text-destructive/80">
           {dashboardQuery.error?.message ??
             'Please refresh or sign in with a role that can view dashboard analytics.'}
         </p>
         <Button
-          className="mt-3"
+          className="mt-4"
           onClick={() => dashboardQuery.refetch()}
           type="button"
           variant="outline"
         >
           <Loader2
             className={[
-              'h-4 w-4',
+              'h-4 w-4 mr-2',
               dashboardQuery.isFetching ? 'animate-spin' : '',
             ].join(' ')}
           />
@@ -134,19 +140,23 @@ function DashboardContent({ user }: { user: AuthUser }) {
 
   return (
     <div className="space-y-6">
+      {/* Welcome header */}
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Welcome back, {user.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Welcome back, {user.name}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {getScopeLabel(summary.scope)}
           </p>
         </div>
-        <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
-          <p className="text-muted-foreground">Role</p>
-          <p className="font-medium">{user.role}</p>
+        <div className="rounded-lg border border-border bg-card px-4 py-3 text-sm shadow-sm">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Role</p>
+          <p className="mt-1 font-medium text-foreground">{user.role}</p>
         </div>
       </section>
 
+      {/* Stats grid */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         <StatCard
           description="Active, non-archived pages"
@@ -181,8 +191,10 @@ function DashboardContent({ user }: { user: AuthUser }) {
         <StatCard icon={Users} label="Leads Captured" value={summary.totalLeads} />
       </section>
 
+      {/* Quick Actions */}
       <DashboardSection
         description="Common next steps based on your current role."
+        icon={Sparkles}
         title="Quick Actions"
       >
         {quickActions.length ? (
@@ -194,6 +206,7 @@ function DashboardContent({ user }: { user: AuthUser }) {
                 icon={action.icon}
                 key={action.title}
                 title={action.title}
+                variant={action.variant}
               />
             ))}
           </div>
@@ -202,9 +215,11 @@ function DashboardContent({ user }: { user: AuthUser }) {
         )}
       </DashboardSection>
 
+      {/* Recent sections grid */}
       <div className="grid gap-6 xl:grid-cols-2">
         <DashboardSection
           description="Latest changes captured by audit logs."
+          icon={FileText}
           title="Recent Activity"
         >
           <RecentActivityList activities={summary.recentActivities} />
@@ -212,6 +227,7 @@ function DashboardContent({ user }: { user: AuthUser }) {
 
         <DashboardSection
           description="Latest captured chatbot leads."
+          icon={Users}
           title="Recent Leads"
         >
           <RecentLeadsList leads={summary.recentLeads} />
@@ -219,30 +235,36 @@ function DashboardContent({ user }: { user: AuthUser }) {
 
         <DashboardSection
           description="Recently updated pages in your dashboard scope."
+          icon={FileText}
           title="Recent Pages"
         >
           <RecentContentList
             basePath="/pages"
             emptyMessage="No pages found for this scope."
+            icon={FileText}
             items={summary.recentPages}
           />
         </DashboardSection>
 
         <DashboardSection
           description="Recently updated blogs in your dashboard scope."
+          icon={Newspaper}
           title="Recent Blogs"
         >
           <RecentContentList
             basePath="/blogs"
             emptyMessage="No blogs found for this scope."
+            icon={Newspaper}
             items={summary.recentBlogs}
           />
         </DashboardSection>
       </div>
 
+      {/* System Overview - Admin only */}
       {isAdmin(user) ? (
         <DashboardSection
           description="System-level counters visible to Admin and Super Admin roles."
+          icon={Bot}
           title="System Overview"
         >
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

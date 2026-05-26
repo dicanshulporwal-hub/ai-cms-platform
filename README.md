@@ -666,39 +666,301 @@ Then open `http://localhost:3002`, click the floating chat button, ask a questio
 
 # Admin Dashboard Analytics
 
-The admin dashboard now uses a NestJS dashboard module to provide role-aware CMS analytics.
+The admin dashboard provides role-aware CMS analytics with a polished, responsive UI.
 
-Backend:
+## Backend APIs
 
-- `GET /dashboard/summary`
-- `GET /dashboard/content-stats`
-- `GET /dashboard/ai-stats`
-- `GET /dashboard/chatbot-stats`
-- `GET /dashboard/recent-activity`
+All dashboard endpoints require JWT authentication and are protected by role guards.
 
-The summary response includes page/blog counts, media and user counts, pending workflow items, AI request totals, chatbot conversations, leads, recent audit activity, recent pages, recent blogs, and recent leads.
-
-Role visibility:
-
-- Admin and Super Admin see full system analytics.
-- Editors see their own authored page/blog stats where practical.
-- Reviewers see review queue content.
-- Publishers see approved content waiting for publish.
-- Viewers get a read-only content overview.
-
-Admin UI:
-
-- `/dashboard` shows responsive stat cards, quick actions, recent activity, recent pages, recent blogs, recent leads, and system overview cards.
-- Reusable components live in `apps/admin-web/src/components/dashboard`.
-- Sidebar navigation now includes Dashboard, Pages, Blogs, Categories, Tags, Media, Workflow, AI Usage, Chatbot, Leads, Notifications, and Settings.
-
-Manual test:
-
-```bash
-npm run api:build
-npm run admin:build
-npm run api:dev
-npm run admin:dev
+```text
+GET /dashboard/summary        - Full dashboard summary
+GET /dashboard/content-stats  - Page and blog statistics
+GET /dashboard/ai-stats       - AI usage statistics
+GET /dashboard/chatbot-stats  - Chatbot and lead statistics
+GET /dashboard/recent-activity - Recent audit log entries
 ```
 
-Then sign in and open `http://localhost:3000/dashboard`.
+## Dashboard Summary Response
+
+```json
+{
+  "totalPages": 25,
+  "publishedPages": 15,
+  "draftPages": 8,
+  "submittedPages": 2,
+  "totalBlogs": 30,
+  "publishedBlogs": 20,
+  "draftBlogs": 5,
+  "submittedBlogs": 5,
+  "totalMedia": 100,
+  "totalUsers": 12,
+  "pendingWorkflowItems": 7,
+  "totalAIRequests": 150,
+  "totalChatbotConversations": 45,
+  "totalLeads": 23,
+  "recentActivities": [...],
+  "recentPages": [...],
+  "recentBlogs": [...],
+  "recentLeads": [...],
+  "scope": "system"
+}
+```
+
+## Role-Based Dashboard Visibility
+
+| Role | Scope | What They See |
+|------|-------|---------------|
+| Super Admin | `system` | Full system analytics, all users, all leads |
+| Admin | `system` | Full system analytics, all users, all leads |
+| Editor | `own_content` | Only their authored pages/blogs, their AI usage |
+| Reviewer | `review_queue` | Content submitted for review, pending items |
+| Publisher | `publish_queue` | Approved content waiting to publish |
+| Viewer | `read_only` | Read-only content overview |
+
+## Frontend Components
+
+All dashboard components are reusable and located in `apps/admin-web/src/components/dashboard/`:
+
+- **StatCard** - Metric card with icon, label, value, and optional trend
+- **DashboardSection** - Card wrapper with icon, title, description
+- **QuickActionCard** - Clickable action card for common tasks
+- **RecentActivityList** - Formatted list of audit log entries
+- **RecentContentList** - List of recent pages/blogs with status badges
+- **RecentLeadsList** - List of recently captured leads
+- **EmptyState** - Empty data placeholder with optional icon
+- **LoadingSkeleton** - Animated loading placeholder
+
+## Quick Actions
+
+Quick actions are role-based shortcuts:
+
+- **Editor+**: Create Page, Create Blog, Upload Media
+- **Reviewer/Publisher+**: View Workflow
+- **Admin+**: View Chatbot Leads
+- **All roles**: AI Usage
+
+## Manual Testing
+
+1. Start services:
+   ```bash
+   docker compose up -d mysql redis
+   npm run api:dev
+   npm run admin:dev
+   ```
+
+2. Login as different roles to test scope visibility:
+   - Super Admin: `admin@example.com` / `Admin@12345`
+   - Create test users with different roles
+
+3. Navigate to `http://localhost:3000/dashboard`
+
+4. Verify:
+   - Stats cards show correct counts
+   - Quick actions match role permissions
+   - Recent sections show appropriate data
+   - System Overview only visible to Admin+
+
+# User Management and Settings
+
+The CMS includes user management and system settings modules for Super Admin and Admin users.
+
+## User Management
+
+Backend endpoints:
+
+```text
+GET    /users                      List users (paginated, searchable, filterable)
+GET    /users/:id                  Get user by ID
+POST   /users                      Create new user
+PUT    /users/:id                  Update user details
+PATCH  /users/:id/status           Activate/deactivate user
+DELETE /users/:id                  Soft delete user
+```
+
+User fields:
+
+```text
+id        string (auto-generated CUID)
+name      string (required)
+email     string (required, unique)
+password  string (required on create, min 8 chars, hashed with bcrypt)
+roleId    string (required)
+status    enum: ACTIVE | INACTIVE (default: ACTIVE)
+createdAt DateTime
+updatedAt DateTime
+```
+
+Role hierarchy and permissions:
+
+```text
+Super Admin  - Full access to all users and settings
+Admin        - Can create/manage Editor, Reviewer, Publisher, Viewer users
+Editor       - Can create/edit content
+Reviewer     - Can review and approve content
+Publisher    - Can publish approved content
+Viewer       - Read-only access
+```
+
+User creation rules:
+
+- Super Admin can create any role
+- Admin can create Editor, Reviewer, Publisher, Viewer (not Super Admin or Admin)
+- Email must be unique across the platform
+- Password is hashed before storage
+- Users cannot delete or deactivate their own account
+- Admin cannot edit or delete Super Admin users
+
+Admin screens:
+
+```text
+/users           User list with search, filter by role/status
+/users/new       Create new user form
+/users/:id/edit  Edit user form
+```
+
+## Role Permissions
+
+Backend endpoints:
+
+```text
+GET  /roles                    List all roles
+GET  /roles/:id                Get role by ID
+PUT  /roles/:id/permissions    Update role permissions (Super Admin only)
+```
+
+Role permissions are stored as JSON and can be configured by Super Admin users. The permissions object structure:
+
+```json
+{
+  "blogs": ["read", "create", "update", "delete"],
+  "pages": ["read", "create", "update", "delete"],
+  "media": ["read", "upload", "delete"],
+  "users": ["read"],
+  "settings": ["read"]
+}
+```
+
+## System Settings
+
+Backend endpoints:
+
+```text
+GET  /settings     Get all settings
+PUT  /settings     Update settings
+```
+
+Settings fields:
+
+```text
+siteName              string     Site display name
+siteDescription       string?    Site description/summary
+siteLogo              string?    URL to site logo
+defaultMetaTitle      string?    Default SEO title (max 60 chars)
+defaultMetaDescription string?   Default SEO description (max 160 chars)
+supportEmail          string?    Support contact email
+chatbotEnabled        boolean    Enable/disable public chatbot
+aiEnabled             boolean    Enable/disable AI features
+maintenanceMode       boolean    Put site in maintenance mode
+```
+
+Critical settings (Super Admin only):
+
+```text
+maintenanceMode
+aiEnabled
+chatbotEnabled
+```
+
+Admin users can update non-critical settings (site name, description, logo, SEO defaults, support email).
+
+Admin screen:
+
+```text
+/settings    Site settings form with all configuration options
+```
+
+## Audit Logs
+
+All user and settings changes are logged to the audit log:
+
+```text
+user.created           New user created
+user.updated           User details updated
+user.status_changed    User activated/deactivated
+user.deleted           User soft deleted
+role.permissions_updated  Role permissions changed
+settings.updated       Settings changed
+```
+
+## Manual Testing
+
+### Test User Creation
+
+1. Login as Super Admin (`admin@example.com` / `Admin@12345`)
+2. Open `http://localhost:3000/users`
+3. Click "Create User"
+4. Fill in name, email, password, and select a role
+5. Save and verify the user appears in the list
+6. Try to create a user with the same email (should fail)
+7. Login as the new user to verify credentials work
+
+### Test User Editing
+
+1. As Admin, try to edit a user you created
+2. Verify you cannot edit Super Admin users
+3. Verify you cannot edit your own account from the users page
+4. Test role assignment restrictions (Admin cannot assign Super Admin role)
+
+### Test User Status Change
+
+1. Deactivate a user from the users list
+2. Try to login as that user (should fail with "inactive" message)
+3. Reactivate the user
+4. Login should work again
+
+### Test User Deletion
+
+1. Try to delete your own account (should be blocked)
+2. As Admin, try to delete a Super Admin (should be blocked)
+3. Delete a user you created
+4. Verify soft delete (user removed from list but database record has deletedAt)
+
+### Test Settings Update
+
+1. As Super Admin, open `http://localhost:3000/settings`
+2. Update site name and description
+3. Toggle maintenance mode, AI enabled, chatbot enabled
+4. Save and verify changes persist
+5. Login as Admin
+6. Verify you can edit non-critical settings
+7. Verify critical toggles are disabled for Admin
+
+### Test API Directly
+
+```bash
+# List users
+curl http://localhost:3001/users \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Create user
+curl -X POST http://localhost:3001/users \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"test@example.com","password":"TestPass123","roleId":"ROLE_CUID"}'
+
+# Update user status
+curl -X PATCH http://localhost:3001/users/USER_CUID/status \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"INACTIVE"}'
+
+# Get settings
+curl http://localhost:3001/settings \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Update settings
+curl -X PUT http://localhost:3001/settings \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"siteName":"My AI CMS","aiEnabled":true}'
+```

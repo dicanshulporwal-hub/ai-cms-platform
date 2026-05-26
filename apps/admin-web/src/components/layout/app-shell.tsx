@@ -32,7 +32,15 @@ interface AppShellProps {
   sectionTitle?: string;
 }
 
-const navItems = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+  adminOnly?: boolean;
+}
+
+const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/pages', label: 'Pages', icon: FileText },
   { href: '/blogs', label: 'Blogs', icon: Newspaper },
@@ -44,8 +52,13 @@ const navItems = [
   { href: '/chatbot', label: 'Chatbot', icon: MessageCircle, exact: true },
   { href: '/chatbot/leads', label: 'Leads', icon: Users },
   { href: '/notifications', label: 'Notifications', icon: Bell },
-  { href: '/chatbot/settings', label: 'Settings', icon: Settings },
+  { href: '/users', label: 'Users', icon: Users, adminOnly: true },
+  { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
+
+function isAdmin(user: AuthUser) {
+  return user.role === 'Super Admin' || user.role === 'Admin';
+}
 
 export function AppShell({
   children,
@@ -70,6 +83,11 @@ export function AppShell({
         </div>
         <nav className="space-y-1 p-3">
           {navItems.map((item) => {
+            // Skip admin-only items for non-admin users
+            if (item.adminOnly && !isAdmin(user)) {
+              return null;
+            }
+
             const Icon = item.icon;
             const active = item.exact
               ? pathname === item.href

@@ -22,15 +22,15 @@ enum ContentType {
   BLOG
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-}
-
 enum SenderType {
   VISITOR
   BOT
   ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
 }
 
 model User {
@@ -67,11 +67,29 @@ model Role {
   id          String   @id @default(cuid())
   name        String   @unique @db.VarChar(191)
   description String?  @db.Text
+  permissions Json?    @db.Json
   users       User[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@map("roles")
+}
+
+model Settings {
+  id                    String   @id @default("default_settings")
+  siteName              String   @default("AI CMS") @db.VarChar(191)
+  siteDescription       String?  @db.Text
+  siteLogo              String?  @db.VarChar(2048)
+  defaultMetaTitle      String?  @db.VarChar(255)
+  defaultMetaDescription String? @db.Text
+  supportEmail          String?  @db.VarChar(191)
+  chatbotEnabled        Boolean  @default(true)
+  aiEnabled             Boolean  @default(true)
+  maintenanceMode       Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("settings")
 }
 
 model Page {
@@ -381,8 +399,8 @@ model Lead {
 model ChatbotSettings {
   id                 String   @id @default(cuid())
   isEnabled          Boolean  @default(true)
-  greetingMessage    String   @default("Hi! How can I help you today?") @db.Text
-  fallbackMessage    String   @default("I do not have that information yet. Please contact support and we will help you.") @db.Text
+  greetingMessage    String   @default("Hi! How can I help you today?") @db.VarChar(500)
+  fallbackMessage    String   @default("I do not have that information yet. Please contact support and we will help you.") @db.VarChar(500)
   leadCaptureEnabled Boolean  @default(true)
   supportEmail       String?  @db.VarChar(191)
   createdAt          DateTime @default(now())

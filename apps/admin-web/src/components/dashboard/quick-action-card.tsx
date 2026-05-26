@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { LucideIcon } from 'lucide-react';
+import { ArrowRight, LucideIcon } from 'lucide-react';
 
 interface QuickActionCardProps {
   description: string;
   href: string;
   icon: LucideIcon;
   title: string;
+  variant?: 'default' | 'primary';
 }
 
 export function QuickActionCard({
@@ -13,19 +14,40 @@ export function QuickActionCard({
   href,
   icon: Icon,
   title,
+  variant = 'default',
 }: QuickActionCardProps) {
+  const baseClasses =
+    'group flex min-h-28 flex-col justify-between rounded-lg border p-4 transition-all duration-200';
+
+  const variantClasses = {
+    default:
+      'border-border bg-card hover:border-primary/30 hover:shadow-md hover:shadow-primary/5',
+    primary:
+      'border-primary/30 bg-primary/5 hover:bg-primary/10 hover:shadow-md hover:shadow-primary/10',
+  };
+
+  const iconClasses = {
+    default: 'bg-primary text-primary-foreground',
+    primary: 'bg-primary text-primary-foreground',
+  };
+
   return (
-    <Link
-      className="flex min-h-28 flex-col justify-between rounded-md border border-border p-4 transition-colors hover:bg-muted"
-      href={href}
-    >
+    <Link className={[baseClasses, variantClasses[variant]].join(' ')} href={href}>
       <div className="flex items-center gap-3">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <Icon className="h-4 w-4" />
+        <span
+          className={[
+            'inline-flex h-10 w-10 items-center justify-center rounded-lg',
+            iconClasses[variant],
+          ].join(' ')}
+        >
+          <Icon className="h-5 w-5" />
         </span>
-        <p className="font-medium">{title}</p>
+        <div className="flex-1">
+          <p className="font-medium">{title}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+        </div>
+        <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
       </div>
-      <p className="mt-3 text-sm text-muted-foreground">{description}</p>
     </Link>
   );
 }

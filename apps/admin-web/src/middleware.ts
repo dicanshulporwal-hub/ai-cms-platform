@@ -15,7 +15,9 @@ export function middleware(request: NextRequest) {
       pathname.startsWith('/notifications') ||
       pathname.startsWith('/media') ||
       pathname.startsWith('/categories') ||
-      pathname.startsWith('/tags')) &&
+      pathname.startsWith('/tags') ||
+      pathname.startsWith('/users') ||
+      pathname.startsWith('/settings')) &&
     !token
   ) {
     const loginUrl = new URL('/login', request.url);
@@ -43,6 +45,8 @@ export const config = {
     '/media/:path*',
     '/categories/:path*',
     '/tags/:path*',
+    '/users/:path*',
+    '/settings/:path*',
     '/login',
   ],
 };
