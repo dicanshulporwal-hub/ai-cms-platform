@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Newspaper,
   Settings,
+  Shield,
   Sparkles,
   Tags,
   UserRound,
@@ -53,6 +54,7 @@ const navItems: NavItem[] = [
   { href: '/chatbot/leads', label: 'Leads', icon: Users },
   { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/users', label: 'Users', icon: Users, adminOnly: true },
+  { href: '/roles', label: 'Roles', icon: Shield, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
 

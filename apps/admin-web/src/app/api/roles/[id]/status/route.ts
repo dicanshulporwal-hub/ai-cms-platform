@@ -6,5 +6,5 @@ export async function PATCH(
   { params }: { params: { id: string } },
 ) {
   const body = await request.json();
-  return proxyToBackend(`/roles/${params.id}/permissions`, { body, method: 'PATCH' });
+  return proxyToBackend(`/roles/${params.id}/status`, { body, method: 'PATCH' });
 }

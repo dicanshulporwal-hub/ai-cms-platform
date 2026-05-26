@@ -3,6 +3,8 @@ import * as bcrypt from 'bcrypt';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+const { DEFAULT_ROLE_PERMISSIONS } = require('../src/roles/permissions.constants');
+
 const roles = [
   {
     name: 'Super Admin',
@@ -60,10 +62,21 @@ async function main() {
 
   try {
     for (const role of roles) {
+      const permissions = DEFAULT_ROLE_PERMISSIONS[role.name] ?? [];
       await prisma.role.upsert({
         where: { name: role.name },
-        update: { description: role.description },
-        create: role,
+        update: {
+          description: role.description,
+          isSystemRole: true,
+          permissions,
+        },
+        create: {
+          name: role.name,
+          description: role.description,
+          isSystemRole: true,
+          permissions,
+          status: UserStatus.ACTIVE,
+        },
       });
     }
 
@@ -93,7 +106,7 @@ async function main() {
       },
     });
 
-    console.log(`Seeded ${roles.length} roles and Super Admin user: ${email}`);
+    console.log(`Seeded ${roles.length} roles with permissions and Super Admin user: ${email}`);
   } finally {
     await prisma.$disconnect();
   }
