@@ -140,6 +140,14 @@ enum FaqCategoryStatus {
   INACTIVE
 }
 
+enum TranslationJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  APPLIED
+}
+
 model User {
   id                 String            @id @default(cuid())
   email              String            @unique @db.VarChar(191)
@@ -1010,4 +1018,65 @@ model FaqCategory {
   @@index([status])
   @@index([deletedAt])
   @@map("faq_categories")
+}
+
+model LanguageProviderConfig {
+  id                    String   @id @default(cuid())
+  providerKey           String   @unique @db.VarChar(50)
+  providerName          String   @db.VarChar(191)
+  isEnabled             Boolean  @default(false)
+  isDefault             Boolean  @default(false)
+  apiKeyEncrypted       String?  @db.Text
+  baseUrl               String?  @db.VarChar(2048)
+  userId                String?  @db.VarChar(191)
+  pipelineId            String?  @db.VarChar(191)
+  defaultSourceLanguage String   @default("en") @db.VarChar(10)
+  defaultTargetLanguage String   @default("hi") @db.VarChar(10)
+  capabilitiesJson      Json?    @db.Json
+  pricingType           String   @default("UNKNOWN") @db.VarChar(50)
+  settingsJson          Json?    @db.Json
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("language_provider_configs")
+}
+
+model TranslationJob {
+  id               String              @id @default(cuid())
+  sourceType       String              @db.VarChar(50)
+  sourceId         String?             @db.VarChar(191)
+  sourceLanguage   String              @db.VarChar(10)
+  targetLanguage   String              @db.VarChar(10)
+  providerKey      String              @db.VarChar(50)
+  providerJobId    String?             @db.VarChar(191)
+  status           TranslationJobStatus @default(PENDING)
+  inputTextPreview String?             @db.Text
+  outputTextPreview String?            @db.Text
+  errorMessage     String?             @db.Text
+  createdById      String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@index([sourceType, sourceId])
+  @@index([providerKey])
+  @@index([status])
+  @@map("translation_jobs")
+}
+
+model TranslationUsageLog {
+  id             String   @id @default(cuid())
+  providerKey    String   @db.VarChar(50)
+  taskType       String   @db.VarChar(50)
+  sourceLanguage String   @db.VarChar(10)
+  targetLanguage String   @db.VarChar(10)
+  inputLength    Int      @default(0)
+  outputLength   Int      @default(0)
+  status         String   @db.VarChar(20)
+  errorMessage   String?  @db.Text
+  userId         String?
+  createdAt      DateTime @default(now())
+
+  @@index([providerKey])
+  @@index([taskType])
+  @@map("translation_usage_logs")
 }

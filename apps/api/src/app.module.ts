@@ -18,6 +18,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RolesModule } from './roles/roles.module';
 import { SettingsModule } from './settings/settings.module';
 import { TemplatesModule } from './templates/templates.module';
+import { TranslationsModule } from './translations/translations.module';
 import { UsersModule } from './users/users.module';
 import { WorkflowModule } from './workflow/workflow.module';
 
@@ -45,6 +46,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     RolesModule,
     SettingsModule,
     TemplatesModule,
+    TranslationsModule,
     UsersModule,
     WorkflowModule,
   ],
