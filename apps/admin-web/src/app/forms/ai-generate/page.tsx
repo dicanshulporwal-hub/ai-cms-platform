@@ -34,7 +34,10 @@ function AIGenerateContent({ user }: { user: AuthUser }) {
         body: JSON.stringify({ formPurpose: purpose, formType, targetAudience: audience || undefined, additionalInstructions: instructions || undefined }),
       });
       setResult(data);
-    } catch (err) { setError(err instanceof Error ? err.message : 'Generation failed.'); }
+      if (!data?.generated || Object.keys(data.generated).length === 0) {
+        setError('AI returned empty result. Please try again with a more detailed description.');
+      }
+    } catch (err) { setError(err instanceof Error ? err.message : 'Generation failed. Check if AI provider is configured and API is running.'); }
     setLoading(false);
   }
 
