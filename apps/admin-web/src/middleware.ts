@@ -14,6 +14,7 @@ export function middleware(request: NextRequest) {
       pathname.startsWith('/chatbot') ||
       pathname.startsWith('/notifications') ||
       pathname.startsWith('/media') ||
+      pathname.startsWith('/documents') ||
       pathname.startsWith('/categories') ||
       pathname.startsWith('/tags') ||
       pathname.startsWith('/users') ||
@@ -45,6 +46,7 @@ export const config = {
     '/chatbot/:path*',
     '/notifications/:path*',
     '/media/:path*',
+    '/documents/:path*',
     '/categories/:path*',
     '/tags/:path*',
     '/users/:path*',

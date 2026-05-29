@@ -70,6 +70,35 @@ enum AITemplateGenerationStatus {
   SAVED_AS_TEMPLATE
 }
 
+enum DocumentStatus {
+  DRAFT
+  PROCESSING
+  READY_FOR_REVIEW
+  PUBLISHED
+  ARCHIVED
+  FAILED
+}
+
+enum DocumentType {
+  PDF
+  DOC
+  DOCX
+  XLS
+  XLSX
+  PPT
+  PPTX
+  IMAGE
+  OTHER
+}
+
+enum DocumentMetadataJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  APPLIED
+}
+
 model User {
   id                 String            @id @default(cuid())
   email              String            @unique @db.VarChar(191)
@@ -533,4 +562,96 @@ model AITemplateGenerationJob {
   @@index([status])
   @@index([createdById])
   @@map("ai_template_generation_jobs")
+}
+
+model Document {
+  id                String         @id @default(cuid())
+  title             String         @db.VarChar(500)
+  slug              String         @unique @db.VarChar(191)
+  description       String?        @db.Text
+  summary           String?        @db.Text
+  originalFileName  String         @db.VarChar(500)
+  fileName          String         @db.VarChar(500)
+  fileKey           String         @db.VarChar(500)
+  fileUrl           String         @db.VarChar(2048)
+  storageProvider   String         @default("local") @db.VarChar(50)
+  mimeType          String         @db.VarChar(191)
+  fileSize          Int
+  pageCount         Int?
+  documentType      DocumentType   @default(PDF)
+  categoryId        String?
+  category          DocumentCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  status            DocumentStatus @default(DRAFT)
+  language          String?        @db.VarChar(50)
+  tagsJson          Json?          @db.Json
+  metadataJson      Json?          @db.Json
+  aiMetadataJson    Json?          @db.Json
+  seoTitle          String?        @db.VarChar(255)
+  seoDescription    String?        @db.Text
+  keywordsJson      Json?          @db.Json
+  accessibilityText String?        @db.Text
+  uploadedById      String?
+  publishedAt       DateTime?
+  deletedAt         DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  versions          DocumentVersion[]
+  metadataJobs      DocumentMetadataGenerationJob[]
+
+  @@index([status])
+  @@index([documentType])
+  @@index([categoryId])
+  @@index([uploadedById])
+  @@index([deletedAt])
+  @@map("documents")
+}
+
+model DocumentCategory {
+  id          String     @id @default(cuid())
+  name        String     @db.VarChar(191)
+  slug        String     @unique @db.VarChar(191)
+  description String?    @db.Text
+  documents   Document[]
+  deletedAt   DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([deletedAt])
+  @@map("document_categories")
+}
+
+model DocumentVersion {
+  id               String   @id @default(cuid())
+  documentId       String
+  document         Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  version          Int      @default(1)
+  fileKey          String   @db.VarChar(500)
+  fileUrl          String   @db.VarChar(2048)
+  originalFileName String   @db.VarChar(500)
+  fileSize         Int
+  uploadedById     String?
+  createdAt        DateTime @default(now())
+
+  @@index([documentId])
+  @@map("document_versions")
+}
+
+model DocumentMetadataGenerationJob {
+  id                    String                    @id @default(cuid())
+  documentId            String
+  document              Document                  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  status                DocumentMetadataJobStatus @default(PENDING)
+  aiProvider            String?                   @db.VarChar(100)
+  aiModel               String?                   @db.VarChar(100)
+  promptSummary         String?                   @db.Text
+  extractedTextPreview  String?                   @db.Text
+  generatedMetadataJson Json?                     @db.Json
+  errorMessage          String?                   @db.Text
+  createdById           String?
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+
+  @@index([documentId])
+  @@index([status])
+  @@map("document_metadata_generation_jobs")
 }

@@ -49,6 +49,7 @@ const navItems: NavItem[] = [
   { href: '/categories', label: 'Categories', icon: FolderTree },
   { href: '/tags', label: 'Tags', icon: Tags },
   { href: '/media', label: 'Media', icon: Images },
+  { href: '/documents', label: 'Documents', icon: FileText },
   { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
   { href: '/ai/usage', label: 'AI Usage', icon: Sparkles },
   { href: '/chatbot', label: 'Chatbot', icon: MessageCircle, exact: true },

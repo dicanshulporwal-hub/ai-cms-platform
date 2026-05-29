@@ -1,0 +1,124 @@
+import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { PrismaService } from '../prisma/prisma.service';
+import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { AI_PROVIDER_CLIENT, AiProvider } from '../ai/providers/ai-provider.interface';
+
+@Injectable()
+export class DocumentAIService {
+  constructor(
+    @Inject(AI_PROVIDER_CLIENT) private readonly aiProvider: AiProvider,
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  async generateMetadata(documentId: string, user: AuthenticatedUser) {
+    const doc = await this.prisma.document.findUnique({ where: { id: documentId } });
+    if (!doc || doc.deletedAt) throw new NotFoundException('Document not found.');
+
+    // Extract text from PDF
+    let extractedText = '';
+    if (doc.mimeType === 'application/pdf') {
+      try {
+        const uploadDir = this.configService.get<string>('DOCUMENT_UPLOAD_DIR') ?? 'uploads/documents';
+        const filePath = resolve(uploadDir, doc.fileName);
+        const pdfParse = require('pdf-parse');
+        const buffer = readFileSync(filePath);
+        const pdfData = await pdfParse(buffer);
+        extractedText = (pdfData.text ?? '').trim();
+      } catch {
+        extractedText = '';
+      }
+    }
+
+    const maxChars = this.configService.get<number>('DOCUMENT_TEXT_EXTRACTION_MAX_CHARS') ?? 15000;
+    const textPreview = extractedText.slice(0, maxChars);
+
+    if (!textPreview) {
+      // Create failed job for scanned PDFs
+      const job = await this.prisma.documentMetadataGenerationJob.create({
+        data: {
+          documentId, status: 'FAILED', createdById: user.id,
+          errorMessage: 'No selectable text found. OCR may be required in a future version.',
+          extractedTextPreview: null,
+        },
+      });
+      return job;
+    }
+
+    // Create pending job
+    const job = await this.prisma.documentMetadataGenerationJob.create({
+      data: { documentId, status: 'PROCESSING', createdById: user.id, extractedTextPreview: textPreview.slice(0, 500) },
+    });
+
+    try {
+      const systemPrompt = `You are a document metadata specialist. Analyze the provided document text and generate structured metadata. Return ONLY valid JSON with these exact keys:
+{"suggestedTitle":"","summary":"","shortDescription":"","documentType":"","language":"","keywords":[],"seoTitle":"","seoDescription":"","suggestedCategory":"","tags":[],"accessibilityText":"","readingAudience":"","importantDates":[],"departmentOrOwner":"","documentPurpose":"","publicFriendlyLabel":""}
+Rules:
+- seoTitle max 60 chars
+- seoDescription max 160 chars
+- If information is not present, return empty string or empty array
+- Do not invent government departments, dates, or policy claims
+- Be factual based only on the provided text`;
+
+      const result = await this.aiProvider.generateText({
+        systemPrompt,
+        userPrompt: `Document filename: ${doc.originalFileName}\n\nExtracted text:\n${textPreview}`,
+      });
+
+      let parsed: Record<string, unknown>;
+      try {
+        const jsonMatch = result.result.match(/\{[\s\S]*\}/);
+        parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+      } catch {
+        parsed = {};
+      }
+
+      await this.prisma.documentMetadataGenerationJob.update({
+        where: { id: job.id },
+        data: {
+          status: 'COMPLETED',
+          generatedMetadataJson: parsed as unknown as Prisma.InputJsonValue,
+          aiProvider: result.metadata.provider,
+          aiModel: result.metadata.model,
+          promptSummary: `Document: ${doc.originalFileName}`,
+        },
+      });
+
+      // Log AI usage
+      await this.prisma.aIUsageLog.create({
+        data: {
+          action: 'document-metadata-generation',
+          feature: 'document-metadata-generation',
+          provider: result.metadata.provider,
+          model: result.metadata.model,
+          modelName: result.metadata.model,
+          promptSummary: `Metadata for: ${doc.originalFileName}`,
+          tokenInput: result.metadata.tokenInput ?? 0,
+          tokenOutput: result.metadata.tokenOutput ?? 0,
+          promptTokens: result.metadata.tokenInput ?? 0,
+          completionTokens: result.metadata.tokenOutput ?? 0,
+          totalTokens: (result.metadata.tokenInput ?? 0) + (result.metadata.tokenOutput ?? 0),
+          userId: user.id,
+        },
+      });
+
+      return this.prisma.documentMetadataGenerationJob.findUnique({ where: { id: job.id } });
+    } catch (error) {
+      await this.prisma.documentMetadataGenerationJob.update({
+        where: { id: job.id },
+        data: { status: 'FAILED', errorMessage: error instanceof Error ? error.message : 'AI generation failed.' },
+      });
+      return this.prisma.documentMetadataGenerationJob.findUnique({ where: { id: job.id } });
+    }
+  }
+
+  async getJob(documentId: string, jobId: string) {
+    const job = await this.prisma.documentMetadataGenerationJob.findUnique({ where: { id: jobId } });
+    if (!job || job.documentId !== documentId) throw new NotFoundException('Job not found.');
+    return job;
+  }
+}
