@@ -129,6 +129,17 @@ enum FormSubmissionStatus {
   SPAM
 }
 
+enum FaqStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum FaqCategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   id                 String            @id @default(cuid())
   email              String            @unique @db.VarChar(191)
@@ -954,4 +965,49 @@ model FormSubmissionNote {
 
   @@index([submissionId])
   @@map("form_submission_notes")
+}
+
+model Faq {
+  id             String    @id @default(cuid())
+  question       String    @db.VarChar(500)
+  answer         String    @db.LongText
+  slug           String    @unique @db.VarChar(191)
+  status         FaqStatus @default(DRAFT)
+  categoryId     String?
+  category       FaqCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  sortOrder      Int       @default(0)
+  isFeatured     Boolean   @default(false)
+  sourceType     String?   @db.VarChar(50)
+  sourceId       String?   @db.VarChar(191)
+  tagsJson       Json?     @db.Json
+  seoTitle       String?   @db.VarChar(255)
+  seoDescription String?   @db.Text
+  createdById    String?
+  publishedAt    DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([isFeatured])
+  @@index([deletedAt])
+  @@map("faqs")
+}
+
+model FaqCategory {
+  id          String            @id @default(cuid())
+  name        String            @db.VarChar(191)
+  slug        String            @unique @db.VarChar(191)
+  description String?           @db.Text
+  sortOrder   Int               @default(0)
+  status      FaqCategoryStatus @default(ACTIVE)
+  faqs        Faq[]
+  deletedAt   DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("faq_categories")
 }

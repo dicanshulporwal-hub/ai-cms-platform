@@ -52,6 +52,7 @@ const navItems: NavItem[] = [
   { href: '/media', label: 'Media', icon: Images },
   { href: '/documents', label: 'Documents', icon: FileText },
   { href: '/forms', label: 'Forms', icon: FileText },
+  { href: '/faqs', label: 'FAQs', icon: FileText },
   { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
   { href: '/ai/usage', label: 'AI Usage', icon: Sparkles },
   { href: '/ai/providers', label: 'AI Providers', icon: Sparkles, adminOnly: true },

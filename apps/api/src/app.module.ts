@@ -8,6 +8,7 @@ import { validateEnvironment } from './config/env.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DocumentsModule } from './documents/documents.module';
 import { FormsModule } from './forms/forms.module';
+import { FaqsModule } from './faqs/faqs.module';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
 import { ModulesModule } from './modules/modules.module';
@@ -34,6 +35,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     DashboardModule,
     DocumentsModule,
     FormsModule,
+    FaqsModule,
     HealthModule,
     MediaModule,
     ModulesModule,

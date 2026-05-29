@@ -16,6 +16,7 @@ export function middleware(request: NextRequest) {
       pathname.startsWith('/media') ||
       pathname.startsWith('/documents') ||
       pathname.startsWith('/forms') ||
+      pathname.startsWith('/faqs') ||
       pathname.startsWith('/categories') ||
       pathname.startsWith('/tags') ||
       pathname.startsWith('/users') ||
@@ -50,6 +51,7 @@ export const config = {
     '/media/:path*',
     '/documents/:path*',
     '/forms/:path*',
+    '/faqs/:path*',
     '/categories/:path*',
     '/tags/:path*',
     '/users/:path*',
