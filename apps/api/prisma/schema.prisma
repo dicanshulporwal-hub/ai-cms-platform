@@ -628,6 +628,83 @@ model TemplateModuleRegistry {
   @@map("template_module_registry")
 }
 
+model AiProviderConfig {
+  id                  String         @id @default(cuid())
+  providerKey         String         @unique @db.VarChar(50)
+  providerName        String         @db.VarChar(191)
+  isEnabled           Boolean        @default(false)
+  isDefault           Boolean        @default(false)
+  apiKeyEncrypted     String?        @db.Text
+  baseUrl             String?        @db.VarChar(2048)
+  organizationId      String?        @db.VarChar(191)
+  projectId           String?        @db.VarChar(191)
+  defaultTextModel    String?        @db.VarChar(191)
+  defaultVisionModel  String?        @db.VarChar(191)
+  defaultEmbeddingModel String?      @db.VarChar(191)
+  capabilitiesJson    Json?          @db.Json
+  settingsJson        Json?          @db.Json
+  pricingNotes        String?        @db.Text
+  models              AiModelConfig[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@map("ai_provider_configs")
+}
+
+model AiModelConfig {
+  id                  String          @id @default(cuid())
+  providerConfigId    String
+  providerConfig      AiProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
+  modelKey            String          @db.VarChar(191)
+  modelName           String          @db.VarChar(255)
+  modelType           String          @default("TEXT") @db.VarChar(50)
+  pricingType         String          @default("UNKNOWN") @db.VarChar(50)
+  isFree              Boolean         @default(false)
+  isFreeTier          Boolean         @default(false)
+  isPaid              Boolean         @default(false)
+  isEnabled           Boolean         @default(true)
+  isDefault           Boolean         @default(false)
+  maxTokens           Int?
+  contextWindow       Int?
+  supportsVision      Boolean         @default(false)
+  supportsEmbeddings  Boolean         @default(false)
+  supportsJson        Boolean         @default(true)
+  supportsStreaming   Boolean         @default(false)
+  costInputPerMillion Float?
+  costOutputPerMillion Float?
+  freeTierLimitJson   Json?           @db.Json
+  pricingNotes        String?         @db.Text
+  settingsJson        Json?           @db.Json
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@unique([providerConfigId, modelKey])
+  @@index([providerConfigId])
+  @@index([pricingType])
+  @@index([isEnabled])
+  @@map("ai_model_configs")
+}
+
+model AiRoutingRule {
+  id                   String   @id @default(cuid())
+  taskType             String   @db.VarChar(100)
+  selectionMode        String   @default("AUTO") @db.VarChar(20)
+  costPreference       String   @default("PREFER_FREE") @db.VarChar(50)
+  preferredProviderKey String?  @db.VarChar(50)
+  preferredModelKey    String?  @db.VarChar(191)
+  fallbackProviderKey  String?  @db.VarChar(50)
+  fallbackModelKey     String?  @db.VarChar(191)
+  allowPaidModels      Boolean  @default(false)
+  requireFreeModel     Boolean  @default(true)
+  priorityJson         Json?    @db.Json
+  isEnabled            Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([taskType])
+  @@map("ai_routing_rules")
+}
+
 model Document {
   id                String         @id @default(cuid())
   title             String         @db.VarChar(500)

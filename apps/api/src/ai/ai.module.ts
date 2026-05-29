@@ -3,15 +3,20 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
+import { AiProvidersController } from './ai-providers.controller';
+import { AiProvidersService } from './ai-providers.service';
+import { AiRouterService } from './ai-router.service';
 import { AI_PROVIDER_CLIENT } from './providers/ai-provider.interface';
 import { GeminiProvider } from './providers/gemini.provider';
 import { OpenAiProvider } from './providers/openai.provider';
 
 @Module({
-  controllers: [AiController],
+  controllers: [AiController, AiProvidersController],
   imports: [PrismaModule],
   providers: [
     AiService,
+    AiProvidersService,
+    AiRouterService,
     GeminiProvider,
     OpenAiProvider,
     {
@@ -34,6 +39,6 @@ import { OpenAiProvider } from './providers/openai.provider';
       },
     },
   ],
-  exports: [AI_PROVIDER_CLIENT],
+  exports: [AI_PROVIDER_CLIENT, AiRouterService, GeminiProvider, OpenAiProvider],
 })
 export class AiModule {}
