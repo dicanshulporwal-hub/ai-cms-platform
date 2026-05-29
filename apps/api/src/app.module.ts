@@ -7,6 +7,7 @@ import { ChatbotModule } from './chatbot/chatbot.module';
 import { validateEnvironment } from './config/env.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DocumentsModule } from './documents/documents.module';
+import { FormsModule } from './forms/forms.module';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
 import { ModulesModule } from './modules/modules.module';
@@ -32,6 +33,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     ChatbotModule,
     DashboardModule,
     DocumentsModule,
+    FormsModule,
     HealthModule,
     MediaModule,
     ModulesModule,

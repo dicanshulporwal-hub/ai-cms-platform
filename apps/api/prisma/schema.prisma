@@ -99,6 +99,36 @@ enum DocumentMetadataJobStatus {
   APPLIED
 }
 
+enum FormStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum FormFieldType {
+  TEXT
+  TEXTAREA
+  EMAIL
+  PHONE
+  NUMBER
+  DATE
+  SELECT
+  MULTI_SELECT
+  RADIO
+  CHECKBOX
+  FILE_UPLOAD
+  CONSENT
+  HIDDEN
+}
+
+enum FormSubmissionStatus {
+  NEW
+  REVIEWED
+  IN_PROGRESS
+  CLOSED
+  SPAM
+}
+
 model User {
   id                 String            @id @default(cuid())
   email              String            @unique @db.VarChar(191)
@@ -842,4 +872,86 @@ model DocumentMetadataGenerationJob {
   @@index([documentId])
   @@index([status])
   @@map("document_metadata_generation_jobs")
+}
+
+model Form {
+  id                       String           @id @default(cuid())
+  title                    String           @db.VarChar(500)
+  slug                     String           @unique @db.VarChar(191)
+  description              String?          @db.Text
+  status                   FormStatus       @default(DRAFT)
+  formType                 String           @default("CUSTOM") @db.VarChar(50)
+  successMessage           String?          @db.Text
+  submitButtonLabel        String           @default("Submit") @db.VarChar(100)
+  redirectUrl              String?          @db.VarChar(2048)
+  isPublic                 Boolean          @default(true)
+  allowMultipleSubmissions Boolean          @default(true)
+  requireCaptcha           Boolean          @default(false)
+  notifyEmailsJson         Json?            @db.Json
+  settingsJson             Json?            @db.Json
+  createdById              String?
+  publishedAt              DateTime?
+  deletedAt                DateTime?
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+  fields                   FormField[]
+  submissions              FormSubmission[]
+
+  @@index([status])
+  @@index([formType])
+  @@index([isPublic])
+  @@index([deletedAt])
+  @@map("forms")
+}
+
+model FormField {
+  id             String        @id @default(cuid())
+  formId         String
+  form           Form          @relation(fields: [formId], references: [id], onDelete: Cascade)
+  fieldKey       String        @db.VarChar(100)
+  label          String        @db.VarChar(255)
+  placeholder    String?       @db.VarChar(255)
+  helpText       String?       @db.Text
+  fieldType      FormFieldType @default(TEXT)
+  isRequired     Boolean       @default(false)
+  validationJson Json?         @db.Json
+  optionsJson    Json?         @db.Json
+  defaultValue   String?       @db.VarChar(500)
+  sortOrder      Int           @default(0)
+  isVisible      Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([formId])
+  @@map("form_fields")
+}
+
+model FormSubmission {
+  id                 String               @id @default(cuid())
+  formId             String
+  form               Form                 @relation(fields: [formId], references: [id], onDelete: Cascade)
+  submissionDataJson Json                 @db.Json
+  submitterIp        String?              @db.VarChar(100)
+  userAgent          String?              @db.VarChar(500)
+  sourcePage         String?              @db.VarChar(2048)
+  status             FormSubmissionStatus @default(NEW)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  notes              FormSubmissionNote[]
+
+  @@index([formId])
+  @@index([status])
+  @@map("form_submissions")
+}
+
+model FormSubmissionNote {
+  id           String         @id @default(cuid())
+  submissionId String
+  submission   FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  note         String         @db.Text
+  createdById  String?
+  createdAt    DateTime       @default(now())
+
+  @@index([submissionId])
+  @@map("form_submission_notes")
 }
