@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ModuleEnabled } from '../modules/module-enabled.decorator';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -39,6 +40,7 @@ const PAGE_READ_ROLES = [
 @ApiTags('Pages')
 @Controller('pages')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ModuleEnabled('pages')
 export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
 

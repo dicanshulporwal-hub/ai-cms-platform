@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ModuleEnabled } from '../modules/module-enabled.decorator';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -39,6 +40,7 @@ const BLOG_READ_ROLES = [
 @ApiTags('Blogs')
 @Controller('blogs')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ModuleEnabled('blogs')
 export class BlogsController {
   constructor(private readonly blogsService: BlogsService) {}
 

@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ModuleEnabled } from '../modules/module-enabled.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -13,6 +14,7 @@ import { DocumentAIService } from './document-ai.service';
 @ApiBearerAuth()
 @Controller('documents')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ModuleEnabled('documents')
 export class DocumentsController {
   constructor(
     private readonly documentsService: DocumentsService,
