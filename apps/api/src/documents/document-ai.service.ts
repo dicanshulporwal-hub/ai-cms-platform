@@ -1,7 +1,7 @@
-import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
@@ -19,54 +19,86 @@ export class DocumentAIService {
     const doc = await this.prisma.document.findUnique({ where: { id: documentId } });
     if (!doc || doc.deletedAt) throw new NotFoundException('Document not found.');
 
-    // Extract text from PDF
+    // Try to extract text from PDF
     let extractedText = '';
+    let extractionNote = '';
+
     if (doc.mimeType === 'application/pdf') {
       try {
         const uploadDir = this.configService.get<string>('DOCUMENT_UPLOAD_DIR') ?? 'uploads/documents';
         const filePath = resolve(uploadDir, doc.fileName);
-        const pdfParse = require('pdf-parse');
-        const buffer = readFileSync(filePath);
-        const pdfData = await pdfParse(buffer);
-        extractedText = (pdfData.text ?? '').trim();
-      } catch {
-        extractedText = '';
+        if (existsSync(filePath)) {
+          const pdfParse = require('pdf-parse');
+          const buffer = readFileSync(filePath);
+          const pdfData = await pdfParse(buffer);
+          extractedText = (pdfData.text ?? '').replace(/\s+/g, ' ').trim();
+        }
+      } catch (err) {
+        extractionNote = 'PDF text extraction failed. Generating metadata from filename and document info only.';
       }
+    } else {
+      extractionNote = `Non-PDF document (${doc.documentType}). Generating metadata from filename and document info.`;
     }
 
     const maxChars = this.configService.get<number>('DOCUMENT_TEXT_EXTRACTION_MAX_CHARS') ?? 15000;
     const textPreview = extractedText.slice(0, maxChars);
 
     if (!textPreview) {
-      // Create failed job for scanned PDFs
-      const job = await this.prisma.documentMetadataGenerationJob.create({
-        data: {
-          documentId, status: 'FAILED', createdById: user.id,
-          errorMessage: 'No selectable text found. OCR may be required in a future version.',
-          extractedTextPreview: null,
-        },
-      });
-      return job;
+      extractionNote = extractionNote || 'No selectable text found in PDF. Generating metadata from filename and available info.';
     }
 
-    // Create pending job
+    // Always proceed with AI generation - use whatever info we have
     const job = await this.prisma.documentMetadataGenerationJob.create({
-      data: { documentId, status: 'PROCESSING', createdById: user.id, extractedTextPreview: textPreview.slice(0, 500) },
+      data: {
+        documentId,
+        status: 'PROCESSING',
+        createdById: user.id,
+        extractedTextPreview: textPreview ? textPreview.slice(0, 500) : extractionNote,
+      },
     });
 
     try {
-      const systemPrompt = `You are a document metadata specialist. Analyze the provided document text and generate structured metadata. Return ONLY valid JSON with these exact keys:
+      const systemPrompt = `You are a document metadata specialist. Analyze the provided document information and generate structured metadata. Return ONLY valid JSON with these exact keys:
 {"suggestedTitle":"","summary":"","shortDescription":"","documentType":"","language":"","keywords":[],"seoTitle":"","seoDescription":"","suggestedCategory":"","tags":[],"accessibilityText":"","readingAudience":"","importantDates":[],"departmentOrOwner":"","documentPurpose":"","publicFriendlyLabel":""}
+
 Rules:
 - seoTitle max 60 chars
 - seoDescription max 160 chars
-- If information is not present, return empty string or empty array
-- Do not invent government departments, dates, or policy claims
-- Be factual based only on the provided text`;
+- If information is not available, make reasonable inferences from the filename
+- Do not invent specific government departments, dates, or policy claims
+- For documents without extracted text, generate metadata based on filename, file type, and any available context
+- Always provide at least a suggestedTitle, shortDescription, and seoTitle based on the filename
+- Be helpful and generate useful metadata even with limited information`;
+
+      // Build context from all available info
+      const contextParts = [
+        `Document filename: ${doc.originalFileName}`,
+        `File type: ${doc.documentType}`,
+        `MIME type: ${doc.mimeType}`,
+        `File size: ${(doc.fileSize / 1024).toFixed(1)} KB`,
+      ];
+
+      if (doc.pageCount) {
+        contextParts.push(`Page count: ${doc.pageCount}`);
+      }
+
+      if (doc.title && doc.title !== doc.originalFileName.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ')) {
+        contextParts.push(`Current title: ${doc.title}`);
+      }
+
+      if (extractionNote) {
+        contextParts.push(`Note: ${extractionNote}`);
+      }
+
+      if (textPreview) {
+        contextParts.push(`\nExtracted text content:\n${textPreview}`);
+      } else {
+        contextParts.push(`\nNo text content could be extracted. Please generate metadata based on the filename and file information above.`);
+      }
 
       const result = await this.aiProvider.generateText({
         systemPrompt,
-        userPrompt: `Document filename: ${doc.originalFileName}\n\nExtracted text:\n${textPreview}`,
+        userPrompt: contextParts.join('\n'),
       });
 
       let parsed: Record<string, unknown>;
