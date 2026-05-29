@@ -52,6 +52,7 @@ const navItems: NavItem[] = [
   { href: '/documents', label: 'Documents', icon: FileText },
   { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
   { href: '/ai/usage', label: 'AI Usage', icon: Sparkles },
+  { href: '/ai/providers', label: 'AI Providers', icon: Sparkles, adminOnly: true },
   { href: '/chatbot', label: 'Chatbot', icon: MessageCircle, exact: true },
   { href: '/chatbot/leads', label: 'Leads', icon: Users },
   { href: '/notifications', label: 'Notifications', icon: Bell },

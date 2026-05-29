@@ -66,11 +66,23 @@ function ProvidersContent({ user }: { user: AuthUser }) {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Environment-Based Providers</CardTitle><CardDescription>These providers are configured via .env and work without database config.</CardDescription></CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>• <strong>Gemini</strong> — Uses GEMINI_API_KEY and GEMINI_MODEL from environment</p>
-          <p>• <strong>OpenAI</strong> — Uses OPENAI_API_KEY and OPENAI_MODEL from environment</p>
-          <p className="mt-3 text-xs">Database-configured providers take priority over environment variables when enabled.</p>
+        <CardHeader><CardTitle>Environment-Based Providers (Currently Active)</CardTitle><CardDescription>These providers are configured via .env and work without database config. Add them to the database for full management.</CardDescription></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="rounded-md border p-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Google Gemini / AI Studio</p>
+              <p className="text-xs text-muted-foreground">Provider: GEMINI • Model: configured via GEMINI_MODEL env • Pricing: FREE_TIER</p>
+            </div>
+            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">Active via .env</span>
+          </div>
+          <div className="rounded-md border p-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">OpenAI</p>
+              <p className="text-xs text-muted-foreground">Provider: OPENAI • Model: configured via OPENAI_MODEL env • Pricing: PAID</p>
+            </div>
+            <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{providers.length === 0 ? 'Fallback' : 'Available'}</span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">To manage providers with full control (models, pricing, routing), add them using the "Add Provider" button above.</p>
         </CardContent>
       </Card>
     </div>
