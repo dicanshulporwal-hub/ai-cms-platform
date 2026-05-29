@@ -30,6 +30,7 @@ function TemplatesContent({ user }: { user: AuthUser }) {
           <p className="mt-1 text-sm text-muted-foreground">Manage frontend website templates with UX4G/GIGW readiness checks.</p>
         </div>
         <div className="flex gap-2">
+          <Link href="/templates/modules"><Button variant="outline">Modules</Button></Link>
           <Link href="/templates/upload"><Button variant="outline"><FileUp className="h-4 w-4" /> Upload ZIP</Button></Link>
           <Link href="/templates/ai-generate"><Button><Sparkles className="h-4 w-4" /> AI Generate</Button></Link>
         </div>
@@ -68,6 +69,7 @@ function TemplatesContent({ user }: { user: AuthUser }) {
                         <TableCell>{formatDate(t.updatedAt)}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
+                            <Link href={`/templates/${t.id}/layout`}><Button size="sm" variant="ghost">Layout</Button></Link>
                             <Link href={`/templates/${t.id}/compliance`}><Button size="sm" variant="ghost">Compliance</Button></Link>
                             {t.isActive ? (
                               <Button size="sm" variant="ghost" onClick={() => deactivateMutation.mutateAsync(t.id)} disabled={deactivateMutation.isPending}><XCircle className="h-4 w-4" /> Deactivate</Button>

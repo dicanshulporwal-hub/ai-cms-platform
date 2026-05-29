@@ -499,6 +499,8 @@ model WebsiteTemplate {
   updatedAt       DateTime         @updatedAt
   versions        TemplateVersion[]
   complianceChecks TemplateComplianceCheck[]
+  regions         TemplateRegion[]
+  regionModules   TemplateRegionModule[]
 
   @@index([status])
   @@index([isActive])
@@ -562,6 +564,68 @@ model AITemplateGenerationJob {
   @@index([status])
   @@index([createdById])
   @@map("ai_template_generation_jobs")
+}
+
+model TemplateRegion {
+  id          String                 @id @default(cuid())
+  templateId  String
+  template    WebsiteTemplate        @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  regionKey   String                 @db.VarChar(100)
+  regionName  String                 @db.VarChar(255)
+  description String?                @db.Text
+  regionType  String                 @default("CONTENT") @db.VarChar(50)
+  sortOrder   Int                    @default(0)
+  isRequired  Boolean                @default(false)
+  isActive    Boolean                @default(true)
+  modules     TemplateRegionModule[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@unique([templateId, regionKey])
+  @@index([templateId])
+  @@map("template_regions")
+}
+
+model TemplateRegionModule {
+  id           String          @id @default(cuid())
+  templateId   String
+  template     WebsiteTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  regionId     String
+  region       TemplateRegion  @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  moduleType   String          @db.VarChar(100)
+  moduleKey    String          @db.VarChar(191)
+  displayTitle String          @db.VarChar(255)
+  configJson   Json?           @db.Json
+  sortOrder    Int             @default(0)
+  isVisible    Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([templateId])
+  @@index([regionId])
+  @@map("template_region_modules")
+}
+
+model TemplateModuleRegistry {
+  id                       String   @id @default(cuid())
+  moduleKey                String   @unique @db.VarChar(191)
+  moduleName               String   @db.VarChar(255)
+  moduleType               String   @db.VarChar(100)
+  description              String?  @db.Text
+  category                 String   @default("Content") @db.VarChar(100)
+  isPublicEnabled          Boolean  @default(true)
+  isSystemModule           Boolean  @default(false)
+  isActive                 Boolean  @default(true)
+  defaultConfigJson        Json?    @db.Json
+  supportedRegionTypesJson Json?    @db.Json
+  requiredPermissionsJson  Json?    @db.Json
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@index([isPublicEnabled])
+  @@map("template_module_registry")
 }
 
 model Document {
