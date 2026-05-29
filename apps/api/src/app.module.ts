@@ -9,6 +9,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { DocumentsModule } from './documents/documents.module';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
+import { ModulesModule } from './modules/modules.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PagesModule } from './pages/pages.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -33,6 +34,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     DocumentsModule,
     HealthModule,
     MediaModule,
+    ModulesModule,
     NotificationsModule,
     PagesModule,
     PrismaModule,

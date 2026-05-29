@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ReactNode, useState } from 'react';
 import {
   Bell,
+  Box,
   ChevronDown,
   ClipboardCheck,
   FileText,
@@ -59,6 +60,7 @@ const navItems: NavItem[] = [
   { href: '/users', label: 'Users', icon: Users, adminOnly: true },
   { href: '/roles', label: 'Roles', icon: Shield, adminOnly: true },
   { href: '/templates', label: 'Templates', icon: Layout, adminOnly: true },
+  { href: '/modules', label: 'Modules', icon: Box, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
 

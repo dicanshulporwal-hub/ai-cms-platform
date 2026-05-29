@@ -705,6 +705,53 @@ model AiRoutingRule {
   @@map("ai_routing_rules")
 }
 
+model CmsModule {
+  id                  String   @id @default(cuid())
+  moduleKey           String   @unique @db.VarChar(100)
+  moduleName          String   @db.VarChar(255)
+  description         String?  @db.Text
+  category            String   @default("CONTENT") @db.VarChar(50)
+  version             String   @default("1.0.0") @db.VarChar(20)
+  icon                String?  @db.VarChar(100)
+  routePath           String?  @db.VarChar(255)
+  publicRoutePath     String?  @db.VarChar(255)
+  isSystemModule      Boolean  @default(false)
+  isCoreModule        Boolean  @default(false)
+  isEnabledGlobally   Boolean  @default(true)
+  isPublicEnabled     Boolean  @default(false)
+  isAdminVisible      Boolean  @default(true)
+  isTemplateAvailable Boolean  @default(false)
+  dependsOnJson       Json?    @db.Json
+  permissionsJson     Json?    @db.Json
+  settingsJson        Json?    @db.Json
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([category])
+  @@index([isEnabledGlobally])
+  @@map("cms_modules")
+}
+
+model ProjectModuleConfig {
+  id                  String    @id @default(cuid())
+  projectId           String?   @db.VarChar(191)
+  moduleKey           String    @db.VarChar(100)
+  isEnabled           Boolean   @default(true)
+  isPublicEnabled     Boolean   @default(false)
+  isAdminVisible      Boolean   @default(true)
+  isTemplateAvailable Boolean   @default(false)
+  configJson          Json?     @db.Json
+  enabledById         String?   @db.VarChar(191)
+  enabledAt           DateTime?
+  disabledAt          DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([projectId, moduleKey])
+  @@index([moduleKey])
+  @@map("project_module_configs")
+}
+
 model Document {
   id                String         @id @default(cuid())
   title             String         @db.VarChar(500)
