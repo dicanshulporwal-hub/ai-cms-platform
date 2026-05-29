@@ -1,0 +1,132 @@
+{
+  "name": "GIGW Government Starter",
+  "slug": "gigw-government-starter",
+  "version": "1.0.0",
+  "type": "GOVERNMENT",
+  "entry": "index.html",
+  "description": "A GIGW-compliant starter template for Indian government websites. Includes pre-configured regions and modules for navigation, content, documents, FAQs, forms, search, and chatbot support.",
+  "regions": [
+    {
+      "regionKey": "header",
+      "regionName": "Header",
+      "regionType": "HEADER",
+      "sortOrder": 1,
+      "isRequired": true,
+      "isActive": true,
+      "modules": [
+        {
+          "moduleType": "SEARCH",
+          "moduleKey": "header-search",
+          "displayTitle": "Site Search",
+          "configJson": {},
+          "sortOrder": 1,
+          "isVisible": true
+        }
+      ]
+    },
+    {
+      "regionKey": "navigation",
+      "regionName": "Navigation",
+      "regionType": "NAVIGATION",
+      "sortOrder": 2,
+      "isRequired": true,
+      "isActive": true,
+      "modules": [
+        {
+          "moduleType": "NAVIGATION",
+          "moduleKey": "main-navigation",
+          "displayTitle": "Main Navigation",
+          "configJson": {},
+          "sortOrder": 1,
+          "isVisible": true
+        }
+      ]
+    },
+    {
+      "regionKey": "main",
+      "regionName": "Main Content",
+      "regionType": "CONTENT",
+      "sortOrder": 3,
+      "isRequired": true,
+      "isActive": true,
+      "modules": [
+        {
+          "moduleType": "PAGE_CONTENT",
+          "moduleKey": "page-content",
+          "displayTitle": "Page Content",
+          "configJson": {},
+          "sortOrder": 1,
+          "isVisible": true
+        },
+        {
+          "moduleType": "BLOG_LIST",
+          "moduleKey": "blog-list",
+          "displayTitle": "Blog Posts",
+          "configJson": {},
+          "sortOrder": 2,
+          "isVisible": true
+        },
+        {
+          "moduleType": "DOCUMENT_LIST",
+          "moduleKey": "document-list",
+          "displayTitle": "Documents",
+          "configJson": {},
+          "sortOrder": 3,
+          "isVisible": true
+        },
+        {
+          "moduleType": "FAQ_LIST",
+          "moduleKey": "faq-list",
+          "displayTitle": "Frequently Asked Questions",
+          "configJson": {},
+          "sortOrder": 4,
+          "isVisible": true
+        },
+        {
+          "moduleType": "FORM_EMBED",
+          "moduleKey": "form-embed",
+          "displayTitle": "Form",
+          "configJson": {},
+          "sortOrder": 5,
+          "isVisible": true
+        }
+      ]
+    },
+    {
+      "regionKey": "sidebar",
+      "regionName": "Sidebar",
+      "regionType": "CHATBOT",
+      "sortOrder": 4,
+      "isRequired": false,
+      "isActive": true,
+      "modules": [
+        {
+          "moduleType": "CHATBOT",
+          "moduleKey": "chatbot-widget",
+          "displayTitle": "Chatbot Assistant",
+          "configJson": {},
+          "sortOrder": 1,
+          "isVisible": true
+        }
+      ]
+    },
+    {
+      "regionKey": "footer",
+      "regionName": "Footer",
+      "regionType": "FOOTER",
+      "sortOrder": 5,
+      "isRequired": true,
+      "isActive": true,
+      "modules": [
+        {
+          "moduleType": "FOOTER",
+          "moduleKey": "site-footer",
+          "displayTitle": "Site Footer",
+          "configJson": {},
+          "sortOrder": 1,
+          "isVisible": true
+        }
+      ]
+    }
+  ]
+}

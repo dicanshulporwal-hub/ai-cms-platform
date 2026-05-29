@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Government Website - Starter Template</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Skip to main content link for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Header with Government Emblem -->
+  <header aria-label="Site header">
+    <div class="header-top">
+      <div class="container">
+        <div class="emblem">
+          <img src="/assets/emblem.png" alt="Government of India Emblem" width="60" height="75">
+        </div>
+        <div class="site-identity">
+          <span class="site-title-hindi" lang="hi">भारत सरकार</span>
+          <h1 class="site-title">Government of India</h1>
+          <p class="site-subtitle">Ministry / Department Name</p>
+        </div>
+        <div class="header-actions">
+          <div class="search-area" role="search" aria-label="Site search">
+            <label for="site-search" class="visually-hidden">Search</label>
+            <input type="search" id="site-search" name="q" placeholder="Search...">
+            <button type="submit" aria-label="Submit search">Search</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Navigation -->
+  <nav aria-label="Main navigation">
+    <div class="container">
+      <ul class="nav-list">
+        <li><a href="/" aria-current="page">Home</a></li>
+        <li><a href="/pages/about">About Us</a></li>
+        <li><a href="/pages/services">Services</a></li>
+        <li><a href="/documents">Documents</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/faqs">FAQs</a></li>
+        <li><a href="/pages/contact">Contact Us</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main id="main-content" aria-label="Main content">
+    <div class="container">
+      <div class="content-wrapper">
+        <div class="content-primary">
+          <!-- Template content modules render here -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sidebar / Chatbot Area -->
+  <aside aria-label="Supplementary content">
+    <div class="container">
+      <!-- Chatbot widget and supplementary content render here -->
+    </div>
+  </aside>
+
+  <!-- Footer with GIGW Mandatory Links -->
+  <footer aria-label="Site footer">
+    <div class="container">
+      <div class="footer-links">
+        <nav aria-label="Footer navigation">
+          <ul>
+            <li><a href="/pages/terms-of-use">Terms of Use</a></li>
+            <li><a href="/pages/privacy-policy">Privacy Policy</a></li>
+            <li><a href="/pages/copyright-policy">Copyright Policy</a></li>
+            <li><a href="/pages/hyperlinking-policy">Hyperlinking Policy</a></li>
+            <li><a href="/pages/accessibility-statement">Accessibility Statement</a></li>
+            <li><a href="/pages/help">Help</a></li>
+            <li><a href="/sitemap">Sitemap</a></li>
+            <li><a href="/pages/contact">Contact Us</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer-info">
+        <p class="copyright">&copy; 2024 Government of India. All rights reserved.</p>
+        <p class="disclaimer">Content owned and maintained by the respective Ministry/Department.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

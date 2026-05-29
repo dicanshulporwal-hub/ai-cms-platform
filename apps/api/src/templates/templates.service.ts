@@ -154,6 +154,57 @@ export class TemplatesService {
       },
     });
 
+    // Create regions and modules from template.json
+    const regions = templateConfig.regions as Array<{
+      regionKey: string;
+      regionName: string;
+      regionType?: string;
+      sortOrder?: number;
+      isRequired?: boolean;
+      isActive?: boolean;
+      modules?: Array<{
+        moduleType: string;
+        moduleKey: string;
+        displayTitle: string;
+        configJson?: Record<string, unknown>;
+        sortOrder?: number;
+        isVisible?: boolean;
+      }>;
+    }> | undefined;
+
+    if (Array.isArray(regions)) {
+      for (const regionDef of regions) {
+        const region = await this.prisma.templateRegion.create({
+          data: {
+            templateId: template.id,
+            regionKey: regionDef.regionKey,
+            regionName: regionDef.regionName,
+            regionType: regionDef.regionType ?? 'CONTENT',
+            sortOrder: regionDef.sortOrder ?? 0,
+            isRequired: regionDef.isRequired ?? false,
+            isActive: regionDef.isActive ?? true,
+          },
+        });
+
+        if (Array.isArray(regionDef.modules)) {
+          for (const moduleDef of regionDef.modules) {
+            await this.prisma.templateRegionModule.create({
+              data: {
+                templateId: template.id,
+                regionId: region.id,
+                moduleType: moduleDef.moduleType,
+                moduleKey: moduleDef.moduleKey,
+                displayTitle: moduleDef.displayTitle,
+                configJson: (moduleDef.configJson ?? {}) as unknown as Prisma.InputJsonValue,
+                sortOrder: moduleDef.sortOrder ?? 0,
+                isVisible: moduleDef.isVisible ?? true,
+              },
+            });
+          }
+        }
+      }
+    }
+
     // Create version record
     await this.prisma.templateVersion.create({
       data: {

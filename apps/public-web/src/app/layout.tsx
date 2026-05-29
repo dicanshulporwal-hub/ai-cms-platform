@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { ChatbotWidget } from '@/components/chatbot-widget';
+import { TemplateRenderer } from '@/components/template/template-renderer';
+import { SkipLink } from '@/components/ui/skip-link';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -12,8 +13,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        {children}
-        <ChatbotWidget />
+        <SkipLink />
+        <TemplateRenderer>{children}</TemplateRenderer>
       </body>
     </html>
   );

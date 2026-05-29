@@ -1,23 +1,30 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
-import { AI_PROVIDER_CLIENT, AiProvider } from '../ai/providers/ai-provider.interface';
+import { AiRouterService } from '../ai/ai-router.service';
 
 @Injectable()
 export class FaqAIService {
-  constructor(@Inject(AI_PROVIDER_CLIENT) private readonly aiProvider: AiProvider, private readonly prisma: PrismaService) {}
+  constructor(private readonly aiRouter: AiRouterService, private readonly prisma: PrismaService) {}
 
   async generateFaqs(dto: { topic: string; numberOfQuestions?: number; language?: string; tone?: string; categoryId?: string }, user: AuthenticatedUser) {
     const num = dto.numberOfQuestions ?? 5;
-    const result = await this.aiProvider.generateText({
-      systemPrompt: `Generate ${num} FAQs as JSON array. Return ONLY: {"faqs":[{"question":"","answer":"","suggestedCategory":"","tags":[],"seoTitle":"","seoDescription":""}]}. Rules: seoTitle max 60 chars, seoDescription max 160 chars, answers should be clear and helpful, tone: ${dto.tone ?? 'professional'}, language: ${dto.language ?? 'English'}.`,
-      userPrompt: `Topic: ${dto.topic}`,
+    const routerResponse = await this.aiRouter.run({
+      taskType: 'faq-generation',
+      prompt: {
+        systemPrompt: `Generate ${num} FAQs as JSON array. Return ONLY: {"faqs":[{"question":"","answer":"","suggestedCategory":"","tags":[],"seoTitle":"","seoDescription":""}]}. Rules: seoTitle max 60 chars, seoDescription max 160 chars, answers should be clear and helpful, tone: ${dto.tone ?? 'professional'}, language: ${dto.language ?? 'English'}.`,
+        userPrompt: `Topic: ${dto.topic}`,
+      },
     });
 
+    if (!routerResponse.success) {
+      throw new Error(routerResponse.error ?? 'AI provider failed.');
+    }
+
+    const result = routerResponse.data;
     const parsed = this.parseResponse(result.result);
     await this.logUsage('faq-generation', dto.topic, result, user.id);
-    return { generated: parsed, provider: result.metadata.provider, model: result.metadata.model };
+    return { generated: parsed, provider: routerResponse.provider, model: routerResponse.model };
   }
 
   async generateFromContent(dto: { sourceType: string; sourceId: string; numberOfQuestions?: number; language?: string }, user: AuthenticatedUser) {
@@ -36,14 +43,22 @@ export class FaqAIService {
     if (!content) content = 'No content available. Generate general FAQs.';
 
     const num = dto.numberOfQuestions ?? 5;
-    const result = await this.aiProvider.generateText({
-      systemPrompt: `Generate ${num} FAQs from the provided content. Return ONLY: {"faqs":[{"question":"","answer":"","suggestedCategory":"","tags":[],"seoTitle":"","seoDescription":""}]}. Rules: Only use information from the content. Do not invent facts. seoTitle max 60 chars, seoDescription max 160 chars.`,
-      userPrompt: content,
+    const routerResponse = await this.aiRouter.run({
+      taskType: 'faq-generation-from-content',
+      prompt: {
+        systemPrompt: `Generate ${num} FAQs from the provided content. Return ONLY: {"faqs":[{"question":"","answer":"","suggestedCategory":"","tags":[],"seoTitle":"","seoDescription":""}]}. Rules: Only use information from the content. Do not invent facts. seoTitle max 60 chars, seoDescription max 160 chars.`,
+        userPrompt: content,
+      },
     });
 
+    if (!routerResponse.success) {
+      throw new Error(routerResponse.error ?? 'AI provider failed.');
+    }
+
+    const result = routerResponse.data;
     const parsed = this.parseResponse(result.result);
     await this.logUsage('faq-generation-from-content', `${dto.sourceType}:${dto.sourceId}`, result, user.id);
-    return { generated: parsed, sourceType: dto.sourceType, sourceId: dto.sourceId, provider: result.metadata.provider, model: result.metadata.model };
+    return { generated: parsed, sourceType: dto.sourceType, sourceId: dto.sourceId, provider: routerResponse.provider, model: routerResponse.model };
   }
 
   private parseResponse(text: string): { faqs: any[] } {
