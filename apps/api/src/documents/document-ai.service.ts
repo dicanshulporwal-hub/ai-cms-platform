@@ -103,10 +103,36 @@ Rules:
 
       let parsed: Record<string, unknown>;
       try {
-        const jsonMatch = result.result.match(/\{[\s\S]*\}/);
+        // Try to extract JSON - handle markdown code fences and raw JSON
+        let jsonStr = result.result;
+        // Remove markdown code fences if present
+        const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (fenceMatch) {
+          jsonStr = fenceMatch[1].trim();
+        }
+        // Try to find JSON object
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
         parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
       } catch {
-        parsed = {};
+        // If all parsing fails, create basic metadata from filename
+        parsed = {
+          suggestedTitle: doc.originalFileName.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' '),
+          summary: `Document: ${doc.originalFileName}`,
+          shortDescription: `${doc.documentType} document`,
+          documentType: doc.documentType,
+          language: 'en',
+          keywords: [],
+          seoTitle: doc.originalFileName.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ').slice(0, 60),
+          seoDescription: `${doc.documentType} document - ${doc.originalFileName}`.slice(0, 160),
+          suggestedCategory: '',
+          tags: [],
+          accessibilityText: `${doc.documentType} document titled ${doc.originalFileName}`,
+          readingAudience: '',
+          importantDates: [],
+          departmentOrOwner: '',
+          documentPurpose: '',
+          publicFriendlyLabel: doc.originalFileName.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' '),
+        };
       }
 
       await this.prisma.documentMetadataGenerationJob.update({

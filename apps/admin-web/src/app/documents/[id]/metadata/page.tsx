@@ -51,7 +51,7 @@ function MetadataContent({ user, docId }: { user: AuthUser; docId: string }) {
         </CardContent>
       </Card>
 
-      {aiMeta && (
+      {aiMeta && Object.keys(aiMeta).length > 0 && (
         <Card>
           <CardHeader><CardTitle>AI-Generated Metadata</CardTitle><CardDescription>Review and apply to document.</CardDescription></CardHeader>
           <CardContent className="space-y-3">
