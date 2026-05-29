@@ -22,7 +22,8 @@ export class ModuleRegistryService {
 
   async isModuleEnabled(moduleKey: string, projectId?: string): Promise<boolean> {
     const mod = await this.prisma.cmsModule.findUnique({ where: { moduleKey } });
-    if (!mod) return false;
+    // If module is not registered in database, default to ENABLED (don't block)
+    if (!mod) return true;
     if (!mod.isEnabledGlobally) return false;
     if (projectId) {
       const projectConfig = await this.prisma.projectModuleConfig.findUnique({ where: { projectId_moduleKey: { projectId, moduleKey } } });
