@@ -17,12 +17,12 @@ export async function TemplateRenderer({ children }: TemplateRendererProps) {
   const sortedRegions = [...regions].sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       {sortedRegions.map((region) => (
         <RegionRenderer key={region.id} region={region}>
           {region.regionType === 'CONTENT' ? children : null}
         </RegionRenderer>
       ))}
-    </>
+    </div>
   );
 }

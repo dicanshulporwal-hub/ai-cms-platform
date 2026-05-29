@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import type { ModuleComponentProps } from '@/types/template';
 import type { FormDefinition, FormField } from '@/types/content';
 
@@ -33,7 +34,6 @@ export function FormEmbedModule({ config, moduleKey }: ModuleComponentProps) {
           const data: FormDefinition = await response.json();
           if (!cancelled) {
             setFormDef(data);
-            // Initialize default values
             const initial: Record<string, string | string[] | boolean> = {};
             for (const field of data.fields) {
               if (field.fieldType === 'CHECKBOX' || field.fieldType === 'CONSENT') {
@@ -60,7 +60,6 @@ export function FormEmbedModule({ config, moduleKey }: ModuleComponentProps) {
 
   const handleChange = useCallback((fieldId: string, value: string | string[] | boolean) => {
     setValues((prev) => ({ ...prev, [fieldId]: value }));
-    // Clear error on change
     setErrors((prev) => {
       if (prev[fieldId]) {
         const next = { ...prev };
@@ -104,24 +103,32 @@ export function FormEmbedModule({ config, moduleKey }: ModuleComponentProps) {
 
   if (loading) {
     return (
-      <div data-module={moduleKey} data-module-type="FORM_EMBED" aria-busy="true">
-        <p>Loading form...</p>
+      <div data-module={moduleKey} data-module-type="FORM_EMBED" aria-busy="true" className="flex items-center justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <span className="ml-2 text-sm text-muted-foreground">Loading form...</span>
       </div>
     );
   }
 
   if (!slug || !formDef) {
     return (
-      <div data-module={moduleKey} data-module-type="FORM_EMBED">
-        <p>Form not available.</p>
+      <div data-module={moduleKey} data-module-type="FORM_EMBED" className="py-12 text-center">
+        <p className="text-muted-foreground">Form not available.</p>
       </div>
     );
   }
 
   if (success) {
     return (
-      <div data-module={moduleKey} data-module-type="FORM_EMBED" role="status" aria-live="polite">
-        <p className="text-green-700 font-medium">
+      <div
+        data-module={moduleKey}
+        data-module-type="FORM_EMBED"
+        role="status"
+        aria-live="polite"
+        className="mx-auto max-w-lg rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center"
+      >
+        <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500" />
+        <p className="mt-4 text-lg font-medium text-emerald-800">
           {formDef.successMessage ?? 'Form submitted successfully'}
         </p>
       </div>
@@ -131,35 +138,42 @@ export function FormEmbedModule({ config, moduleKey }: ModuleComponentProps) {
   const sortedFields = [...formDef.fields].sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <div data-module={moduleKey} data-module-type="FORM_EMBED">
-      {formDef.title && <h2 className="text-xl font-semibold mb-2">{formDef.title}</h2>}
-      {formDef.description && <p className="text-gray-600 mb-4">{formDef.description}</p>}
-
-      <form onSubmit={handleSubmit} noValidate>
-        {errors._form && (
-          <div className="mb-4 text-sm text-red-600" role="alert">
-            {errors._form}
-          </div>
+    <div data-module={moduleKey} data-module-type="FORM_EMBED" className="mx-auto max-w-lg">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-soft sm:p-8">
+        {formDef.title && (
+          <h2 className="text-xl font-bold text-card-foreground">{formDef.title}</h2>
+        )}
+        {formDef.description && (
+          <p className="mt-2 text-sm text-muted-foreground">{formDef.description}</p>
         )}
 
-        {sortedFields.map((field) => (
-          <FormFieldRenderer
-            key={field.id}
-            field={field}
-            value={values[field.id]}
-            error={errors[field.id]}
-            onChange={handleChange}
-          />
-        ))}
+        <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-5">
+          {errors._form && (
+            <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive" role="alert">
+              {errors._form}
+            </div>
+          )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="mt-4 rounded bg-blue-600 px-6 py-2 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50"
-        >
-          {submitting ? 'Submitting...' : (formDef.submitButtonText ?? 'Submit')}
-        </button>
-      </form>
+          {sortedFields.map((field) => (
+            <FormFieldRenderer
+              key={field.id}
+              field={field}
+              value={values[field.id]}
+              error={errors[field.id]}
+              onChange={handleChange}
+            />
+          ))}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {submitting ? 'Submitting...' : (formDef.submitButtonText ?? 'Submit')}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -190,18 +204,18 @@ function FormFieldRenderer({ field, value, error, onChange }: FormFieldRendererP
   }
 
   return (
-    <div className="mb-4">
+    <div>
       {field.fieldType !== 'CHECKBOX' && field.fieldType !== 'CONSENT' && (
-        <label htmlFor={fieldId} className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor={fieldId} className="mb-1.5 block text-sm font-medium text-foreground">
           {field.label}
-          {field.isRequired && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+          {field.isRequired && <span className="ml-0.5 text-destructive" aria-hidden="true">*</span>}
         </label>
       )}
 
       {renderControl(field, fieldId, value, error, errorId, onChange)}
 
       {error && (
-        <p id={errorId} className="mt-1 text-sm text-red-600" role="alert">
+        <p id={errorId} className="mt-1.5 text-xs text-destructive" role="alert">
           {error}
         </p>
       )}
@@ -218,8 +232,8 @@ function renderControl(
   onChange: (fieldId: string, value: string | string[] | boolean) => void
 ) {
   const baseInputClass =
-    'w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200' +
-    (error ? ' border-red-500' : ' border-gray-300 focus:border-blue-500');
+    'w-full rounded-lg border bg-background px-3.5 py-2.5 text-sm transition-all duration-200 placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-primary' +
+    (error ? ' border-destructive' : ' border-border hover:border-foreground/30');
 
   switch (field.fieldType) {
     case 'TEXT':
@@ -250,7 +264,7 @@ function renderControl(
           value={(value as string) ?? ''}
           onChange={(e) => onChange(field.id, e.target.value)}
           rows={4}
-          className={baseInputClass}
+          className={baseInputClass + ' resize-y'}
         />
       );
 
@@ -353,7 +367,7 @@ function renderControl(
             const selected = Array.from(e.target.selectedOptions, (opt) => opt.value);
             onChange(field.id, selected);
           }}
-          className={baseInputClass}
+          className={baseInputClass + ' min-h-[100px]'}
         >
           {field.options?.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -367,9 +381,9 @@ function renderControl(
       return (
         <fieldset aria-describedby={error ? errorId : undefined}>
           <legend className="sr-only">{field.label}</legend>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {field.options?.map((opt) => (
-              <label key={opt.value} className="flex items-center gap-2 text-sm">
+              <label key={opt.value} className="flex items-center gap-2.5 text-sm cursor-pointer">
                 <input
                   type="radio"
                   name={field.id}
@@ -377,9 +391,9 @@ function renderControl(
                   required={field.isRequired}
                   checked={(value as string) === opt.value}
                   onChange={(e) => onChange(field.id, e.target.value)}
-                  className="focus:ring-2 focus:ring-blue-200"
+                  className="h-4 w-4 border-border text-primary focus:ring-2 focus:ring-ring/30"
                 />
-                {opt.label}
+                <span className="text-foreground">{opt.label}</span>
               </label>
             ))}
           </div>
@@ -388,7 +402,7 @@ function renderControl(
 
     case 'CHECKBOX':
       return (
-        <label htmlFor={fieldId} className="flex items-center gap-2 text-sm">
+        <label htmlFor={fieldId} className="flex items-center gap-2.5 text-sm cursor-pointer">
           <input
             id={fieldId}
             type="checkbox"
@@ -398,16 +412,18 @@ function renderControl(
             aria-describedby={error ? errorId : undefined}
             checked={!!value}
             onChange={(e) => onChange(field.id, e.target.checked)}
-            className="focus:ring-2 focus:ring-blue-200"
+            className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring/30"
           />
-          {field.label}
-          {field.isRequired && <span className="text-red-500" aria-hidden="true">*</span>}
+          <span className="text-foreground">
+            {field.label}
+            {field.isRequired && <span className="ml-0.5 text-destructive" aria-hidden="true">*</span>}
+          </span>
         </label>
       );
 
     case 'CONSENT':
       return (
-        <label htmlFor={fieldId} className="flex items-start gap-2 text-sm">
+        <label htmlFor={fieldId} className="flex items-start gap-2.5 text-sm cursor-pointer">
           <input
             id={fieldId}
             type="checkbox"
@@ -417,11 +433,11 @@ function renderControl(
             aria-describedby={error ? errorId : undefined}
             checked={!!value}
             onChange={(e) => onChange(field.id, e.target.checked)}
-            className="mt-0.5 focus:ring-2 focus:ring-blue-200"
+            className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring/30"
           />
-          <span>
+          <span className="text-foreground">
             {field.label}
-            {field.isRequired && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+            {field.isRequired && <span className="ml-0.5 text-destructive" aria-hidden="true">*</span>}
           </span>
         </label>
       );
@@ -439,7 +455,7 @@ function renderControl(
             const file = e.target.files?.[0];
             onChange(field.id, file?.name ?? '');
           }}
-          className="text-sm"
+          className="block w-full text-sm text-foreground file:mr-4 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary hover:file:bg-primary/20 file:cursor-pointer file:transition-colors"
         />
       );
 

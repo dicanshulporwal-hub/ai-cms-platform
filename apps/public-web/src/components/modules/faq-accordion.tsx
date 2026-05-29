@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { ChevronDown } from 'lucide-react';
 import type { FaqItem } from '@/types/content';
 
 interface FaqAccordionProps {
@@ -33,19 +34,21 @@ export function FaqAccordion({ faqs }: FaqAccordionProps) {
   );
 
   if (faqs.length === 0) {
-    return <p>No FAQs available.</p>;
+    return (
+      <p className="text-center text-muted-foreground">No FAQs available.</p>
+    );
   }
 
   return (
-    <div className="faq-accordion" role="list">
+    <div className="divide-y divide-border rounded-xl border border-border" role="list">
       {faqs.map((faq) => {
         const isExpanded = expandedIds.has(faq.id);
         const buttonId = `faq-button-${faq.id}`;
         const panelId = `faq-panel-${faq.id}`;
 
         return (
-          <div key={faq.id} className="faq-item" role="listitem">
-            <h3>
+          <div key={faq.id} role="listitem">
+            <h3 className="m-0">
               <button
                 id={buttonId}
                 type="button"
@@ -53,9 +56,14 @@ export function FaqAccordion({ faqs }: FaqAccordionProps) {
                 aria-controls={panelId}
                 onClick={() => toggle(faq.id)}
                 onKeyDown={(e) => handleKeyDown(e, faq.id)}
-                className="faq-question"
+                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-base font-medium text-foreground transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
               >
-                {faq.question}
+                <span>{faq.question}</span>
+                <ChevronDown
+                  className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 ${
+                    isExpanded ? 'rotate-180' : ''
+                  }`}
+                />
               </button>
             </h3>
             <div
@@ -63,9 +71,13 @@ export function FaqAccordion({ faqs }: FaqAccordionProps) {
               role="region"
               aria-labelledby={buttonId}
               hidden={!isExpanded}
-              className="faq-answer"
+              className={`overflow-hidden transition-all duration-200 ${
+                isExpanded ? 'pb-5 px-5' : ''
+              }`}
             >
-              <p>{faq.answer}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {faq.answer}
+              </p>
             </div>
           </div>
         );

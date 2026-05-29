@@ -13,7 +13,7 @@ export default async function FormsPage({ params }: FormsPageProps) {
   const { slug } = await params;
 
   return (
-    <section className="mx-auto max-w-4xl px-6 py-16">
+    <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
       <FormEmbedModule config={{ slug }} moduleKey={`form-${slug}`} />
     </section>
   );

@@ -13,29 +13,37 @@ export default async function HomePage() {
 
   if (!page) {
     return (
-      <section className="mx-auto max-w-4xl px-6 py-16">
-        <h1 className="text-3xl font-semibold">Welcome</h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Welcome to our website. Content is being prepared and will be available
-          soon.
-        </p>
+      <section className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            Welcome
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            Welcome to our website. Content is being prepared and will be available
+            soon.
+          </p>
+        </div>
       </section>
     );
   }
 
   return (
-    <article className="mx-auto max-w-4xl px-6 py-16">
+    <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 animate-fade-in">
       {page.featuredImage && (
-        <img
-          src={page.featuredImage}
-          alt={page.title}
-          className="mb-8 w-full rounded-lg object-cover"
-        />
+        <div className="mb-10 overflow-hidden rounded-xl shadow-soft-lg">
+          <img
+            src={page.featuredImage}
+            alt={page.title}
+            className="w-full object-cover"
+          />
+        </div>
       )}
-      <h1 className="text-3xl font-semibold">{page.title}</h1>
+      <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+        {page.title}
+      </h1>
       {page.content && (
         <div
-          className="prose mt-6 max-w-none"
+          className="prose mt-8 max-w-none"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content) }}
         />
       )}

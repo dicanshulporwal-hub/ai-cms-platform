@@ -23,15 +23,17 @@ export default async function PageDetailPage({ params }: PageDetailProps) {
   }
 
   return (
-    <article className="mx-auto max-w-4xl px-6 py-12">
-      <h1 className="text-3xl font-bold md:text-4xl">{page.title}</h1>
+    <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 animate-fade-in">
+      <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+        {page.title}
+      </h1>
 
       {page.featuredImage && (
-        <div className="mt-6">
+        <div className="mt-8 overflow-hidden rounded-xl shadow-soft-lg">
           <img
             src={page.featuredImage}
             alt={page.title}
-            className="h-auto w-full rounded-lg object-cover"
+            className="h-auto w-full object-cover"
             loading="eager"
           />
         </div>
@@ -39,7 +41,7 @@ export default async function PageDetailPage({ params }: PageDetailProps) {
 
       {page.content && (
         <div
-          className="prose prose-lg mt-8 max-w-none"
+          className="prose mt-10 max-w-none"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content) }}
         />
       )}
