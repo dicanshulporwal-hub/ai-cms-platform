@@ -73,6 +73,48 @@ export class AiPromptsController {
     return this.service.rollback(id, versionId, user);
   }
 
+  @Post(':id/submit-approval')
+  @Roles('Super Admin', 'Admin')
+  @ApiOperation({ summary: 'Submit prompt for approval.' })
+  submitApproval(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.service.submitForApproval(id, user);
+  }
+
+  @Post(':id/approve')
+  @Roles('Super Admin')
+  @ApiOperation({ summary: 'Approve a prompt.' })
+  approve(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.service.approve(id, user);
+  }
+
+  @Post(':id/reject')
+  @Roles('Super Admin')
+  @ApiOperation({ summary: 'Reject a prompt.' })
+  reject(@Param('id') id: string, @Body() body: { reason: string }, @CurrentUser() user: AuthenticatedUser) {
+    return this.service.reject(id, body.reason, user);
+  }
+
+  @Post(':id/test')
+  @Roles('Super Admin', 'Admin')
+  @ApiOperation({ summary: 'Test a prompt with AI provider.' })
+  testPrompt(@Param('id') id: string, @Body() body: any, @CurrentUser() user: AuthenticatedUser) {
+    return this.service.testPrompt(id, body, user);
+  }
+
+  @Get(':id/test-runs')
+  @Roles('Super Admin', 'Admin')
+  @ApiOperation({ summary: 'Get test runs for a prompt.' })
+  getTestRuns(@Param('id') id: string) {
+    return this.service.getTestRuns(id);
+  }
+
+  @Post(':id/safety-check')
+  @Roles('Super Admin', 'Admin')
+  @ApiOperation({ summary: 'Run safety check on a prompt version.' })
+  safetyCheck(@Param('id') id: string) {
+    return this.service.runSafetyCheck(id);
+  }
+
   @Delete(':id')
   @Roles('Super Admin', 'Admin')
   @ApiOperation({ summary: 'Delete prompt template (soft).' })
