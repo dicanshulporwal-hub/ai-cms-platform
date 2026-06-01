@@ -1866,3 +1866,69 @@ model WebhookDelivery {
   @@index([createdAt])
   @@map("webhook_deliveries")
 }
+
+// ============================================
+// Deployment & Environment Manager
+// ============================================
+
+enum DeploymentEnvStatus {
+  LOCAL
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+  ENV_ARCHIVED
+}
+
+model DeploymentEnvironment {
+  id              String              @id @default(cuid())
+  name            String              @db.VarChar(255)
+  environmentKey  String              @unique @db.VarChar(50)
+  description     String?             @db.Text
+  baseUrl         String?             @db.VarChar(2048)
+  apiUrl          String?             @db.VarChar(2048)
+  adminUrl        String?             @db.VarChar(2048)
+  publicUrl       String?             @db.VarChar(2048)
+  status          DeploymentEnvStatus @default(LOCAL)
+  isDefault       Boolean             @default(false)
+  createdById     String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+
+  @@index([status])
+  @@index([isDefault])
+  @@map("deployment_environments")
+}
+
+model DeploymentChecklistItem {
+  id           String   @id @default(cuid())
+  checklistKey String   @unique @db.VarChar(100)
+  title        String   @db.VarChar(255)
+  description  String?  @db.Text
+  category     String   @db.VarChar(50)
+  severity     String   @default("MEDIUM") @db.VarChar(20)
+  isRequired   Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  isSystemItem Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@map("deployment_checklist_items")
+}
+
+model DeploymentLog {
+  id            String   @id @default(cuid())
+  environmentId String?  @db.VarChar(191)
+  action        String   @db.VarChar(100)
+  status        String   @default("INFO") @db.VarChar(20)
+  message       String?  @db.Text
+  metadataJson  Json?    @db.Json
+  createdById   String?
+  createdAt     DateTime @default(now())
+
+  @@index([environmentId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("deployment_logs")
+}

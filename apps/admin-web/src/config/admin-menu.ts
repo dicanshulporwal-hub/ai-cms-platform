@@ -157,6 +157,15 @@ export const adminMenuGroups: MenuGroup[] = [
       { href: '/modules', label: 'Modules', icon: Box, adminOnly: true },
       { href: '/integrations', label: 'Integrations', icon: Webhook, adminOnly: true },
       { href: '/backup-manager', label: 'Backup & Restore', icon: Archive, adminOnly: true },
+      {
+        href: '/deployment', label: 'Deployment', icon: Box, adminOnly: true,
+        children: [
+          { href: '/deployment', label: 'Overview' },
+          { href: '/deployment/environments', label: 'Environments' },
+          { href: '/deployment/checklist', label: 'Checklist' },
+          { href: '/deployment/logs', label: 'Logs' },
+        ],
+      },
     ],
   },
   {

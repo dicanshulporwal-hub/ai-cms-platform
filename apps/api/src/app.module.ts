@@ -13,6 +13,7 @@ import { BlogsModule } from './blogs/blogs.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { validateEnvironment } from './config/env.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DeploymentModule } from './deployment/deployment.module';
 import { DocumentsModule } from './documents/documents.module';
 import { FormsModule } from './forms/forms.module';
 import { FaqsModule } from './faqs/faqs.module';
@@ -47,6 +48,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     BrokenLinksModule,
     ChatbotModule,
     DashboardModule,
+    DeploymentModule,
     DocumentsModule,
     FormsModule,
     FaqsModule,
