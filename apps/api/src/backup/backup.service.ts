@@ -211,4 +211,115 @@ export class BackupService {
   async listExports() {
     return this.prisma.exportJob.findMany({ orderBy: { createdAt: 'desc' }, take: 20 });
   }
+
+  async validateRestore(backupJobId: string, user: AuthenticatedUser) {
+    const job = await this.getJob(backupJobId);
+    if (job.status !== 'BACKUP_COMPLETED' || !job.fileKey) throw new BadRequestException('Backup not available for restore.');
+
+    const filePath = resolve(this.getBackupDir(), job.fileKey);
+    if (!existsSync(filePath)) throw new NotFoundException('Backup file not found.');
+
+    const content = JSON.parse(readFileSync(filePath, 'utf-8'));
+    const manifest = content.manifest;
+    const data = content.data;
+
+    const summary = {
+      valid: true,
+      manifest,
+      records: {
+        pages: data.pages?.length ?? 0,
+        blogs: data.blogs?.length ?? 0,
+        faqs: data.faqs?.length ?? 0,
+        categories: data.categories?.length ?? 0,
+        tags: data.tags?.length ?? 0,
+        templates: data.templates?.length ?? 0,
+        settings: data.settings ? 1 : 0,
+      },
+      warnings: [] as string[],
+    };
+
+    if (!manifest) { summary.valid = false; summary.warnings.push('Missing manifest.'); }
+    if (!data) { summary.valid = false; summary.warnings.push('Missing data.'); }
+    if (manifest?.includeSecrets) summary.warnings.push('Backup contains secrets.');
+
+    await this.prisma.auditLog.create({
+      data: { action: 'restore.validated', entityId: backupJobId, entityType: 'BackupJob', userId: user.id, metadata: { valid: summary.valid } as unknown as Prisma.InputJsonValue },
+    });
+
+    return summary;
+  }
+
+  async executeRestore(backupJobId: string, conflictStrategy: string, user: AuthenticatedUser) {
+    if (user.role !== 'Super Admin') throw new BadRequestException('Only Super Admin can execute restore.');
+
+    const job = await this.getJob(backupJobId);
+    if (job.status !== 'BACKUP_COMPLETED' || !job.fileKey) throw new BadRequestException('Backup not available.');
+
+    const filePath = resolve(this.getBackupDir(), job.fileKey);
+    if (!existsSync(filePath)) throw new NotFoundException('Backup file not found.');
+
+    const content = JSON.parse(readFileSync(filePath, 'utf-8'));
+    const data = content.data;
+    const results = { pagesRestored: 0, blogsRestored: 0, faqsRestored: 0, skipped: 0, errors: [] as string[] };
+
+    // Restore pages
+    if (data.pages) {
+      for (const page of data.pages) {
+        try {
+          const existing = await this.prisma.page.findUnique({ where: { slug: page.slug } });
+          if (existing) {
+            if (conflictStrategy === 'OVERWRITE') {
+              await this.prisma.page.update({ where: { slug: page.slug }, data: { title: page.title, content: page.content, excerpt: page.excerpt, metaTitle: page.metaTitle, metaDescription: page.metaDescription, featuredImage: page.featuredImage } });
+              results.pagesRestored++;
+            } else { results.skipped++; }
+          } else {
+            await this.prisma.page.create({ data: { title: page.title, slug: page.slug, content: page.content, excerpt: page.excerpt, status: 'DRAFT', metaTitle: page.metaTitle, metaDescription: page.metaDescription, featuredImage: page.featuredImage } });
+            results.pagesRestored++;
+          }
+        } catch (err) { results.errors.push(`Page ${page.slug}: ${err instanceof Error ? err.message : 'failed'}`); }
+      }
+    }
+
+    // Restore blogs
+    if (data.blogs) {
+      for (const blog of data.blogs) {
+        try {
+          const existing = await this.prisma.blogPost.findUnique({ where: { slug: blog.slug } });
+          if (existing) {
+            if (conflictStrategy === 'OVERWRITE') {
+              await this.prisma.blogPost.update({ where: { slug: blog.slug }, data: { title: blog.title, content: blog.content, excerpt: blog.excerpt, metaTitle: blog.metaTitle, metaDescription: blog.metaDescription, featuredImage: blog.featuredImage } });
+              results.blogsRestored++;
+            } else { results.skipped++; }
+          } else {
+            await this.prisma.blogPost.create({ data: { title: blog.title, slug: blog.slug, content: blog.content, excerpt: blog.excerpt, status: 'DRAFT', metaTitle: blog.metaTitle, metaDescription: blog.metaDescription, featuredImage: blog.featuredImage } });
+            results.blogsRestored++;
+          }
+        } catch (err) { results.errors.push(`Blog ${blog.slug}: ${err instanceof Error ? err.message : 'failed'}`); }
+      }
+    }
+
+    // Restore FAQs
+    if (data.faqs) {
+      for (const faq of data.faqs) {
+        try {
+          const existing = await this.prisma.faq.findUnique({ where: { slug: faq.slug } });
+          if (existing) {
+            if (conflictStrategy === 'OVERWRITE') {
+              await this.prisma.faq.update({ where: { slug: faq.slug }, data: { question: faq.question, answer: faq.answer } });
+              results.faqsRestored++;
+            } else { results.skipped++; }
+          } else {
+            await this.prisma.faq.create({ data: { question: faq.question, answer: faq.answer, slug: faq.slug, status: 'DRAFT' } });
+            results.faqsRestored++;
+          }
+        } catch (err) { results.errors.push(`FAQ ${faq.slug}: ${err instanceof Error ? err.message : 'failed'}`); }
+      }
+    }
+
+    await this.prisma.auditLog.create({
+      data: { action: 'restore.executed', entityId: backupJobId, entityType: 'BackupJob', userId: user.id, metadata: results as unknown as Prisma.InputJsonValue },
+    });
+
+    return { message: 'Restore completed.', ...results };
+  }
 }

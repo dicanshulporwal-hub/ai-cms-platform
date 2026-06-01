@@ -57,4 +57,14 @@ export class BackupController {
   @Roles('Super Admin', 'Admin')
   @ApiOperation({ summary: 'List export jobs.' })
   listExports() { return this.service.listExports(); }
+
+  @Post('restores/validate')
+  @Roles('Super Admin')
+  @ApiOperation({ summary: 'Validate a backup for restore (dry run).' })
+  validateRestore(@Body() body: { backupJobId: string }, @CurrentUser() user: AuthenticatedUser) { return this.service.validateRestore(body.backupJobId, user); }
+
+  @Post('restores/execute')
+  @Roles('Super Admin')
+  @ApiOperation({ summary: 'Execute restore from a backup.' })
+  executeRestore(@Body() body: { backupJobId: string; conflictStrategy?: string }, @CurrentUser() user: AuthenticatedUser) { return this.service.executeRestore(body.backupJobId, body.conflictStrategy || 'SKIP', user); }
 }

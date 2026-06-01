@@ -100,6 +100,11 @@ function BackupContent({ user }: { user: AuthUser }) {
         </CardContent>
       </Card>
 
+      {/* Restore from Backup */}
+      {user.role === 'Super Admin' && jobs.filter(j => j.status === 'BACKUP_COMPLETED').length > 0 && (
+        <RestoreSection jobs={jobs.filter(j => j.status === 'BACKUP_COMPLETED')} />
+      )}
+
       {/* Backup History */}
       <Card>
         <CardHeader><CardTitle className="text-base">Backup History ({jobs.length})</CardTitle></CardHeader>
@@ -121,6 +126,101 @@ function BackupContent({ user }: { user: AuthUser }) {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function RestoreSection({ jobs }: { jobs: BackupJob[] }) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [validation, setValidation] = useState<any>(null);
+  const [validating, setValidating] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const [conflictStrategy, setConflictStrategy] = useState('SKIP');
+  const [restoreResult, setRestoreResult] = useState<any>(null);
+
+  async function handleValidate() {
+    if (!selectedId) return;
+    setValidating(true); setValidation(null); setRestoreResult(null);
+    try {
+      const result = await apiClient<any>('/api/restores/validate', { method: 'POST', body: JSON.stringify({ backupJobId: selectedId }) });
+      setValidation(result);
+    } catch {}
+    setValidating(false);
+  }
+
+  async function handleRestore() {
+    if (!selectedId) return;
+    if (!confirm('Are you sure you want to restore this backup? This will modify your database content.')) return;
+    setRestoring(true);
+    try {
+      const result = await apiClient<any>('/api/restores/execute', { method: 'POST', body: JSON.stringify({ backupJobId: selectedId, conflictStrategy }) });
+      setRestoreResult(result);
+    } catch {}
+    setRestoring(false);
+  }
+
+  return (
+    <Card className="border-amber-200">
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Play className="h-4 w-4 text-amber-600" /> Restore from Backup
+        </CardTitle>
+        <CardDescription>Select a completed backup to validate and restore. Super Admin only.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Select Backup</label>
+          <select className="w-full rounded-md border p-2 text-sm" value={selectedId || ''} onChange={(e) => { setSelectedId(e.target.value); setValidation(null); setRestoreResult(null); }}>
+            <option value="">Choose a backup...</option>
+            {jobs.map(j => <option key={j.id} value={j.id}>{j.jobType.replace('_', ' ')} — {new Date(j.createdAt).toLocaleString()} ({(j.fileSize / 1024).toFixed(0)} KB)</option>)}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Conflict Strategy</label>
+          <select className="w-full rounded-md border p-2 text-sm" value={conflictStrategy} onChange={(e) => setConflictStrategy(e.target.value)}>
+            <option value="SKIP">Skip existing records</option>
+            <option value="OVERWRITE">Overwrite existing records</option>
+          </select>
+        </div>
+
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleValidate} disabled={!selectedId || validating}>
+            {validating ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Validate
+          </Button>
+          <Button onClick={handleRestore} disabled={!selectedId || !validation?.valid || restoring} className="bg-amber-600 hover:bg-amber-700">
+            {restoring ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Execute Restore
+          </Button>
+        </div>
+
+        {validation && (
+          <div className={`rounded-md border p-3 text-sm ${validation.valid ? 'border-emerald-200 bg-emerald-50' : 'border-red-200 bg-red-50'}`}>
+            <p className="font-medium mb-2">{validation.valid ? '✓ Backup is valid' : '✗ Backup has issues'}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              <span>Pages: {validation.records?.pages ?? 0}</span>
+              <span>Blogs: {validation.records?.blogs ?? 0}</span>
+              <span>FAQs: {validation.records?.faqs ?? 0}</span>
+              <span>Templates: {validation.records?.templates ?? 0}</span>
+            </div>
+            {validation.warnings?.length > 0 && (
+              <div className="mt-2 space-y-1">{validation.warnings.map((w: string, i: number) => <p key={i} className="text-xs text-amber-700">⚠ {w}</p>)}</div>
+            )}
+          </div>
+        )}
+
+        {restoreResult && (
+          <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm">
+            <p className="font-medium mb-1">✓ Restore completed</p>
+            <div className="text-xs space-y-1">
+              <p>Pages restored: {restoreResult.pagesRestored}</p>
+              <p>Blogs restored: {restoreResult.blogsRestored}</p>
+              <p>FAQs restored: {restoreResult.faqsRestored}</p>
+              <p>Skipped: {restoreResult.skipped}</p>
+              {restoreResult.errors?.length > 0 && <p className="text-destructive">Errors: {restoreResult.errors.length}</p>}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
