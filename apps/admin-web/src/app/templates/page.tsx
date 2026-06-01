@@ -1,16 +1,66 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, FileUp, Loader2, Plus, Sparkles, Trash2, XCircle } from 'lucide-react';
+import { CheckCircle, Eye, FileUp, Loader2, Plus, Sparkles, Trash2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { AdminPageShell } from '@/components/layout/admin-page-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useActivateTemplate, useDeactivateTemplate, useDeleteTemplate, useTemplates } from '@/hooks/use-templates';
+import { TEMPLATE_PREVIEWS } from '@/lib/template-previews';
+import type { Template } from '@/lib/templates-api';
 import type { AuthUser } from '@/types/auth';
 
 function formatDate(d: string) { return new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }); }
+
+function ActiveTemplateCard({ template }: { template: Template }) {
+  const previewHtml = template.slug ? TEMPLATE_PREVIEWS[template.slug] : null;
+
+  return (
+    <Card className="border-emerald-200 bg-emerald-50/30">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+              <CheckCircle className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Active Template: {template.name}</CardTitle>
+              <CardDescription>{template.description}</CardDescription>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">
+              {template.templateType.replace('_', ' ')}
+            </span>
+            <Link href={`/templates/onboarding/preview/${template.id}`}>
+              <Button variant="outline" className="text-xs">
+                <Eye className="h-3.5 w-3.5" /> Full Preview
+              </Button>
+            </Link>
+            <Link href={`/templates/${template.id}/layout`}>
+              <Button className="text-xs">
+                Customize
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </CardHeader>
+      {previewHtml && (
+        <CardContent className="pt-0">
+          <div className="rounded-lg border border-emerald-200 overflow-hidden bg-white">
+            <div
+              className="w-[200%] origin-top-left scale-50 pointer-events-none"
+              style={{ height: '200px', overflow: 'hidden' }}
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
+            />
+          </div>
+        </CardContent>
+      )}
+    </Card>
+  );
+}
 
 function TemplatesContent({ user }: { user: AuthUser }) {
   const { data: templates, isLoading, isError, error } = useTemplates();
@@ -30,11 +80,37 @@ function TemplatesContent({ user }: { user: AuthUser }) {
           <p className="mt-1 text-sm text-muted-foreground">Manage frontend website templates with UX4G/GIGW readiness checks.</p>
         </div>
         <div className="flex gap-2">
+          <Link href="/templates/onboarding"><Button variant="outline"><Eye className="h-4 w-4" /> Select Template</Button></Link>
           <Link href="/templates/modules"><Button variant="outline">Modules</Button></Link>
           <Link href="/templates/upload"><Button variant="outline"><FileUp className="h-4 w-4" /> Upload ZIP</Button></Link>
           <Link href="/templates/ai-generate"><Button><Sparkles className="h-4 w-4" /> AI Generate</Button></Link>
         </div>
       </div>
+
+      {/* Active Template Preview */}
+      {templates && templates.find((t) => t.isActive) && (
+        <ActiveTemplateCard template={templates.find((t) => t.isActive)!} />
+      )}
+
+      {/* No active template warning */}
+      {templates && templates.length > 0 && !templates.find((t) => t.isActive) && (
+        <Card className="border-amber-200 bg-amber-50/30">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+                <XCircle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-amber-900">No template is currently active</p>
+                <p className="text-sm text-amber-700">Select a template to use for your public website.</p>
+              </div>
+              <Link href="/templates/onboarding">
+                <Button>Select Template</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader><CardTitle>Templates</CardTitle><CardDescription>Upload, generate, preview, and activate templates.</CardDescription></CardHeader>
