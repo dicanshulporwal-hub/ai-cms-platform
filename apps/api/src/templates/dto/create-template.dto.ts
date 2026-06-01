@@ -17,6 +17,10 @@ export class UpdateTemplateDto {
   @IsOptional()
   @IsString()
   templateType?: string;
+
+  @ApiPropertyOptional({ description: 'Template configuration JSON (theme, preview, etc.)' })
+  @IsOptional()
+  configJson?: Record<string, unknown>;
 }
 
 export class AIGenerateTemplateDto {

@@ -10,6 +10,7 @@ import { TemplateLayoutController } from './template-layout.controller';
 import { TemplateModuleRegistryService } from './template-module-registry.service';
 import { TemplateModuleRegistryController } from './template-module-registry.controller';
 import { PublicTemplateController } from './public-template.controller';
+import { TemplateSeedService } from './template-seed.service';
 
 @Module({
   imports: [ConfigModule, AiModule],
@@ -25,6 +26,7 @@ import { PublicTemplateController } from './public-template.controller';
     AITemplateService,
     TemplateLayoutService,
     TemplateModuleRegistryService,
+    TemplateSeedService,
   ],
 })
 export class TemplatesModule {}

@@ -9,6 +9,8 @@ import {
   getComplianceReport,
   runComplianceCheck,
   saveAIJobAsTemplate,
+  seedDummyTemplates,
+  selectTemplate,
   uploadTemplate,
 } from '@/lib/templates-api';
 
@@ -57,4 +59,14 @@ export function useAIGenerateTemplate() {
 export function useSaveAIJobAsTemplate() {
   const qc = useQueryClient();
   return useMutation({ mutationFn: saveAIJobAsTemplate, onSuccess: () => qc.invalidateQueries({ queryKey: templatesQueryKey }) });
+}
+
+export function useSeedDummyTemplates() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: seedDummyTemplates, onSuccess: () => qc.invalidateQueries({ queryKey: templatesQueryKey }) });
+}
+
+export function useSelectTemplate() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: selectTemplate, onSuccess: () => qc.invalidateQueries({ queryKey: templatesQueryKey }) });
 }

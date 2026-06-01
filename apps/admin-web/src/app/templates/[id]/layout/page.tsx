@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Plus, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Plus, Save, Trash2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { AdminPageShell } from '@/components/layout/admin-page-shell';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { apiClient } from '@/lib/api-client';
 import { useTemplate } from '@/hooks/use-templates';
+import { TemplateGate } from '@/components/templates/template-gate';
+import { TemplateStepper } from '@/components/templates/template-stepper';
 import type { AuthUser } from '@/types/auth';
 
 interface Region { id: string; regionKey: string; regionName: string; regionType: string; sortOrder: number; isActive: boolean; modules: Module[]; }
@@ -88,8 +90,20 @@ function LayoutContent({ user, templateId }: { user: AuthUser; templateId: strin
 
   return (
     <div className="space-y-6">
-      <Link href="/templates"><Button size="sm" variant="ghost"><ArrowLeft className="h-4 w-4" /> Back</Button></Link>
-      <div><h1 className="text-2xl font-semibold">Layout Builder: {template?.name}</h1><p className="mt-1 text-sm text-muted-foreground">Assign CMS modules to template regions. Modules marked visible will appear on the public portal.</p></div>
+      {/* Stepper */}
+      <TemplateStepper templateId={templateId} currentStep={2} />
+
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Layout Builder: {template?.name}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Assign CMS modules to template regions. Modules marked visible will appear on the public portal.</p>
+        </div>
+        <Link href={`/templates/${templateId}/customize`}>
+          <Button>
+            Next: Customization <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
       {error && <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
       {success && <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</div>}
 
@@ -157,5 +171,13 @@ function LayoutContent({ user, templateId }: { user: AuthUser; templateId: strin
 }
 
 export default function LayoutBuilderPage({ params }: { params: { id: string } }) {
-  return <AdminPageShell sectionTitle="Layout Builder">{(user) => <LayoutContent user={user} templateId={params.id} />}</AdminPageShell>;
+  return (
+    <AdminPageShell sectionTitle="Layout Builder">
+      {(user) => (
+        <TemplateGate>
+          <LayoutContent user={user} templateId={params.id} />
+        </TemplateGate>
+      )}
+    </AdminPageShell>
+  );
 }

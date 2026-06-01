@@ -35,12 +35,18 @@ interface AppShellProps {
   sectionTitle?: string;
 }
 
+interface NavSubItem {
+  href: string;
+  label: string;
+}
+
 interface NavItem {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
   adminOnly?: boolean;
+  children?: NavSubItem[];
 }
 
 const navItems: NavItem[] = [
@@ -61,7 +67,18 @@ const navItems: NavItem[] = [
   { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/users', label: 'Users', icon: Users, adminOnly: true },
   { href: '/roles', label: 'Roles', icon: Shield, adminOnly: true },
-  { href: '/templates', label: 'Templates', icon: Layout, adminOnly: true },
+  {
+    href: '/templates',
+    label: 'Templates',
+    icon: Layout,
+    adminOnly: true,
+    children: [
+      { href: '/templates/onboarding', label: 'Select Template' },
+      { href: '/templates/modules', label: 'Modules' },
+      { href: '/templates/upload', label: 'Upload' },
+      { href: '/templates/ai-generate', label: 'AI Generate' },
+    ],
+  },
   { href: '/modules', label: 'Modules', icon: Box, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
@@ -102,6 +119,54 @@ export function AppShell({
             const active = item.exact
               ? pathname === item.href
               : pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+            // Items with children render as expandable section
+            if (item.children) {
+              const isExpanded = active;
+              return (
+                <div key={item.label}>
+                  <Link
+                    href={item.href}
+                    className={[
+                      'flex h-10 w-full items-center gap-3 rounded-md px-3 text-left text-sm transition-colors',
+                      active
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    ].join(' ')}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                    <ChevronDown
+                      className={[
+                        'ml-auto h-3.5 w-3.5 transition-transform',
+                        isExpanded ? 'rotate-180' : '',
+                      ].join(' ')}
+                    />
+                  </Link>
+                  {isExpanded && (
+                    <div className="ml-7 mt-1 space-y-0.5 border-l border-border pl-3">
+                      {item.children.map((sub) => {
+                        const subActive = pathname === sub.href || pathname.startsWith(`${sub.href}/`);
+                        return (
+                          <Link
+                            key={sub.href}
+                            href={sub.href}
+                            className={[
+                              'flex h-8 items-center rounded-md px-2 text-xs transition-colors',
+                              subActive
+                                ? 'bg-muted font-medium text-foreground'
+                                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                            ].join(' ')}
+                          >
+                            {sub.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
 
             return (
               <Link

@@ -20,6 +20,7 @@ import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { UpdateTemplateDto, AIGenerateTemplateDto } from './dto/create-template.dto';
 import { TemplatesService } from './templates.service';
 import { AITemplateService } from './ai-template.service';
+import { TemplateSeedService } from './template-seed.service';
 
 @ApiTags('Templates')
 @ApiBearerAuth()
@@ -29,6 +30,7 @@ export class TemplatesController {
   constructor(
     private readonly templatesService: TemplatesService,
     private readonly aiTemplateService: AITemplateService,
+    private readonly templateSeedService: TemplateSeedService,
   ) {}
 
   @Get()
@@ -140,5 +142,26 @@ export class TemplatesController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.aiTemplateService.saveAsTemplate(id, user);
+  }
+
+  @Post('seed')
+  @Roles('Super Admin', 'Admin')
+  @ApiOperation({ summary: 'Seed dummy templates for onboarding.' })
+  seedTemplates() {
+    return this.templateSeedService.seedDummyTemplates();
+  }
+
+  @Get(':id/preview-html')
+  @Roles('Super Admin', 'Admin')
+  @ApiOperation({ summary: 'Get preview HTML for a template.' })
+  getPreviewHtml(@Param('id') id: string) {
+    return this.templateSeedService.getTemplatePreviewHtml(id);
+  }
+
+  @Post(':id/select')
+  @Roles('Super Admin', 'Admin')
+  @ApiOperation({ summary: 'Select a template as the active template for the website.' })
+  selectTemplate(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.templatesService.activate(id, user);
   }
 }

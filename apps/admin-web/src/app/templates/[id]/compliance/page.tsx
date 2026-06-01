@@ -6,6 +6,7 @@ import { AdminPageShell } from '@/components/layout/admin-page-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useComplianceReport, useRunComplianceCheck, useTemplate } from '@/hooks/use-templates';
+import { TemplateGate } from '@/components/templates/template-gate';
 import type { AuthUser } from '@/types/auth';
 
 const statusIcons = { PASS: CheckCircle, WARNING: AlertTriangle, FAIL: XCircle, NOT_CHECKED: AlertTriangle };
@@ -74,5 +75,13 @@ function ComplianceContent({ user, templateId }: { user: AuthUser; templateId: s
 }
 
 export default function CompliancePage({ params }: { params: { id: string } }) {
-  return <AdminPageShell sectionTitle="Compliance Report">{(user) => <ComplianceContent user={user} templateId={params.id} />}</AdminPageShell>;
+  return (
+    <AdminPageShell sectionTitle="Compliance Report">
+      {(user) => (
+        <TemplateGate>
+          <ComplianceContent user={user} templateId={params.id} />
+        </TemplateGate>
+      )}
+    </AdminPageShell>
+  );
 }

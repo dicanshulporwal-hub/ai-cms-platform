@@ -95,3 +95,15 @@ export async function getAIGenerationJob(id: string) {
 export async function saveAIJobAsTemplate(jobId: string) {
   return apiClient<Template>(`/api/templates/ai/generation-jobs/${jobId}/save-as-template`, { method: 'POST' });
 }
+
+export async function seedDummyTemplates() {
+  return apiClient<{ message: string; templates: Template[] }>('/api/templates/seed', { method: 'POST' });
+}
+
+export async function getTemplatePreviewHtml(id: string) {
+  return apiClient<string>(`/api/templates/${id}/preview-html`, { cache: 'no-store' });
+}
+
+export async function selectTemplate(id: string) {
+  return apiClient<Template>(`/api/templates/${id}/select`, { method: 'POST' });
+}

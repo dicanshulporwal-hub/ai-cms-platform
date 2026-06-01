@@ -248,16 +248,18 @@ export class TemplatesService {
     return { ...template, complianceReport };
   }
 
-  async update(id: string, dto: { name?: string; description?: string; templateType?: string }, user: AuthenticatedUser) {
+  async update(id: string, dto: { name?: string; description?: string; templateType?: string; configJson?: Record<string, unknown> }, user: AuthenticatedUser) {
     const template = await this.findOne(id);
+
+    const updateData: any = {};
+    if (dto.name !== undefined) updateData.name = dto.name.trim();
+    if (dto.description !== undefined) updateData.description = dto.description.trim();
+    if (dto.templateType !== undefined) updateData.templateType = dto.templateType as any;
+    if (dto.configJson !== undefined) updateData.configJson = dto.configJson as unknown as Prisma.InputJsonValue;
 
     const updated = await this.prisma.websiteTemplate.update({
       where: { id },
-      data: {
-        name: dto.name?.trim(),
-        description: dto.description?.trim(),
-        templateType: dto.templateType as any,
-      },
+      data: updateData,
     });
 
     await this.prisma.auditLog.create({
@@ -265,7 +267,7 @@ export class TemplatesService {
         action: 'template.updated',
         entityId: id,
         entityType: 'WebsiteTemplate',
-        metadata: dto as unknown as Prisma.InputJsonValue,
+        metadata: { fields: Object.keys(updateData) } as unknown as Prisma.InputJsonValue,
         userId: user.id,
       },
     });
