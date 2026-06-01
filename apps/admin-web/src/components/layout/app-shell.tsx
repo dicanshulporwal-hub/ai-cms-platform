@@ -65,6 +65,7 @@ const navItems: NavItem[] = [
   { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
   { href: '/ai/usage', label: 'AI Usage', icon: Sparkles },
   { href: '/ai/providers', label: 'AI Providers', icon: Sparkles, adminOnly: true },
+  { href: '/ai/prompts', label: 'AI Prompts', icon: Sparkles, adminOnly: true },
   { href: '/chatbot', label: 'Chatbot', icon: MessageCircle, exact: true },
   { href: '/chatbot/leads', label: 'Leads', icon: Users },
   { href: '/notifications', label: 'Notifications', icon: Bell },
@@ -87,7 +88,9 @@ const navItems: NavItem[] = [
   { href: '/accessibility', label: 'Accessibility', icon: Shield, adminOnly: true },
   { href: '/broken-links', label: 'Broken Links', icon: Link2, adminOnly: true },
   { href: '/analytics', label: 'Analytics', icon: BarChart3, adminOnly: true },
-  { href: '/seo/sitemap', label: 'SEO & Sitemap', icon: Globe, adminOnly: true },
+  { href: '/seo/sitemap', label: 'Sitemap', icon: Globe, adminOnly: true },
+  { href: '/seo/robots', label: 'Robots.txt', icon: Globe, adminOnly: true },
+  { href: '/seo/schema', label: 'Structured Data', icon: Globe, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
 

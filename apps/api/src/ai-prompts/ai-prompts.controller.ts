@@ -25,7 +25,7 @@ export class AiPromptsController {
     return this.service.list({ taskType, moduleKey, status });
   }
 
-  @Get('governance/summary')
+  @Get('governance')
   @Roles('Super Admin', 'Admin')
   @ApiOperation({ summary: 'Get prompt governance summary.' })
   governance() { return this.service.getGovernanceSummary(); }
