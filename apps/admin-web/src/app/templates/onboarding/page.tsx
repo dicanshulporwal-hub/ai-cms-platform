@@ -39,7 +39,7 @@ function OnboardingContent({ user }: { user: AuthUser }) {
 
   // Auto-seed templates (idempotent - also adds missing regions to existing templates)
   useEffect(() => {
-    if (!isLoading && templates && !seeded) {
+    if (!isLoading && templates && templates.length === 0 && !seeded) {
       setSeeded(true);
       seedMutation.mutateAsync().then(() => refetch());
     }

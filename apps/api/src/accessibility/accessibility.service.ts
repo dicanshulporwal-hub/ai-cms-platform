@@ -66,7 +66,7 @@ export class AccessibilityService {
     }
 
     // Check published pages
-    const pages = await this.prisma.page.findMany({ where: { status: 'PUBLISHED', deletedAt: null }, take: 20 });
+    const pages = await this.prisma.page.findMany({ where: { status: 'PUBLISHED', deletedAt: null }, take: 20, select: { id: true, title: true, content: true, metaTitle: true, metaDescription: true, featuredImage: true } });
     for (const page of pages) {
       allResults.push(...this.checker.checkPageContent({
         title: page.title, content: page.content,

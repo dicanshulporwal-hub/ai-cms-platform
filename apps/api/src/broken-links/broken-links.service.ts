@@ -23,7 +23,7 @@ export class BrokenLinksService {
       const allContent: ContentLinks[] = [];
 
       // Extract links from published pages
-      const pages = await this.prisma.page.findMany({ where: { status: 'PUBLISHED', deletedAt: null } });
+      const pages = await this.prisma.page.findMany({ where: { status: 'PUBLISHED', deletedAt: null }, select: { id: true, title: true, slug: true, content: true } });
       for (const page of pages) {
         if (page.content) {
           allContent.push(this.extractor.extractFromHtml(page.content, 'PAGE', page.id, page.title, `/pages/${page.slug}`));
@@ -31,7 +31,7 @@ export class BrokenLinksService {
       }
 
       // Extract links from published blogs
-      const blogs = await this.prisma.blogPost.findMany({ where: { status: 'PUBLISHED', deletedAt: null } });
+      const blogs = await this.prisma.blogPost.findMany({ where: { status: 'PUBLISHED', deletedAt: null }, select: { id: true, title: true, slug: true, content: true } });
       for (const blog of blogs) {
         if (blog.content) {
           allContent.push(this.extractor.extractFromHtml(blog.content, 'BLOG', blog.id, blog.title, `/blog/${blog.slug}`));
@@ -39,7 +39,7 @@ export class BrokenLinksService {
       }
 
       // Extract links from published FAQs
-      const faqs = await this.prisma.faq.findMany({ where: { status: 'PUBLISHED', deletedAt: null } });
+      const faqs = await this.prisma.faq.findMany({ where: { status: 'PUBLISHED', deletedAt: null }, select: { id: true, question: true, answer: true } });
       for (const faq of faqs) {
         allContent.push(this.extractor.extractFromHtml(faq.answer, 'FAQ', faq.id, faq.question, `/faqs`));
       }

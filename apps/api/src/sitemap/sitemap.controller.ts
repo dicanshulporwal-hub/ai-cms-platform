@@ -164,7 +164,7 @@ export class SitemapController {
   @Roles('Super Admin', 'Admin')
   @ApiOperation({ summary: 'List SEO crawl rules.' })
   async listCrawlRules() {
-    return this.prisma.seoCrawlRule.findMany({ orderBy: { createdAt: 'desc' } });
+    return this.prisma.seoCrawlRule.findMany({ orderBy: { createdAt: 'desc' }, take: 100 });
   }
 
   @Post('seo-crawl-rules')

@@ -28,6 +28,7 @@ export class TemplatesService {
     const templates = await this.prisma.websiteTemplate.findMany({
       where: { deletedAt: null },
       orderBy: { updatedAt: 'desc' },
+      take: 50,
     });
     return templates;
   }
