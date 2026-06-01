@@ -11,6 +11,10 @@ import { TemplateModuleRegistryService } from './template-module-registry.servic
 import { TemplateModuleRegistryController } from './template-module-registry.controller';
 import { PublicTemplateController } from './public-template.controller';
 import { TemplateSeedService } from './template-seed.service';
+import { TemplateImportController } from './template-import.controller';
+import { TemplateImportService } from './template-import.service';
+import { HtmlTemplateAnalyzerService } from './html-template-analyzer.service';
+import { HtmlToCmsConverterService } from './html-to-cms-converter.service';
 
 @Module({
   imports: [ConfigModule, AiModule],
@@ -19,6 +23,7 @@ import { TemplateSeedService } from './template-seed.service';
     TemplateLayoutController,
     TemplateModuleRegistryController,
     PublicTemplateController,
+    TemplateImportController,
   ],
   providers: [
     TemplatesService,
@@ -27,6 +32,9 @@ import { TemplateSeedService } from './template-seed.service';
     TemplateLayoutService,
     TemplateModuleRegistryService,
     TemplateSeedService,
+    TemplateImportService,
+    HtmlTemplateAnalyzerService,
+    HtmlToCmsConverterService,
   ],
 })
 export class TemplatesModule {}

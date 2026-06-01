@@ -74,6 +74,7 @@ const navItems: NavItem[] = [
     adminOnly: true,
     children: [
       { href: '/templates/onboarding', label: 'Select Template' },
+      { href: '/templates/import-html', label: 'Import HTML' },
       { href: '/templates/modules', label: 'Modules' },
       { href: '/templates/upload', label: 'Upload' },
       { href: '/templates/ai-generate', label: 'AI Generate' },

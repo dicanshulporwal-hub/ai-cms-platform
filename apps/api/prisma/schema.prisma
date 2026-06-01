@@ -1080,3 +1080,56 @@ model TranslationUsageLog {
   @@index([taskType])
   @@map("translation_usage_logs")
 }
+
+// ============================================
+// HTML Template Importer
+// ============================================
+
+enum TemplateImportType {
+  ZIP_UPLOAD
+  PASTE_CODE
+}
+
+enum TemplateImportStatus {
+  PENDING
+  PROCESSING
+  CONVERTED
+  SAVED_AS_TEMPLATE
+  FAILED
+  CANCELLED
+}
+
+enum TemplateSourceType {
+  MANUAL_UPLOAD
+  AI_GENERATED
+  HTML_IMPORTED
+  SYSTEM_TEMPLATE
+}
+
+model TemplateImportJob {
+  id                    String               @id @default(cuid())
+  importType            TemplateImportType
+  status                TemplateImportStatus @default(PENDING)
+  sourceUrl             String?              @db.VarChar(2048)
+  licenseName           String?              @db.VarChar(255)
+  licenseUrl            String?              @db.VarChar(2048)
+  attributionText       String?              @db.Text
+  originalFileKey       String?              @db.VarChar(500)
+  originalHtml          String?              @db.LongText
+  originalCss           String?              @db.LongText
+  detectedRegionsJson   Json?                @db.Json
+  convertedHtml         String?              @db.LongText
+  convertedCss          String?              @db.LongText
+  generatedTemplateJson Json?                @db.Json
+  warningsJson          Json?                @db.Json
+  errorMessage          String?              @db.Text
+  createdById           String?
+  savedTemplateId       String?              @db.VarChar(191)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  @@index([status])
+  @@index([importType])
+  @@index([createdById])
+  @@map("template_import_jobs")
+}
