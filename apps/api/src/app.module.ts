@@ -21,6 +21,7 @@ import { FaqsModule } from './faqs/faqs.module';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
 import { ModulesModule } from './modules/modules.module';
+import { NavigationModule } from './navigation/navigation.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PagesModule } from './pages/pages.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -58,6 +59,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     HealthModule,
     MediaModule,
     ModulesModule,
+    NavigationModule,
     NotificationsModule,
     PagesModule,
     PrismaModule,

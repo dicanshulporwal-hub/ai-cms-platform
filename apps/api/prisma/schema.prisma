@@ -2051,3 +2051,73 @@ model NotFoundLog {
   @@index([lastSeenAt])
   @@map("not_found_logs")
 }
+
+// ============================================
+// Navigation / Menu Builder
+// ============================================
+
+enum MenuLocation {
+  HEADER
+  FOOTER
+  SIDEBAR_MENU
+  MOBILE
+  UTILITY
+  CUSTOM_MENU
+}
+
+enum MenuStatus {
+  MENU_DRAFT
+  MENU_ACTIVE
+  MENU_INACTIVE
+  MENU_ARCHIVED
+}
+
+model Menu {
+  id           String       @id @default(cuid())
+  name         String       @db.VarChar(255)
+  slug         String       @unique @db.VarChar(191)
+  description  String?      @db.Text
+  location     MenuLocation @default(HEADER)
+  status       MenuStatus   @default(MENU_DRAFT)
+  languageCode String?      @db.VarChar(10)
+  isDefault    Boolean      @default(false)
+  createdById  String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+  items        MenuItem[]
+
+  @@index([location])
+  @@index([status])
+  @@index([languageCode])
+  @@index([deletedAt])
+  @@map("menus")
+}
+
+model MenuItem {
+  id               String    @id @default(cuid())
+  menuId           String
+  menu             Menu      @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  parentId         String?   @db.VarChar(191)
+  label            String    @db.VarChar(255)
+  linkType         String    @db.VarChar(50)
+  url              String?   @db.VarChar(2048)
+  target           String    @default("SELF") @db.VarChar(10)
+  linkedSourceType String?   @db.VarChar(50)
+  linkedSourceId   String?   @db.VarChar(191)
+  moduleKey        String?   @db.VarChar(100)
+  icon             String?   @db.VarChar(100)
+  sortOrder        Int       @default(0)
+  isVisible        Boolean   @default(true)
+  openInNewTab     Boolean   @default(false)
+  noFollow         Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  @@index([menuId])
+  @@index([parentId])
+  @@index([sortOrder])
+  @@index([linkedSourceType, linkedSourceId])
+  @@map("menu_items")
+}

@@ -61,6 +61,13 @@ export const adminMenuGroups: MenuGroup[] = [
       { href: '/media', label: 'Media', icon: Images },
       { href: '/forms', label: 'Forms', icon: FileText },
       { href: '/faqs', label: 'FAQs', icon: FileText },
+      {
+        href: '/menus', label: 'Navigation', icon: Layout,
+        children: [
+          { href: '/menus', label: 'All Menus' },
+          { href: '/menus/new', label: 'Create Menu' },
+        ],
+      },
     ],
   },
   {
