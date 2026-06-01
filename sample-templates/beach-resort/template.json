@@ -1,0 +1,72 @@
+{
+  "name": "Azure Bay Beach Resort",
+  "slug": "azure-bay-beach-resort",
+  "version": "1.0.0",
+  "type": "CUSTOM",
+  "description": "A luxury beach resort website template with hero section, room listings, amenities, dining, gallery, testimonials, and booking form.",
+  "entry": "index.html",
+  "sourceType": "SAMPLE_TEMPLATE",
+  "sourceUrl": "https://github.com/ai-cms-platform/sample-templates",
+  "licenseName": "MIT",
+  "licenseUrl": "https://opensource.org/licenses/MIT",
+  "attributionText": "Sample template created for AI CMS Platform",
+  "regions": [
+    {
+      "regionKey": "header",
+      "regionName": "Header",
+      "regionType": "HEADER",
+      "sortOrder": 0,
+      "isRequired": true,
+      "isActive": true,
+      "modules": [
+        { "moduleType": "SITE_HEADER", "moduleKey": "site-header", "displayTitle": "Site Header", "sortOrder": 0 }
+      ]
+    },
+    {
+      "regionKey": "navigation",
+      "regionName": "Navigation",
+      "regionType": "NAVIGATION",
+      "sortOrder": 1,
+      "isRequired": true,
+      "isActive": true,
+      "modules": [
+        { "moduleType": "NAVIGATION", "moduleKey": "main-navigation", "displayTitle": "Main Navigation", "sortOrder": 0 }
+      ]
+    },
+    {
+      "regionKey": "content",
+      "regionName": "Main Content",
+      "regionType": "CONTENT",
+      "sortOrder": 2,
+      "isRequired": true,
+      "isActive": true,
+      "modules": [
+        { "moduleType": "PAGE_CONTENT", "moduleKey": "page-content", "displayTitle": "Page Content", "sortOrder": 0 },
+        { "moduleType": "BLOG_LIST", "moduleKey": "blog-list", "displayTitle": "Blog Listing", "sortOrder": 1 }
+      ]
+    },
+    {
+      "regionKey": "sidebar",
+      "regionName": "Sidebar",
+      "regionType": "SIDEBAR",
+      "sortOrder": 3,
+      "isRequired": false,
+      "isActive": true,
+      "modules": [
+        { "moduleType": "SEARCH", "moduleKey": "search-widget", "displayTitle": "Search", "sortOrder": 0 },
+        { "moduleType": "FORM_EMBED", "moduleKey": "booking-form", "displayTitle": "Booking Form", "sortOrder": 1 }
+      ]
+    },
+    {
+      "regionKey": "footer",
+      "regionName": "Footer",
+      "regionType": "FOOTER",
+      "sortOrder": 4,
+      "isRequired": true,
+      "isActive": true,
+      "modules": [
+        { "moduleType": "FOOTER", "moduleKey": "site-footer", "displayTitle": "Site Footer", "sortOrder": 0 }
+      ]
+    }
+  ]
+}
