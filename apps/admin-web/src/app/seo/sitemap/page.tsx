@@ -5,14 +5,11 @@ import { Check, Copy, ExternalLink, Globe, Loader2, Play, Save } from 'lucide-re
 import { AdminPageShell } from '@/components/layout/admin-page-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { apiClient } from '@/lib/api-client';
 import type { AuthUser } from '@/types/auth';
 
 interface SitemapSettings {
-  siteBaseUrl: string;
   includePages: boolean;
   includeBlogs: boolean;
   includeDocuments: boolean;
@@ -83,20 +80,9 @@ function SitemapContent({ user }: { user: AuthUser }) {
 
       {/* Settings */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Site Configuration</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">Content Inclusion</CardTitle><CardDescription>Choose which content types to include in the sitemap. The site URL is automatically detected from your public website configuration.</CardDescription></CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Site Base URL</Label>
-            <Input value={settings?.siteBaseUrl || ''} onChange={(e) => updateSetting('siteBaseUrl', e.target.value)} placeholder="https://yourwebsite.com" />
-            <p className="text-xs text-muted-foreground">Used as prefix for all sitemap URLs.</p>
-          </div>
           {settings?.lastGeneratedAt && <p className="text-xs text-muted-foreground">Last generated: {new Date(settings.lastGeneratedAt).toLocaleString()}</p>}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle className="text-base">Content Inclusion</CardTitle><CardDescription>Choose which content types to include in the sitemap.</CardDescription></CardHeader>
-        <CardContent className="space-y-4">
           {[
             { key: 'includePages' as const, label: 'Pages', desc: 'Published pages' },
             { key: 'includeBlogs' as const, label: 'Blog Posts', desc: 'Published blog posts' },

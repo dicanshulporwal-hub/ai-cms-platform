@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 
 interface SitemapUrl {
@@ -10,18 +11,22 @@ interface SitemapUrl {
 
 @Injectable()
 export class SitemapGeneratorService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  private getBaseUrl(): string {
+    // Use PUBLIC_WEB_URL from environment (the public website URL)
+    return (this.configService.get<string>('PUBLIC_WEB_URL') || 'http://localhost:3002').replace(/\/$/, '');
+  }
 
   async generate(): Promise<{ xml: string; entries: SitemapUrl[]; warnings: string[] }> {
     const settings = await this.getOrCreateSettings();
     const warnings: string[] = [];
     const entries: SitemapUrl[] = [];
 
-    if (!settings.siteBaseUrl || settings.siteBaseUrl === 'http://localhost:3002') {
-      warnings.push('Site base URL is not configured. Using default localhost URL.');
-    }
-
-    const baseUrl = settings.siteBaseUrl.replace(/\/$/, '');
+    const baseUrl = this.getBaseUrl();
 
     // Homepage
     entries.push({ loc: baseUrl + '/', lastmod: new Date().toISOString().split('T')[0], changefreq: 'daily', priority: 1.0 });
@@ -78,7 +83,7 @@ export class SitemapGeneratorService {
     const robots = await this.getOrCreateRobots();
     if (robots.robotsContent) return robots.robotsContent;
 
-    const settings = await this.getOrCreateSettings();
+    const baseUrl = this.getBaseUrl();
     const lines: string[] = ['User-agent: *'];
 
     if (robots.allowAll) {
@@ -100,7 +105,7 @@ export class SitemapGeneratorService {
     }
     if (robots.includeSitemapUrl) {
       lines.push('');
-      lines.push(`Sitemap: ${settings.siteBaseUrl.replace(/\/$/, '')}/sitemap.xml`);
+      lines.push(`Sitemap: ${baseUrl}/sitemap.xml`);
     }
 
     return lines.join('\n');
