@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useState } from 'react';
 import {
+  Archive,
   BarChart3,
   Bell,
   Box,
@@ -91,6 +92,7 @@ const navItems: NavItem[] = [
   { href: '/seo/sitemap', label: 'Sitemap', icon: Globe, adminOnly: true },
   { href: '/seo/robots', label: 'Robots.txt', icon: Globe, adminOnly: true },
   { href: '/seo/schema', label: 'Structured Data', icon: Globe, adminOnly: true },
+  { href: '/backup-manager', label: 'Backup & Restore', icon: Archive, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
 

@@ -5,6 +5,7 @@ import { AiModule } from './ai/ai.module';
 import { AiPromptsModule } from './ai-prompts/ai-prompts.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { BrokenLinksModule } from './broken-links/broken-links.module';
+import { BackupModule } from './backup/backup.module';
 import { SchemaModule } from './schema/schema.module';
 import { SitemapModule } from './sitemap/sitemap.module';
 import { AuthModule } from './auth/auth.module';
@@ -40,6 +41,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     AccessibilityModule,
     AnalyticsModule,
     AuthModule,
+    BackupModule,
     BlogsModule,
     BrokenLinksModule,
     ChatbotModule,
