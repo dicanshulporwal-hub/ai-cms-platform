@@ -1932,3 +1932,60 @@ model DeploymentLog {
   @@index([createdAt])
   @@map("deployment_logs")
 }
+
+// ============================================
+// API Access / Headless CMS
+// ============================================
+
+enum ApiClientStatus {
+  API_ACTIVE
+  API_INACTIVE
+  API_REVOKED
+  API_EXPIRED
+}
+
+model ApiClient {
+  id                 String          @id @default(cuid())
+  name               String          @db.VarChar(255)
+  description        String?         @db.Text
+  clientKey          String          @unique @db.VarChar(50)
+  keyHash            String          @db.VarChar(128)
+  keyPrefix          String          @db.VarChar(20)
+  maskedKey          String          @db.VarChar(50)
+  status             ApiClientStatus @default(API_ACTIVE)
+  scopesJson         Json?           @db.Json
+  rateLimitPerMinute Int             @default(60)
+  rateLimitPerDay    Int             @default(10000)
+  expiresAt          DateTime?
+  lastUsedAt         DateTime?
+  createdById        String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  deletedAt          DateTime?
+  logs               ApiAccessLog[]
+
+  @@index([clientKey])
+  @@index([keyPrefix])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("api_clients")
+}
+
+model ApiAccessLog {
+  id             String    @id @default(cuid())
+  apiClientId    String?
+  apiClient      ApiClient? @relation(fields: [apiClientId], references: [id], onDelete: SetNull)
+  keyPrefix      String?   @db.VarChar(20)
+  endpoint       String    @db.VarChar(500)
+  method         String    @db.VarChar(10)
+  statusCode     Int       @default(200)
+  responseTimeMs Int       @default(0)
+  ipHash         String?   @db.VarChar(64)
+  errorMessage   String?   @db.VarChar(500)
+  createdAt      DateTime  @default(now())
+
+  @@index([apiClientId])
+  @@index([createdAt])
+  @@index([endpoint])
+  @@map("api_access_logs")
+}

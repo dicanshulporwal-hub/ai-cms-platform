@@ -166,6 +166,14 @@ export const adminMenuGroups: MenuGroup[] = [
           { href: '/deployment/logs', label: 'Logs' },
         ],
       },
+      {
+        href: '/api-access', label: 'API Access', icon: Box, adminOnly: true,
+        children: [
+          { href: '/api-access', label: 'Overview' },
+          { href: '/api-access/clients', label: 'API Clients' },
+          { href: '/api-access/logs', label: 'API Logs' },
+        ],
+      },
     ],
   },
   {

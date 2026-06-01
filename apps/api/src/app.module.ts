@@ -4,6 +4,7 @@ import { AccessibilityModule } from './accessibility/accessibility.module';
 import { AiModule } from './ai/ai.module';
 import { AiPromptsModule } from './ai-prompts/ai-prompts.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { ApiAccessModule } from './api-access/api-access.module';
 import { BrokenLinksModule } from './broken-links/broken-links.module';
 import { BackupModule } from './backup/backup.module';
 import { SchemaModule } from './schema/schema.module';
@@ -42,6 +43,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     AiPromptsModule,
     AccessibilityModule,
     AnalyticsModule,
+    ApiAccessModule,
     AuthModule,
     BackupModule,
     BlogsModule,
