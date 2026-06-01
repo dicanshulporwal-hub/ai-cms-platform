@@ -30,6 +30,11 @@ export class AiPromptsController {
   @ApiOperation({ summary: 'Get prompt governance summary.' })
   governance() { return this.service.getGovernanceSummary(); }
 
+  @Post('seed')
+  @Roles('Super Admin', 'Admin')
+  @ApiOperation({ summary: 'Seed default system prompts.' })
+  seed(@CurrentUser() user: AuthenticatedUser) { return this.service.seedDefaultPrompts(user); }
+
   @Get('runtime/:promptKey')
   @Roles('Super Admin', 'Admin')
   @ApiOperation({ summary: 'Get rendered active prompt by key.' })

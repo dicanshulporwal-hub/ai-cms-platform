@@ -122,6 +122,150 @@ export class AiPromptsService {
     return { total, active, pending, disabled };
   }
 
+  async seedDefaultPrompts(user: AuthenticatedUser) {
+    const prompts = [
+      {
+        promptKey: 'content_generation',
+        name: 'Content Generation',
+        taskType: 'CONTENT_GENERATION',
+        moduleKey: 'pages',
+        description: 'Generate page/blog content from a topic and parameters.',
+        systemPrompt: 'You are an AI content assistant for a CMS. Return editable HTML only. Do not publish, approve, or make workflow decisions. Do not invent facts. Do not include scripts or unsafe HTML.',
+        userPromptTemplate: 'Create a polished content draft in {{language}}.\nTopic: {{topic}}\nTarget audience: {{targetAudience}}\nTone: {{tone}}\nApproximate length: {{maxLength}} words.\nReturn only the HTML content body.',
+        variablesJson: [{ name: 'topic', required: true }, { name: 'language', required: true, default: 'English' }, { name: 'targetAudience', required: false }, { name: 'tone', required: false, default: 'professional' }, { name: 'maxLength', required: false, default: '500' }],
+        safetyRulesJson: ['Do not hallucinate facts', 'Do not include scripts', 'Do not auto-publish'],
+      },
+      {
+        promptKey: 'content_rewrite',
+        name: 'Content Rewrite',
+        taskType: 'CONTENT_REWRITE',
+        moduleKey: 'pages',
+        description: 'Rewrite existing content with a different tone or style.',
+        systemPrompt: 'You are an AI content assistant for a CMS. Return editable content only and preserve factual meaning. Do not add new claims.',
+        userPromptTemplate: 'Rewrite the following content with tone: {{tone}}.\n{{instruction}}\n\nContent:\n{{content}}\n\nReturn only the rewritten HTML.',
+        variablesJson: [{ name: 'content', required: true }, { name: 'tone', required: true, default: 'professional' }, { name: 'instruction', required: false }],
+        safetyRulesJson: ['Preserve factual meaning', 'Do not add new claims'],
+      },
+      {
+        promptKey: 'summarization',
+        name: 'Content Summarization',
+        taskType: 'SUMMARIZATION',
+        moduleKey: 'pages',
+        description: 'Summarize content into a concise paragraph.',
+        systemPrompt: 'You are an AI summary assistant for CMS editors. Return a concise plain-text summary. Do not add information not in the source.',
+        userPromptTemplate: 'Summarize this content in {{maxLength}} words or fewer.\nKeep the summary editable and factual.\n\nContent:\n{{content}}',
+        variablesJson: [{ name: 'content', required: true }, { name: 'maxLength', required: false, default: '120' }],
+        safetyRulesJson: ['Do not add information not in source', 'Keep factual'],
+      },
+      {
+        promptKey: 'seo_generation',
+        name: 'SEO Metadata Generation',
+        taskType: 'SEO_GENERATION',
+        moduleKey: 'pages',
+        description: 'Generate meta title, description, and keywords for SEO.',
+        systemPrompt: 'You are an AI SEO assistant. Return only valid JSON. Meta titles must be 60 characters or fewer and meta descriptions 160 characters or fewer.',
+        userPromptTemplate: 'Generate SEO metadata for this content.\nTitle: {{title}}\nContent: {{content}}\nKeywords: {{keywords}}\n\nReturn valid JSON: {"metaTitle":"...","metaDescription":"...","keywords":["..."]}',
+        variablesJson: [{ name: 'title', required: true }, { name: 'content', required: true }, { name: 'keywords', required: false }],
+        safetyRulesJson: ['Return valid JSON only', 'Respect character limits'],
+        outputFormatJson: { metaTitle: 'string (max 60)', metaDescription: 'string (max 160)', keywords: 'string[]' },
+      },
+      {
+        promptKey: 'faq_generation',
+        name: 'FAQ Generation',
+        taskType: 'FAQ_GENERATION',
+        moduleKey: 'faqs',
+        description: 'Generate FAQ question-answer pairs from content.',
+        systemPrompt: 'You are an AI FAQ assistant. Return only valid JSON with concise, editable question-answer pairs. Do not invent information not present in the source content.',
+        userPromptTemplate: 'Generate {{count}} FAQ items from this content:\n\n{{content}}\n\nReturn JSON: {"faqs":[{"question":"...","answer":"..."}]}',
+        variablesJson: [{ name: 'content', required: true }, { name: 'count', required: false, default: '5' }],
+        safetyRulesJson: ['Do not invent information', 'Return valid JSON'],
+        outputFormatJson: { faqs: [{ question: 'string', answer: 'string' }] },
+      },
+      {
+        promptKey: 'chatbot_answer',
+        name: 'Chatbot Answer',
+        taskType: 'CHATBOT',
+        moduleKey: 'chatbot',
+        description: 'Generate chatbot responses from published CMS content context.',
+        systemPrompt: 'You are a helpful website assistant. Answer questions using only the provided context. If you cannot answer from the context, say so politely. Do not invent information. Keep answers concise and helpful.',
+        userPromptTemplate: 'Context from published content:\n{{context}}\n\nVisitor question: {{question}}\n\nProvide a helpful, concise answer based only on the context above.',
+        variablesJson: [{ name: 'context', required: true }, { name: 'question', required: true }],
+        safetyRulesJson: ['Only use provided context', 'Do not invent facts', 'Be concise'],
+      },
+      {
+        promptKey: 'document_metadata_generation',
+        name: 'Document Metadata Generation',
+        taskType: 'DOCUMENT_METADATA',
+        moduleKey: 'documents',
+        description: 'Generate title, description, and keywords for uploaded documents.',
+        systemPrompt: 'You are a document metadata assistant. Generate title, description, keywords, and summary for uploaded documents. Return valid JSON only. Do not invent content not in the document.',
+        userPromptTemplate: 'Generate metadata for this document.\nFilename: {{filename}}\nFile type: {{fileType}}\nExtracted text preview:\n{{textPreview}}\n\nReturn JSON: {"title":"...","description":"...","summary":"...","keywords":["..."]}',
+        variablesJson: [{ name: 'filename', required: true }, { name: 'fileType', required: true }, { name: 'textPreview', required: true }],
+        safetyRulesJson: ['Return valid JSON', 'Do not invent content'],
+        outputFormatJson: { title: 'string', description: 'string', summary: 'string', keywords: 'string[]' },
+      },
+      {
+        promptKey: 'schema_generation',
+        name: 'Schema / Structured Data Generation',
+        taskType: 'SCHEMA_GENERATION',
+        moduleKey: 'schema',
+        description: 'Generate JSON-LD structured data for content.',
+        systemPrompt: 'You are a structured data assistant. Generate valid JSON-LD schema.org markup. Return only valid JSON. Do not include private or admin URLs. Do not invent dates or authors.',
+        userPromptTemplate: 'Generate JSON-LD structured data for:\nType: {{schemaType}}\nTitle: {{title}}\nDescription: {{description}}\nURL: {{url}}\nPublished: {{publishedAt}}\n\nReturn valid JSON-LD with @context and @type.',
+        variablesJson: [{ name: 'schemaType', required: true }, { name: 'title', required: true }, { name: 'description', required: false }, { name: 'url', required: true }, { name: 'publishedAt', required: false }],
+        safetyRulesJson: ['Return valid JSON-LD', 'Do not include admin URLs', 'Do not invent data'],
+      },
+      {
+        promptKey: 'accessibility_recommendation',
+        name: 'Accessibility Fix Recommendations',
+        taskType: 'ACCESSIBILITY_RECOMMENDATION',
+        moduleKey: 'accessibility',
+        description: 'Generate actionable fix recommendations for accessibility issues.',
+        systemPrompt: 'You are an accessibility expert. Provide actionable recommendations to fix accessibility issues. Be specific and concise. Do not claim official WCAG certification.',
+        userPromptTemplate: 'Provide fix recommendations for these accessibility issues:\n\n{{issues}}\n\nFor each issue, suggest a specific fix in 1-2 sentences.',
+        variablesJson: [{ name: 'issues', required: true }],
+        safetyRulesJson: ['Do not claim certification', 'Be specific and actionable'],
+      },
+      {
+        promptKey: 'broken_link_recommendation',
+        name: 'Broken Link Fix Recommendations',
+        taskType: 'BROKEN_LINK_RECOMMENDATION',
+        moduleKey: 'broken_links',
+        description: 'Suggest fixes for broken links found in content.',
+        systemPrompt: 'You are a link maintenance assistant. Suggest fixes for broken links. Do not invent URLs. Suggest searching for similar content or removing the link if no replacement exists.',
+        userPromptTemplate: 'Suggest fixes for this broken link:\nBroken URL: {{brokenUrl}}\nFound in: {{sourceTitle}} ({{sourceType}})\nLink text: {{linkText}}\nIssue: {{issueType}}\n\nSuggest a fix or alternative.',
+        variablesJson: [{ name: 'brokenUrl', required: true }, { name: 'sourceTitle', required: true }, { name: 'sourceType', required: true }, { name: 'linkText', required: false }, { name: 'issueType', required: true }],
+        safetyRulesJson: ['Do not invent URLs', 'Suggest removal if no replacement'],
+      },
+    ];
+
+    const created: string[] = [];
+    for (const p of prompts) {
+      const existing = await this.prisma.aiPromptTemplate.findUnique({ where: { promptKey: p.promptKey } });
+      if (existing) { created.push(`${p.promptKey} (exists)`); continue; }
+
+      const template = await this.prisma.aiPromptTemplate.create({
+        data: { promptKey: p.promptKey, name: p.name, description: p.description, taskType: p.taskType as any, moduleKey: p.moduleKey, status: 'PROMPT_ACTIVE', isSystemPrompt: true, isDefault: true, createdById: user.id },
+      });
+
+      const version = await this.prisma.aiPromptVersion.create({
+        data: {
+          promptTemplateId: template.id, version: 1, systemPrompt: p.systemPrompt, userPromptTemplate: p.userPromptTemplate,
+          variablesJson: p.variablesJson as unknown as Prisma.InputJsonValue,
+          safetyRulesJson: p.safetyRulesJson as unknown as Prisma.InputJsonValue,
+          outputFormatJson: (p as any).outputFormatJson ? ((p as any).outputFormatJson as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
+          temperature: 0.7, maxTokens: 1200, status: 'VERSION_ACTIVE', createdById: user.id, approvedById: user.id, approvedAt: new Date(),
+        },
+      });
+
+      await this.prisma.aiPromptTemplate.update({ where: { id: template.id }, data: { currentVersionId: version.id } });
+      created.push(p.promptKey);
+    }
+
+    this.rendering.invalidateCache();
+    return { message: `Seeded ${created.length} prompts.`, prompts: created };
+  }
+
   async submitForApproval(id: string, user: AuthenticatedUser) {
     await this.prisma.aiPromptTemplate.update({ where: { id }, data: { status: 'PENDING_APPROVAL' } });
     await this.audit(id, null, 'SUBMITTED_FOR_APPROVAL', user.id);
