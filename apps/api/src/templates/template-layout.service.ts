@@ -93,9 +93,10 @@ export class TemplateLayoutService {
 
   async getPublicRenderData() {
     const template = await this.prisma.websiteTemplate.findFirst({ where: { isActive: true, deletedAt: null } });
-    if (!template) return { template: null, regions: [], modules: [] };
+    if (!template) return { template: null, regions: [], modules: [], settings: null };
     const regions = await this.prisma.templateRegion.findMany({ where: { templateId: template.id, isActive: true }, include: { modules: { where: { isVisible: true }, orderBy: { sortOrder: 'asc' } } }, orderBy: { sortOrder: 'asc' } });
-    return { template, regions };
+    const settings = await this.prisma.settings.findFirst();
+    return { template, regions, settings: settings ? { siteName: settings.siteName, siteDescription: settings.siteDescription, siteLogo: settings.siteLogo, supportEmail: settings.supportEmail } : null };
   }
 
   async ensureDefaultRegions(templateId: string, configRegions?: Array<{ key: string; name: string; type: string; required?: boolean }>) {

@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { SkipLink } from '@/components/ui/skip-link';
+import { fetchRenderData } from '@/lib/api-client';
 
 interface FallbackLayoutProps {
   children: React.ReactNode;
 }
 
-export function FallbackLayout({ children }: FallbackLayoutProps) {
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? 'AI CMS';
+export async function FallbackLayout({ children }: FallbackLayoutProps) {
+  const renderData = await fetchRenderData();
+  const siteName = renderData?.settings?.siteName || process.env.NEXT_PUBLIC_SITE_NAME || 'AI CMS';
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -2,8 +2,9 @@ import Link from 'next/link';
 import type { ModuleComponentProps } from '@/types/template';
 
 export function SiteHeaderModule({ config, moduleKey, theme }: ModuleComponentProps) {
-  const siteName = (config?.siteName as string) || process.env.NEXT_PUBLIC_SITE_NAME || 'AI CMS';
-  const logoUrl = (config?.logoUrl as string) || theme?.logoUrl;
+  const siteName = theme?.siteName || (config?.siteName as string) || process.env.NEXT_PUBLIC_SITE_NAME || 'AI CMS';
+  const siteDescription = theme?.siteDescription as string | undefined;
+  const logoUrl = theme?.siteLogo || (config?.logoUrl as string) || theme?.logoUrl;
 
   return (
     <div
@@ -26,6 +27,9 @@ export function SiteHeaderModule({ config, moduleKey, theme }: ModuleComponentPr
           )}
           <div>
             <span className="text-lg font-bold tracking-tight">{siteName}</span>
+            {siteDescription && (
+              <p className="text-xs opacity-75">{siteDescription}</p>
+            )}
           </div>
         </Link>
       </div>

@@ -5,8 +5,11 @@ import { SkipLink } from '@/components/ui/skip-link';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AI CMS Public Site',
-  description: 'Public website renderer for the AI-first CMS MVP.',
+  title: {
+    default: 'Public Website',
+    template: '%s',
+  },
+  description: 'Public website powered by AI CMS.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

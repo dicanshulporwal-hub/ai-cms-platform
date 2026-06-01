@@ -30,6 +30,13 @@ export async function TemplateRenderer({ children }: TemplateRendererProps) {
   const defaultTheme = DEFAULT_THEMES[template.templateType] ?? DEFAULT_THEMES.CORPORATE;
   const theme = { ...defaultTheme, ...savedTheme };
 
+  // Include site settings in theme for modules to use
+  const settings = renderData.settings;
+  if (settings?.siteName) theme.siteName = settings.siteName;
+  if (settings?.siteDescription) theme.siteDescription = settings.siteDescription;
+  if (settings?.siteLogo) theme.siteLogo = settings.siteLogo;
+  if (settings?.supportEmail) theme.supportEmail = settings.supportEmail;
+
   // Build CSS custom properties from theme
   const themeStyles: Record<string, string> = {};
   if (theme.primaryColor) themeStyles['--template-primary'] = theme.primaryColor;

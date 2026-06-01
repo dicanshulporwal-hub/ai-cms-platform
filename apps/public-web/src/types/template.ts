@@ -1,6 +1,14 @@
 export interface RenderData {
   template: WebsiteTemplate | null;
   regions: TemplateRegion[];
+  settings?: SiteSettings | null;
+}
+
+export interface SiteSettings {
+  siteName: string;
+  siteDescription: string | null;
+  siteLogo: string | null;
+  supportEmail: string | null;
 }
 
 export interface WebsiteTemplate {
