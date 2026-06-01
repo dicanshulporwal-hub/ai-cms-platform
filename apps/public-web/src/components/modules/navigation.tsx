@@ -19,7 +19,7 @@ const DEFAULT_LINKS: NavLink[] = [
   { label: 'FAQs', href: '/faqs' },
 ];
 
-export function NavigationModule({ config, moduleKey }: ModuleComponentProps) {
+export function NavigationModule({ config, moduleKey, theme }: ModuleComponentProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -47,14 +47,20 @@ export function NavigationModule({ config, moduleKey }: ModuleComponentProps) {
         aria-label="Main navigation"
         data-module={moduleKey}
         data-module-type="NAVIGATION"
-        className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md"
+        className="sticky top-0 z-40"
+        style={{
+          backgroundColor: theme?.secondaryColor || undefined,
+          color: theme?.secondaryColor ? '#ffffff' : undefined,
+          borderBottom: theme?.secondaryColor ? 'none' : '1px solid var(--border, #e5e7eb)',
+        }}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Site name / logo */}
             <Link
               href="/"
-              className="text-xl font-bold tracking-tight text-foreground transition-opacity hover:opacity-80"
+              className="text-xl font-bold tracking-tight transition-opacity hover:opacity-80"
+              style={{ color: theme?.secondaryColor ? '#ffffff' : undefined }}
             >
               {siteName}
             </Link>
@@ -69,16 +75,22 @@ export function NavigationModule({ config, moduleKey }: ModuleComponentProps) {
                     className={`
                       relative inline-block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-                      ${
-                        isActive(link.href)
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-foreground/70 hover:bg-accent hover:text-foreground'
-                      }
                     `}
+                    style={{
+                      color: theme?.secondaryColor
+                        ? isActive(link.href) ? '#ffffff' : 'rgba(255,255,255,0.8)'
+                        : undefined,
+                      backgroundColor: isActive(link.href) && theme?.secondaryColor
+                        ? 'rgba(255,255,255,0.15)'
+                        : undefined,
+                    }}
                   >
                     {link.label}
                     {isActive(link.href) && (
-                      <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-primary" />
+                      <span
+                        className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full"
+                        style={{ backgroundColor: theme?.accentColor || theme?.primaryColor || 'currentColor' }}
+                      />
                     )}
                   </Link>
                 </li>

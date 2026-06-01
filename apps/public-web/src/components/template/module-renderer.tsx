@@ -4,9 +4,10 @@ import type { TemplateRegionModule } from '@/types/template';
 
 interface ModuleRendererProps {
   module: TemplateRegionModule;
+  theme?: Record<string, string>;
 }
 
-export function ModuleRenderer({ module }: ModuleRendererProps) {
+export function ModuleRenderer({ module, theme }: ModuleRendererProps) {
   const ModuleComponent = resolveModule(module.moduleType);
 
   if (!ModuleComponent) {
@@ -22,7 +23,7 @@ export function ModuleRenderer({ module }: ModuleRendererProps) {
 
   return (
     <ModuleErrorBoundary moduleName={module.displayTitle}>
-      <ModuleComponent config={module.configJson} moduleKey={module.moduleKey} />
+      <ModuleComponent config={module.configJson} moduleKey={module.moduleKey} theme={theme} />
     </ModuleErrorBoundary>
   );
 }

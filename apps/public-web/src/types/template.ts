@@ -43,4 +43,5 @@ export interface TemplateRegionModule {
 export interface ModuleComponentProps {
   config: Record<string, unknown> | null;
   moduleKey: string;
+  theme?: Record<string, string>;
 }

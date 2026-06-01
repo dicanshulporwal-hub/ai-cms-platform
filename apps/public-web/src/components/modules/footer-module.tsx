@@ -11,19 +11,23 @@ interface FooterContactInfo {
   address?: string;
 }
 
-export function FooterModule({ config, moduleKey }: ModuleComponentProps) {
+export function FooterModule({ config, moduleKey, theme }: ModuleComponentProps) {
   const links = (config?.links as FooterLink[] | undefined) ?? [];
   const contactInfo = (config?.contactInfo as FooterContactInfo | undefined) ?? null;
   const copyright =
     (config?.copyright as string | undefined) ??
-    `© ${new Date().getFullYear()} ${process.env.NEXT_PUBLIC_SITE_NAME ?? 'AI CMS'}`;
+    `© ${new Date().getFullYear()} ${process.env.NEXT_PUBLIC_SITE_NAME ?? 'AI CMS'}. All rights reserved.`;
 
   return (
     <footer
       role="contentinfo"
       data-module={moduleKey}
       data-module-type="FOOTER"
-      className="border-t border-border bg-muted/50"
+      style={{
+        backgroundColor: theme?.secondaryColor || undefined,
+        color: theme?.secondaryColor ? 'rgba(255,255,255,0.8)' : undefined,
+        padding: '32px',
+      }}
     >
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
