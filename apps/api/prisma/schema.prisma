@@ -1133,3 +1133,98 @@ model TemplateImportJob {
   @@index([createdById])
   @@map("template_import_jobs")
 }
+
+// ============================================
+// Accessibility & GIGW Readiness Module
+// ============================================
+
+enum AccessibilityAuditType {
+  TEMPLATE
+  PAGE
+  BLOG
+  DOCUMENT
+  FAQ
+  FORM
+  PUBLIC_ROUTE
+  FULL_SITE
+}
+
+enum AccessibilityTargetType {
+  TEMPLATE
+  PAGE
+  BLOG
+  DOCUMENT
+  FAQ
+  FORM
+  PUBLIC_URL
+}
+
+enum AccessibilityCheckStatus {
+  PASS
+  WARNING
+  FAIL
+  NOT_CHECKED
+}
+
+enum AccessibilitySeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AccessibilityAuditStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model AccessibilityAudit {
+  id             String                    @id @default(cuid())
+  auditType      AccessibilityAuditType
+  targetType     AccessibilityTargetType?
+  targetId       String?                   @db.VarChar(191)
+  targetUrl      String?                   @db.VarChar(2048)
+  status         AccessibilityAuditStatus  @default(PENDING)
+  score          Int                       @default(0)
+  totalChecks    Int                       @default(0)
+  passedChecks   Int                       @default(0)
+  warningChecks  Int                       @default(0)
+  failedChecks   Int                       @default(0)
+  criticalIssues Int                       @default(0)
+  summaryJson    Json?                     @db.Json
+  createdById    String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  issues         AccessibilityAuditIssue[]
+
+  @@index([auditType])
+  @@index([status])
+  @@index([targetType, targetId])
+  @@index([createdById])
+  @@map("accessibility_audits")
+}
+
+model AccessibilityAuditIssue {
+  id             String                   @id @default(cuid())
+  auditId        String
+  audit          AccessibilityAudit       @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  checkKey       String                   @db.VarChar(100)
+  category       String                   @db.VarChar(100)
+  severity       AccessibilitySeverity    @default(MEDIUM)
+  status         AccessibilityCheckStatus @default(NOT_CHECKED)
+  title          String                   @db.VarChar(255)
+  description    String?                  @db.Text
+  recommendation String?                  @db.Text
+  targetSelector String?                  @db.VarChar(500)
+  targetField    String?                  @db.VarChar(255)
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+
+  @@index([auditId])
+  @@index([category])
+  @@index([severity])
+  @@index([status])
+  @@map("accessibility_audit_issues")
+}
