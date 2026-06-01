@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { SkipLink } from '@/components/ui/skip-link';
+import { AccessibilityToolbar } from '@/components/ui/accessibility-toolbar';
 import { fetchRenderData } from '@/lib/api-client';
 
 interface FallbackLayoutProps {
@@ -13,6 +14,7 @@ export async function FallbackLayout({ children }: FallbackLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <SkipLink />
+      <AccessibilityToolbar />
       <header
         data-region="header"
         className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md"

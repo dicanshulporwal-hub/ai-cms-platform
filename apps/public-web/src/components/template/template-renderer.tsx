@@ -1,6 +1,7 @@
 import { fetchRenderData } from '@/lib/api-client';
 import { RegionRenderer } from './region-renderer';
 import { FallbackLayout } from './fallback-layout';
+import { AccessibilityToolbar } from '@/components/ui/accessibility-toolbar';
 
 interface TemplateRendererProps {
   children: React.ReactNode;
@@ -62,6 +63,7 @@ export async function TemplateRenderer({ children }: TemplateRendererProps) {
         backgroundColor: theme.backgroundColor || undefined,
       } as React.CSSProperties}
     >
+      <AccessibilityToolbar />
       {sortedRegions.map((region) => (
         <RegionRenderer key={region.id} region={region} theme={theme}>
           {region.regionType === 'CONTENT' ? children : null}

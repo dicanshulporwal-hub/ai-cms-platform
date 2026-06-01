@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { TemplateRenderer } from '@/components/template/template-renderer';
 import { SkipLink } from '@/components/ui/skip-link';
-import { AccessibilityToolbar } from '@/components/ui/accessibility-toolbar';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -18,7 +17,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <SkipLink />
-        <AccessibilityToolbar />
         <TemplateRenderer>{children}</TemplateRenderer>
       </body>
     </html>
