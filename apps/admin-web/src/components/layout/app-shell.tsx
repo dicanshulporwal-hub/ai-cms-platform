@@ -10,6 +10,7 @@ import {
   ClipboardCheck,
   FileText,
   FolderTree,
+  Globe,
   Images,
   Layout,
   LayoutDashboard,
@@ -82,6 +83,7 @@ const navItems: NavItem[] = [
   },
   { href: '/modules', label: 'Modules', icon: Box, adminOnly: true },
   { href: '/accessibility', label: 'Accessibility', icon: Shield, adminOnly: true },
+  { href: '/seo/sitemap', label: 'SEO & Sitemap', icon: Globe, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
 

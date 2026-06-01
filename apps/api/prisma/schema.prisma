@@ -1228,3 +1228,105 @@ model AccessibilityAuditIssue {
   @@index([status])
   @@map("accessibility_audit_issues")
 }
+
+// ============================================
+// Sitemap & Robots Manager
+// ============================================
+
+enum SitemapSourceType {
+  PAGE
+  BLOG
+  DOCUMENT
+  FAQ
+  FORM
+  CATEGORY
+  TAG
+  MANUAL
+  CUSTOM
+}
+
+enum SitemapChangefreq {
+  ALWAYS
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+  NEVER
+}
+
+enum SeoCrawlRuleType {
+  ALLOW
+  DISALLOW
+  NOINDEX
+  NOFOLLOW
+}
+
+model SitemapSettings {
+  id                     String   @id @default("default_sitemap_settings")
+  siteBaseUrl            String   @default("http://localhost:3002") @db.VarChar(2048)
+  includePages           Boolean  @default(true)
+  includeBlogs           Boolean  @default(true)
+  includeDocuments       Boolean  @default(true)
+  includeFaqs            Boolean  @default(true)
+  includeForms           Boolean  @default(false)
+  includeCategories      Boolean  @default(false)
+  includeTags            Boolean  @default(false)
+  includeMultilingualUrls Boolean @default(false)
+  defaultChangefreq      SitemapChangefreq @default(WEEKLY)
+  defaultPriority        Float    @default(0.5)
+  autoGenerate           Boolean  @default(true)
+  lastGeneratedAt        DateTime?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("sitemap_settings")
+}
+
+model SitemapEntry {
+  id           String            @id @default(cuid())
+  url          String            @db.VarChar(2048)
+  sourceType   SitemapSourceType
+  sourceId     String?           @db.VarChar(191)
+  languageCode String?           @db.VarChar(10)
+  changefreq   SitemapChangefreq @default(WEEKLY)
+  priority     Float             @default(0.5)
+  lastmod      DateTime?
+  isManual     Boolean           @default(false)
+  isEnabled    Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([sourceType])
+  @@index([isEnabled])
+  @@index([isManual])
+  @@map("sitemap_entries")
+}
+
+model RobotsSettings {
+  id                    String  @id @default("default_robots_settings")
+  robotsContent         String? @db.Text
+  allowAll              Boolean @default(true)
+  disallowAdmin         Boolean @default(true)
+  disallowApi           Boolean @default(true)
+  disallowPrivateRoutes Boolean @default(true)
+  includeSitemapUrl     Boolean @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("robots_settings")
+}
+
+model SeoCrawlRule {
+  id           String           @id @default(cuid())
+  routePattern String           @db.VarChar(500)
+  ruleType     SeoCrawlRuleType
+  isEnabled    Boolean          @default(true)
+  note         String?          @db.VarChar(500)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([ruleType])
+  @@index([isEnabled])
+  @@map("seo_crawl_rules")
+}

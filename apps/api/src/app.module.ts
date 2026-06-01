@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AccessibilityModule } from './accessibility/accessibility.module';
 import { AiModule } from './ai/ai.module';
+import { SitemapModule } from './sitemap/sitemap.module';
 import { AuthModule } from './auth/auth.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
@@ -47,6 +48,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     PrismaModule,
     RolesModule,
     SettingsModule,
+    SitemapModule,
     TemplatesModule,
     TranslationsModule,
     UsersModule,
