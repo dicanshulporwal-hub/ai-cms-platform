@@ -12,6 +12,7 @@ import { SitemapModule } from './sitemap/sitemap.module';
 import { AuthModule } from './auth/auth.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
+import { ContentCalendarModule } from './content-calendar/content-calendar.module';
 import { validateEnvironment } from './config/env.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DeploymentModule } from './deployment/deployment.module';
@@ -51,6 +52,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     BlogsModule,
     BrokenLinksModule,
     ChatbotModule,
+    ContentCalendarModule,
     DashboardModule,
     DeploymentModule,
     DocumentsModule,

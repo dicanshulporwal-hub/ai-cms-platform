@@ -2121,3 +2121,68 @@ model MenuItem {
   @@index([linkedSourceType, linkedSourceId])
   @@map("menu_items")
 }
+
+// ============================================
+// Content Calendar & Publishing Scheduler
+// ============================================
+
+enum ScheduleActionType {
+  SCHEDULE_PUBLISH
+  SCHEDULE_ARCHIVE
+  SCHEDULE_UNPUBLISH
+}
+
+enum ScheduleStatus {
+  SCHEDULE_DRAFT
+  SCHEDULED
+  SCHEDULE_READY
+  SCHEDULE_EXECUTED
+  SCHEDULE_FAILED
+  SCHEDULE_CANCELLED
+}
+
+model ContentSchedule {
+  id            String             @id @default(cuid())
+  sourceType    String             @db.VarChar(50)
+  sourceId      String             @db.VarChar(191)
+  title         String             @db.VarChar(500)
+  moduleKey     String?            @db.VarChar(100)
+  actionType    ScheduleActionType @default(SCHEDULE_PUBLISH)
+  status        ScheduleStatus     @default(SCHEDULED)
+  scheduledAt   DateTime
+  timezone      String             @default("UTC") @db.VarChar(50)
+  executedAt    DateTime?
+  cancelledAt   DateTime?
+  failureReason String?            @db.Text
+  createdById   String?
+  approvedById  String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([sourceType, sourceId])
+  @@index([moduleKey])
+  @@index([createdById])
+  @@map("content_schedules")
+}
+
+model EditorialCalendarNote {
+  id          String   @id @default(cuid())
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  noteDate    DateTime
+  noteType    String   @default("CONTENT_PLAN") @db.VarChar(50)
+  moduleKey   String?  @db.VarChar(100)
+  sourceType  String?  @db.VarChar(50)
+  sourceId    String?  @db.VarChar(191)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([noteDate])
+  @@index([noteType])
+  @@map("editorial_calendar_notes")
+}

@@ -95,6 +95,14 @@ export const adminMenuGroups: MenuGroup[] = [
     items: [
       { href: '/workflow', label: 'Workflow', icon: ClipboardCheck },
       { href: '/notifications', label: 'Notifications', icon: Bell },
+      {
+        href: '/content-calendar', label: 'Content Calendar', icon: ClipboardCheck,
+        children: [
+          { href: '/content-calendar', label: 'Calendar' },
+          { href: '/content-calendar/scheduled', label: 'Scheduled' },
+          { href: '/content-calendar/queue', label: 'Queue' },
+        ],
+      },
     ],
   },
   {
