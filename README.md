@@ -964,3 +964,24 @@ curl -X PUT http://localhost:3001/settings \
   -H "Content-Type: application/json" \
   -d '{"siteName":"My AI CMS","aiEnabled":true}'
 ```
+
+## Green Code & Performance
+
+This project follows Green Code principles for energy-efficient, resource-conscious development. See the documentation in `docs/` for full details:
+
+| Document | Purpose |
+|----------|---------|
+| [GREEN_CODE_POLICY.md](docs/GREEN_CODE_POLICY.md) | Core principles and anti-patterns |
+| [GREEN_CODE_REVIEW_CHECKLIST.md](docs/GREEN_CODE_REVIEW_CHECKLIST.md) | PR review checklist |
+| [AI_GREEN_CODE_GUIDELINES.md](docs/AI_GREEN_CODE_GUIDELINES.md) | Rules for AI-generated code |
+| [DATABASE_PERFORMANCE.md](docs/DATABASE_PERFORMANCE.md) | Query optimization and indexing |
+
+Key principles:
+- Minimize unnecessary computation and database queries
+- Paginate all list endpoints
+- Use `select` for specific fields instead of fetching full records
+- Set timeouts on all external HTTP requests
+- Prefer free AI models for non-critical tasks
+- Cache where appropriate, disable caching in development
+- Lazy-load frontend components not immediately visible
+- Validate input early to fail fast and save resources
