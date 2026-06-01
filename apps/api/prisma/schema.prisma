@@ -1989,3 +1989,65 @@ model ApiAccessLog {
   @@index([endpoint])
   @@map("api_access_logs")
 }
+
+// ============================================
+// Redirect Manager & 404 Tracking
+// ============================================
+
+enum RedirectType {
+  MOVED_PERMANENTLY_301
+  FOUND_302
+  TEMPORARY_REDIRECT_307
+  PERMANENT_REDIRECT_308
+}
+
+enum RedirectRuleStatus {
+  REDIRECT_ACTIVE
+  REDIRECT_INACTIVE
+  REDIRECT_ARCHIVED
+}
+
+enum NotFoundLogStatus {
+  NF_OPEN
+  NF_IGNORED
+  NF_REDIRECT_CREATED
+  NF_RESOLVED
+}
+
+model RedirectRule {
+  id                  String             @id @default(cuid())
+  sourcePath          String             @db.VarChar(500)
+  targetUrl           String             @db.VarChar(2048)
+  redirectType        RedirectType       @default(MOVED_PERMANENTLY_301)
+  status              RedirectRuleStatus @default(REDIRECT_ACTIVE)
+  matchType           String             @default("EXACT") @db.VarChar(20)
+  preserveQueryString Boolean            @default(true)
+  description         String?            @db.VarChar(500)
+  hitCount            Int                @default(0)
+  lastHitAt           DateTime?
+  createdById         String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  deletedAt           DateTime?
+
+  @@index([sourcePath])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("redirect_rules")
+}
+
+model NotFoundLog {
+  id                 String           @id @default(cuid())
+  path               String           @unique @db.VarChar(500)
+  referrer           String?          @db.VarChar(2048)
+  hitCount           Int              @default(1)
+  lastSeenAt         DateTime         @default(now())
+  suggestedTargetUrl String?          @db.VarChar(2048)
+  status             NotFoundLogStatus @default(NF_OPEN)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([status])
+  @@index([lastSeenAt])
+  @@map("not_found_logs")
+}

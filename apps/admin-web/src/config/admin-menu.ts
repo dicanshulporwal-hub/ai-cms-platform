@@ -131,6 +131,13 @@ export const adminMenuGroups: MenuGroup[] = [
       { href: '/seo/robots', label: 'Robots.txt', icon: Globe, adminOnly: true },
       { href: '/seo/schema', label: 'Structured Data', icon: Globe, adminOnly: true },
       { href: '/broken-links', label: 'Broken Links', icon: Link2, adminOnly: true },
+      {
+        href: '/seo/redirects', label: 'Redirects', icon: Link2, adminOnly: true,
+        children: [
+          { href: '/seo/redirects', label: 'Redirect Rules' },
+          { href: '/seo/redirects/404', label: '404 Logs' },
+        ],
+      },
     ],
   },
   {

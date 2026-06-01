@@ -24,6 +24,7 @@ import { ModulesModule } from './modules/modules.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PagesModule } from './pages/pages.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { RedirectsModule } from './redirects/redirects.module';
 import { RolesModule } from './roles/roles.module';
 import { SettingsModule } from './settings/settings.module';
 import { TemplatesModule } from './templates/templates.module';
@@ -60,6 +61,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     NotificationsModule,
     PagesModule,
     PrismaModule,
+    RedirectsModule,
     RolesModule,
     SchemaModule,
     SettingsModule,
