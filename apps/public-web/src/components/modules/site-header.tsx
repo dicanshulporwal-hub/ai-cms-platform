@@ -21,12 +21,11 @@ export function SiteHeaderModule({ config, moduleKey, theme }: ModuleComponentPr
             <img src={logoUrl} alt={siteName} className="h-10 object-contain" />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-lg">
-              🏛️
+              🌐
             </div>
           )}
           <div>
             <span className="text-lg font-bold tracking-tight">{siteName}</span>
-            <p className="text-xs opacity-75">Government Portal</p>
           </div>
         </Link>
       </div>

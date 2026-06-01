@@ -9,13 +9,14 @@ import type {
 } from '@/types/content';
 
 const API_BASE = process.env.PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
-const REVALIDATE_SECONDS = parseInt(process.env.TEMPLATE_REVALIDATE_SECONDS ?? '60', 10);
+const REVALIDATE_SECONDS = parseInt(process.env.TEMPLATE_REVALIDATE_SECONDS ?? '0', 10);
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T | null> {
   try {
     const response = await fetch(`${API_BASE}${path}`, {
       ...options,
-      next: { revalidate: REVALIDATE_SECONDS },
+      cache: REVALIDATE_SECONDS === 0 ? 'no-store' : undefined,
+      next: REVALIDATE_SECONDS > 0 ? { revalidate: REVALIDATE_SECONDS } : undefined,
     });
     if (!response.ok) return null;
     return response.json() as Promise<T>;
