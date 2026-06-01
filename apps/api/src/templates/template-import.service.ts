@@ -116,7 +116,7 @@ export class TemplateImportService {
         licenseName: dto.licenseName || null,
         licenseUrl: dto.licenseUrl || null,
         attributionText: dto.attributionText || null,
-        warningsJson: warnings.length > 0 ? (warnings as unknown as Prisma.InputJsonValue) : null,
+        warningsJson: warnings.length > 0 ? (warnings as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
         createdById: user.id,
       },
     });
