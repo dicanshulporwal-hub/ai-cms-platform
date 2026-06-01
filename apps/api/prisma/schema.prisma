@@ -1807,3 +1807,62 @@ model ExportJob {
   @@index([exportType])
   @@map("export_jobs")
 }
+
+// ============================================
+// Webhooks & Integrations
+// ============================================
+
+enum WebhookDeliveryStatus {
+  WEBHOOK_PENDING
+  WEBHOOK_PROCESSING
+  WEBHOOK_DELIVERED
+  WEBHOOK_FAILED
+  WEBHOOK_RETRY_SCHEDULED
+  WEBHOOK_CANCELLED
+}
+
+model WebhookEndpoint {
+  id                  String            @id @default(cuid())
+  name                String            @db.VarChar(255)
+  description         String?           @db.Text
+  url                 String            @db.VarChar(2048)
+  secretEncrypted     String?           @db.VarChar(500)
+  isEnabled           Boolean           @default(true)
+  subscribedEventsJson Json?            @db.Json
+  headersJson         Json?             @db.Json
+  includeSensitiveData Boolean          @default(false)
+  timeoutMs           Int               @default(5000)
+  maxRetries          Int               @default(3)
+  createdById         String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  deletedAt           DateTime?
+  deliveries          WebhookDelivery[]
+
+  @@index([isEnabled])
+  @@index([deletedAt])
+  @@map("webhook_endpoints")
+}
+
+model WebhookDelivery {
+  id               String                @id @default(cuid())
+  endpointId       String
+  endpoint         WebhookEndpoint       @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  eventType        String                @db.VarChar(100)
+  eventId          String?               @db.VarChar(191)
+  payloadJson      Json?                 @db.Json
+  status           WebhookDeliveryStatus @default(WEBHOOK_PENDING)
+  attemptCount     Int                   @default(0)
+  lastStatusCode   Int?
+  lastErrorMessage String?               @db.Text
+  nextRetryAt      DateTime?
+  deliveredAt      DateTime?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  @@index([endpointId])
+  @@index([status])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("webhook_deliveries")
+}

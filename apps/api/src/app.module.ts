@@ -27,6 +27,7 @@ import { SettingsModule } from './settings/settings.module';
 import { TemplatesModule } from './templates/templates.module';
 import { TranslationsModule } from './translations/translations.module';
 import { UsersModule } from './users/users.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 import { WorkflowModule } from './workflow/workflow.module';
 
 @Module({
@@ -62,6 +63,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     TemplatesModule,
     TranslationsModule,
     UsersModule,
+    WebhooksModule,
     WorkflowModule,
   ],
 })
