@@ -94,7 +94,7 @@ export function AccessibilityToolbar() {
           right: 0;
           transform: translateY(-50%);
           z-index: 9998;
-          background: #1e40af;
+          background: var(--template-primary, #1e40af);
           color: #fff;
           border: none;
           border-radius: 8px 0 0 8px;
@@ -105,7 +105,7 @@ export function AccessibilityToolbar() {
           transition: all 0.2s;
         }
         .a11y-toolbar-toggle:hover {
-          background: #1d4ed8;
+          background: var(--template-secondary, #1d4ed8);
           padding-right: 12px;
         }
         .a11y-toolbar-toggle:focus {
@@ -179,8 +179,8 @@ export function AccessibilityToolbar() {
           color: #374151;
         }
         .a11y-btn:hover { background: #e5e7eb; }
-        .a11y-btn:focus { outline: 2px solid #1e40af; outline-offset: 1px; }
-        .a11y-btn.active { background: #1e40af; color: #fff; border-color: #1e40af; }
+        .a11y-btn:focus { outline: 2px solid var(--template-primary, #1e40af); outline-offset: 1px; }
+        .a11y-btn.active { background: var(--template-primary, #1e40af); color: #fff; border-color: var(--template-primary, #1e40af); }
         .a11y-toggle {
           display: flex;
           align-items: center;
@@ -201,7 +201,7 @@ export function AccessibilityToolbar() {
           position: relative;
           transition: background 0.2s;
         }
-        .a11y-switch.on { background: #1e40af; }
+        .a11y-switch.on { background: var(--template-primary, #1e40af); }
         .a11y-switch::after {
           content: '';
           position: absolute;
