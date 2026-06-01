@@ -60,3 +60,11 @@ export function fetchFormBySlug(slug: string): Promise<FormDefinition | null> {
 export function searchContent(query: string): Promise<{ results: SearchResult[] } | null> {
   return apiFetch(`/public/search?q=${encodeURIComponent(query)}`);
 }
+
+export function fetchGlobalSchema(): Promise<object[] | null> {
+  return apiFetch<object[]>('/public/structured-data/global');
+}
+
+export function fetchContentSchema(sourceType: string, sourceId: string): Promise<object[] | null> {
+  return apiFetch<object[]>(`/public/structured-data/${sourceType}/${sourceId}`);
+}
