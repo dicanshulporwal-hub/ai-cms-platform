@@ -146,6 +146,7 @@ function TemplatesContent({ user }: { user: AuthUser }) {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
                             <Link href={`/templates/${t.id}/layout`}><Button size="sm" variant="ghost">Layout</Button></Link>
+                            <Link href={`/templates/${t.id}/accessibility`}><Button size="sm" variant="ghost">Accessibility</Button></Link>
                             <Link href={`/templates/${t.id}/compliance`}><Button size="sm" variant="ghost">Compliance</Button></Link>
                             {t.isActive ? (
                               <Button size="sm" variant="ghost" onClick={() => deactivateMutation.mutateAsync(t.id)} disabled={deactivateMutation.isPending}><XCircle className="h-4 w-4" /> Deactivate</Button>
