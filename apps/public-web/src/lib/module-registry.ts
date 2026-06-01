@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import type { ModuleComponentProps } from '@/types/template';
 
+import { SiteHeaderModule } from '@/components/modules/site-header';
 import { NavigationModule } from '@/components/modules/navigation';
 import { PageContentModule } from '@/components/modules/page-content';
 import { BlogListModule } from '@/components/modules/blog-list';
@@ -14,6 +15,7 @@ import { CustomHtmlModule } from '@/components/modules/custom-html';
 import { MediaGalleryModule } from '@/components/modules/media-gallery';
 
 const MODULE_MAP: Record<string, ComponentType<ModuleComponentProps>> = {
+  SITE_HEADER: SiteHeaderModule,
   NAVIGATION: NavigationModule,
   PAGE_CONTENT: PageContentModule,
   BLOG_LIST: BlogListModule,

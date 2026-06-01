@@ -21,7 +21,7 @@ export interface TemplateRegion {
   templateId: string;
   regionKey: string;
   regionName: string;
-  regionType: 'HEADER' | 'NAVIGATION' | 'CONTENT' | 'FOOTER' | 'CHATBOT';
+  regionType: 'HEADER' | 'NAVIGATION' | 'CONTENT' | 'SIDEBAR' | 'FOOTER' | 'CHATBOT';
   sortOrder: number;
   isRequired: boolean;
   isActive: boolean;

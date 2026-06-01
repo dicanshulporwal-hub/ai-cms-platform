@@ -5,6 +5,7 @@ const REGION_ELEMENT_MAP: Record<string, keyof JSX.IntrinsicElements> = {
   HEADER: 'header',
   NAVIGATION: 'nav',
   CONTENT: 'main',
+  SIDEBAR: 'aside',
   FOOTER: 'footer',
   CHATBOT: 'aside',
 };
