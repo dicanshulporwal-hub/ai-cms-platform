@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useState } from 'react';
 import {
+  BarChart3,
   Bell,
   Box,
   ChevronDown,
@@ -85,6 +86,7 @@ const navItems: NavItem[] = [
   { href: '/modules', label: 'Modules', icon: Box, adminOnly: true },
   { href: '/accessibility', label: 'Accessibility', icon: Shield, adminOnly: true },
   { href: '/broken-links', label: 'Broken Links', icon: Link2, adminOnly: true },
+  { href: '/analytics', label: 'Analytics', icon: BarChart3, adminOnly: true },
   { href: '/seo/sitemap', label: 'SEO & Sitemap', icon: Globe, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];

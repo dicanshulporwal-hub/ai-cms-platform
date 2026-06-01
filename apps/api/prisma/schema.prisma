@@ -1548,3 +1548,76 @@ model BrokenLinkSettings {
 
   @@map("broken_link_settings")
 }
+
+// ============================================
+// Advanced Analytics
+// ============================================
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  BLOG_VIEW
+  DOCUMENT_VIEW
+  DOCUMENT_DOWNLOAD
+  FAQ_VIEW
+  FORM_VIEW
+  FORM_SUBMISSION
+  SEARCH_QUERY
+  CHATBOT_OPENED
+  CHATBOT_MESSAGE
+  AI_REQUEST
+  CUSTOM
+}
+
+enum AnalyticsSourceType {
+  PAGE
+  BLOG
+  DOCUMENT
+  FAQ
+  FORM
+  SEARCH
+  CHATBOT
+  AI
+  CUSTOM
+}
+
+model AnalyticsEvent {
+  id           String             @id @default(cuid())
+  eventType    AnalyticsEventType
+  moduleKey    String?            @db.VarChar(100)
+  sourceType   AnalyticsSourceType?
+  sourceId     String?            @db.VarChar(191)
+  sourceTitle  String?            @db.VarChar(500)
+  pageUrl      String?            @db.VarChar(2048)
+  referrer     String?            @db.VarChar(2048)
+  visitorId    String?            @db.VarChar(100)
+  sessionId    String?            @db.VarChar(100)
+  ipHash       String?            @db.VarChar(64)
+  deviceType   String?            @db.VarChar(20)
+  browser      String?            @db.VarChar(50)
+  metadataJson Json?              @db.Json
+  createdAt    DateTime           @default(now())
+
+  @@index([eventType])
+  @@index([sourceType, sourceId])
+  @@index([createdAt])
+  @@index([visitorId])
+  @@map("analytics_events")
+}
+
+model AnalyticsSettings {
+  id                    String  @id @default("default_analytics_settings")
+  trackingEnabled       Boolean @default(true)
+  anonymizeIp           Boolean @default(true)
+  respectDoNotTrack     Boolean @default(true)
+  retentionDays         Int     @default(90)
+  trackPageViews        Boolean @default(true)
+  trackDownloads        Boolean @default(true)
+  trackSearches         Boolean @default(true)
+  trackForms            Boolean @default(true)
+  trackChatbot          Boolean @default(true)
+  trackAiUsage          Boolean @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("analytics_settings")
+}
