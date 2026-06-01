@@ -1421,3 +1421,130 @@ model StructuredDataEntry {
   @@index([deletedAt])
   @@map("structured_data_entries")
 }
+
+// ============================================
+// Broken Link Checker
+// ============================================
+
+enum BrokenLinkScanType {
+  FULL_SITE
+  CONTENT_ONLY
+  TEMPLATE_ONLY
+  SINGLE_PAGE
+  SINGLE_BLOG
+  SINGLE_DOCUMENT
+  SINGLE_FAQ
+  SINGLE_FORM
+  PUBLIC_URL
+}
+
+enum BrokenLinkScanStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum BrokenLinkType {
+  INTERNAL
+  EXTERNAL
+  IMAGE
+  DOCUMENT_LINK
+  ANCHOR
+  MEDIA
+}
+
+enum BrokenLinkIssueType {
+  NOT_FOUND
+  SERVER_ERROR
+  TIMEOUT
+  REDIRECT
+  INVALID_URL
+  UNPUBLISHED_CONTENT
+  DISABLED_MODULE
+  MISSING_ANCHOR
+  MISSING_MEDIA
+  BLOCKED
+  UNKNOWN
+}
+
+enum BrokenLinkSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum BrokenLinkIssueStatus {
+  OPEN
+  IGNORED
+  FIXED
+  RECHECK_REQUIRED
+}
+
+model BrokenLinkScan {
+  id                String              @id @default(cuid())
+  scanType          BrokenLinkScanType
+  status            BrokenLinkScanStatus @default(PENDING)
+  startedById       String?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  totalLinksScanned Int                 @default(0)
+  brokenLinksFound  Int                 @default(0)
+  warningLinksFound Int                 @default(0)
+  summaryJson       Json?               @db.Json
+  errorMessage      String?             @db.Text
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  issues            BrokenLinkIssue[]
+
+  @@index([status])
+  @@index([scanType])
+  @@index([startedById])
+  @@map("broken_link_scans")
+}
+
+model BrokenLinkIssue {
+  id             String                @id @default(cuid())
+  scanId         String
+  scan           BrokenLinkScan        @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  sourceType     String                @db.VarChar(50)
+  sourceId       String?               @db.VarChar(191)
+  sourceTitle    String?               @db.VarChar(500)
+  sourceUrl      String?               @db.VarChar(2048)
+  linkUrl        String                @db.VarChar(2048)
+  linkText       String?               @db.VarChar(500)
+  linkType       BrokenLinkType
+  issueType      BrokenLinkIssueType
+  statusCode     Int?
+  severity       BrokenLinkSeverity    @default(MEDIUM)
+  status         BrokenLinkIssueStatus @default(OPEN)
+  recommendation String?               @db.Text
+  checkedAt      DateTime              @default(now())
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([scanId])
+  @@index([severity])
+  @@index([status])
+  @@index([issueType])
+  @@index([linkType])
+  @@map("broken_link_issues")
+}
+
+model BrokenLinkSettings {
+  id                       String  @id @default("default_broken_link_settings")
+  checkInternalLinks       Boolean @default(true)
+  checkExternalLinks       Boolean @default(true)
+  checkImages              Boolean @default(true)
+  checkDocuments           Boolean @default(true)
+  checkAnchors             Boolean @default(false)
+  externalRequestTimeoutMs Int     @default(5000)
+  maxExternalLinksPerScan  Int     @default(50)
+  userAgent                String  @default("AI-CMS-LinkChecker/1.0") @db.VarChar(255)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("broken_link_settings")
+}

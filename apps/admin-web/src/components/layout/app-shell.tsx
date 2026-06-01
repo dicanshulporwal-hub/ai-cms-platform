@@ -14,6 +14,7 @@ import {
   Images,
   Layout,
   LayoutDashboard,
+  Link2,
   LogOut,
   MessageCircle,
   Newspaper,
@@ -83,6 +84,7 @@ const navItems: NavItem[] = [
   },
   { href: '/modules', label: 'Modules', icon: Box, adminOnly: true },
   { href: '/accessibility', label: 'Accessibility', icon: Shield, adminOnly: true },
+  { href: '/broken-links', label: 'Broken Links', icon: Link2, adminOnly: true },
   { href: '/seo/sitemap', label: 'SEO & Sitemap', icon: Globe, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: Settings, adminOnly: true },
 ];
