@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AccessibilityModule } from './accessibility/accessibility.module';
 import { AiModule } from './ai/ai.module';
+import { AiPromptsModule } from './ai-prompts/ai-prompts.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { BrokenLinksModule } from './broken-links/broken-links.module';
 import { SchemaModule } from './schema/schema.module';
@@ -35,6 +36,7 @@ import { WorkflowModule } from './workflow/workflow.module';
       validate: validateEnvironment,
     }),
     AiModule,
+    AiPromptsModule,
     AccessibilityModule,
     AnalyticsModule,
     AuthModule,

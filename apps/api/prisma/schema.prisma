@@ -1621,3 +1621,116 @@ model AnalyticsSettings {
 
   @@map("analytics_settings")
 }
+
+// ============================================
+// AI Prompt Management & Governance
+// ============================================
+
+enum AiPromptStatus {
+  PROMPT_DRAFT
+  PENDING_APPROVAL
+  PROMPT_APPROVED
+  PROMPT_ACTIVE
+  PROMPT_ARCHIVED
+  PROMPT_DISABLED
+}
+
+enum AiPromptVersionStatus {
+  VERSION_DRAFT
+  VERSION_PENDING
+  VERSION_APPROVED
+  VERSION_ACTIVE
+  VERSION_ARCHIVED
+  VERSION_REJECTED
+}
+
+enum AiPromptTaskType {
+  CONTENT_GENERATION
+  CONTENT_REWRITE
+  SUMMARIZATION
+  SEO_GENERATION
+  FAQ_GENERATION
+  CHATBOT
+  DOCUMENT_METADATA
+  TEMPLATE_GENERATION
+  TRANSLATION
+  FORM_GENERATION
+  SCHEMA_GENERATION
+  ACCESSIBILITY_RECOMMENDATION
+  BROKEN_LINK_RECOMMENDATION
+  PROMPT_CUSTOM
+}
+
+model AiPromptTemplate {
+  id               String          @id @default(cuid())
+  promptKey        String          @unique @db.VarChar(100)
+  name             String          @db.VarChar(255)
+  description      String?         @db.Text
+  taskType         AiPromptTaskType
+  moduleKey        String?         @db.VarChar(100)
+  status           AiPromptStatus  @default(PROMPT_DRAFT)
+  currentVersionId String?         @db.VarChar(191)
+  isSystemPrompt   Boolean         @default(false)
+  isDefault        Boolean         @default(false)
+  createdById      String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  deletedAt        DateTime?
+  versions         AiPromptVersion[]
+  testRuns         AiPromptTestRun[]
+
+  @@index([taskType])
+  @@index([moduleKey])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("ai_prompt_templates")
+}
+
+model AiPromptVersion {
+  id                 String                @id @default(cuid())
+  promptTemplateId   String
+  promptTemplate     AiPromptTemplate      @relation(fields: [promptTemplateId], references: [id], onDelete: Cascade)
+  version            Int                   @default(1)
+  systemPrompt       String                @db.Text
+  userPromptTemplate String                @db.Text
+  outputFormatJson   Json?                 @db.Json
+  variablesJson      Json?                 @db.Json
+  safetyRulesJson    Json?                 @db.Json
+  providerHintsJson  Json?                 @db.Json
+  temperature        Float                 @default(0.7)
+  maxTokens          Int                   @default(1200)
+  status             AiPromptVersionStatus @default(VERSION_DRAFT)
+  changeNote         String?               @db.VarChar(500)
+  createdById        String?
+  approvedById       String?
+  approvedAt         DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  @@index([promptTemplateId])
+  @@index([status])
+  @@map("ai_prompt_versions")
+}
+
+model AiPromptTestRun {
+  id               String           @id @default(cuid())
+  promptTemplateId String
+  promptTemplate   AiPromptTemplate @relation(fields: [promptTemplateId], references: [id], onDelete: Cascade)
+  promptVersionId  String?
+  taskType         AiPromptTaskType
+  providerKey      String?          @db.VarChar(50)
+  modelKey         String?          @db.VarChar(191)
+  inputJson        Json?            @db.Json
+  outputText       String?          @db.LongText
+  success          Boolean          @default(false)
+  errorMessage     String?          @db.Text
+  tokenInput       Int              @default(0)
+  tokenOutput      Int              @default(0)
+  latencyMs        Int              @default(0)
+  testedById       String?
+  createdAt        DateTime         @default(now())
+
+  @@index([promptTemplateId])
+  @@index([testedById])
+  @@map("ai_prompt_test_runs")
+}
