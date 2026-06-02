@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
-import { Bell, ChevronDown, ChevronRight, LogOut, UserRound } from 'lucide-react';
+import { Bell, ChevronDown, ChevronRight, LogOut, Search, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUnreadNotificationCount } from '@/hooks/use-notifications';
 import { adminMenuGroups, type MenuGroup, type MenuItem } from '@/config/admin-menu';
@@ -34,6 +34,7 @@ export function AppShell({ children, user, onLogout, isLoggingOut = false, secti
   const pathname = usePathname();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [sidebarSearch, setSidebarSearch] = useState('');
   const unreadCountQuery = useUnreadNotificationCount();
   const unreadCount = unreadCountQuery.data?.count ?? 0;
 
@@ -43,10 +44,20 @@ export function AppShell({ children, user, onLogout, isLoggingOut = false, secti
     setCollapsed(prev => { const next = { ...prev, [key]: !prev[key] }; saveCollapsedState(next); return next; });
   }
 
-  // Filter groups based on user role
+  // Filter groups based on user role and search
+  const searchLower = sidebarSearch.toLowerCase().trim();
   const visibleGroups = adminMenuGroups.filter(group => {
     if (group.adminOnly && !isAdmin(user)) return false;
-    const visibleItems = group.items.filter(item => !(item.adminOnly && !isAdmin(user)));
+    const visibleItems = group.items.filter(item => {
+      if (item.adminOnly && !isAdmin(user)) return false;
+      if (searchLower) {
+        const matchesItem = item.label.toLowerCase().includes(searchLower);
+        const matchesChildren = item.children?.some(c => c.label.toLowerCase().includes(searchLower));
+        return matchesItem || matchesChildren;
+      }
+      return true;
+    });
+    if (searchLower) return visibleItems.length > 0 || group.label.toLowerCase().includes(searchLower);
     return visibleItems.length > 0;
   });
 
@@ -60,6 +71,7 @@ export function AppShell({ children, user, onLogout, isLoggingOut = false, secti
   }
 
   function isGroupExpanded(group: MenuGroup): boolean {
+    if (searchLower) return true; // Always expand when searching
     if (isGroupActive(group)) return true; // Auto-expand active group
     if (collapsed[group.key] !== undefined) return !collapsed[group.key];
     return !group.defaultCollapsed;
@@ -74,12 +86,33 @@ export function AppShell({ children, user, onLogout, isLoggingOut = false, secti
             <p className="text-xs text-muted-foreground">Admin Console</p>
           </div>
         </div>
+        {/* Sidebar Search */}
+        <div className="px-3 pt-3 pb-1 sticky top-16 bg-card z-10">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              value={sidebarSearch}
+              onChange={(e) => setSidebarSearch(e.target.value)}
+              placeholder="Search menu..."
+              className="w-full rounded-md border border-border bg-muted/50 py-2 pl-8 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+        </div>
         <nav className="p-3 space-y-1">
           {visibleGroups.map((group) => {
             const expanded = isGroupExpanded(group);
             const groupActive = isGroupActive(group);
             const GroupIcon = group.icon;
-            const visibleItems = group.items.filter(item => !(item.adminOnly && !isAdmin(user)));
+            const visibleItems = group.items.filter(item => {
+              if (item.adminOnly && !isAdmin(user)) return false;
+              if (searchLower) {
+                const matchesItem = item.label.toLowerCase().includes(searchLower);
+                const matchesChildren = item.children?.some(c => c.label.toLowerCase().includes(searchLower));
+                return matchesItem || matchesChildren;
+              }
+              return true;
+            });
 
             // Single-item groups render without group header
             if (group.key === 'dashboard') {
