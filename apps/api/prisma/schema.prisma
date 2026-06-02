@@ -2269,3 +2269,109 @@ model AnnouncementCategory {
   @@index([status])
   @@map("announcement_categories")
 }
+
+// ============================================
+// Tenders / Procurement
+// ============================================
+
+enum TenderStatus {
+  TENDER_DRAFT
+  TENDER_UNDER_REVIEW
+  TENDER_APPROVED
+  TENDER_PUBLISHED
+  TENDER_OPEN
+  TENDER_CLOSED
+  TENDER_AWARDED
+  TENDER_CANCELLED
+  TENDER_ARCHIVED
+}
+
+enum TenderProcurementType {
+  GOODS
+  SERVICES
+  WORKS
+  CONSULTANCY
+  IT_SOFTWARE
+  MANPOWER
+  MAINTENANCE
+  OTHER_PROCUREMENT
+}
+
+model Tender {
+  id                 String                @id @default(cuid())
+  title              String                @db.VarChar(255)
+  slug               String                @unique @db.VarChar(191)
+  tenderNumber       String?               @db.VarChar(100)
+  referenceNumber    String?               @db.VarChar(100)
+  description        String?               @db.LongText
+  summary            String?               @db.Text
+  categoryId         String?
+  category           TenderCategory?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  departmentName     String?               @db.VarChar(255)
+  procurementType    TenderProcurementType @default(OTHER_PROCUREMENT)
+  status             TenderStatus          @default(TENDER_DRAFT)
+  closingDate        DateTime?
+  openingDate        DateTime?
+  preBidMeetingDate  DateTime?
+  estimatedValue     String?               @db.VarChar(100)
+  emdAmount          String?               @db.VarChar(100)
+  contactName        String?               @db.VarChar(255)
+  contactEmail       String?               @db.VarChar(191)
+  submissionMode     String?               @db.VarChar(50)
+  submissionUrl      String?               @db.VarChar(2048)
+  corrigendumCount   Int                   @default(0)
+  seoTitle           String?               @db.VarChar(255)
+  seoDescription     String?               @db.Text
+  publishedAt        DateTime?
+  archivedAt         DateTime?
+  createdById        String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  deletedAt          DateTime?
+  corrigenda         TenderCorrigendum[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([categoryId])
+  @@index([procurementType])
+  @@index([closingDate])
+  @@index([publishedAt])
+  @@index([deletedAt])
+  @@map("tenders")
+}
+
+model TenderCategory {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(191)
+  slug        String   @unique @db.VarChar(191)
+  description String?  @db.Text
+  status      String   @default("ACTIVE") @db.VarChar(20)
+  sortOrder   Int      @default(0)
+  tenders     Tender[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([slug])
+  @@index([status])
+  @@map("tender_categories")
+}
+
+model TenderCorrigendum {
+  id                String   @id @default(cuid())
+  tenderId          String
+  tender            Tender   @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  title             String   @db.VarChar(255)
+  description       String?  @db.Text
+  corrigendumNumber String?  @db.VarChar(50)
+  status            String   @default("DRAFT") @db.VarChar(20)
+  publishedAt       DateTime?
+  createdById       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+
+  @@index([tenderId])
+  @@index([status])
+  @@map("tender_corrigenda")
+}

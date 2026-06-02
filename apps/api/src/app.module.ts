@@ -31,6 +31,7 @@ import { RedirectsModule } from './redirects/redirects.module';
 import { RolesModule } from './roles/roles.module';
 import { SettingsModule } from './settings/settings.module';
 import { TemplatesModule } from './templates/templates.module';
+import { TendersModule } from './tenders/tenders.module';
 import { TranslationsModule } from './translations/translations.module';
 import { UsersModule } from './users/users.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
@@ -73,6 +74,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     SettingsModule,
     SitemapModule,
     TemplatesModule,
+    TendersModule,
     TranslationsModule,
     UsersModule,
     WebhooksModule,

@@ -206,6 +206,22 @@ export const adminMenuGroups: MenuGroup[] = [
     ],
   },
   {
+    key: 'government',
+    label: 'Government Modules',
+    icon: FileText,
+    adminOnly: true,
+    defaultCollapsed: true,
+    items: [
+      {
+        href: '/tenders', label: 'Tenders', icon: FileText, adminOnly: true,
+        children: [
+          { href: '/tenders', label: 'All Tenders' },
+          { href: '/tenders/categories', label: 'Categories' },
+        ],
+      },
+    ],
+  },
+  {
     key: 'system',
     label: 'System',
     icon: Settings,
