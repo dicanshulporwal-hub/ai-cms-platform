@@ -2186,3 +2186,86 @@ model EditorialCalendarNote {
   @@index([noteType])
   @@map("editorial_calendar_notes")
 }
+
+// ============================================
+// Announcements / Notices / Circulars
+// ============================================
+
+enum AnnouncementType {
+  ANNOUNCEMENT
+  NOTICE
+  CIRCULAR
+  OFFICE_ORDER
+  PUBLIC_ADVISORY
+  RECRUITMENT
+  RESULT
+  ALERT
+  CUSTOM_ANNOUNCEMENT
+}
+
+enum AnnouncementStatus {
+  ANN_DRAFT
+  ANN_UNDER_REVIEW
+  ANN_APPROVED
+  ANN_PUBLISHED
+  ANN_ARCHIVED
+  ANN_EXPIRED
+}
+
+enum AnnouncementPriority {
+  ANN_LOW
+  ANN_NORMAL
+  ANN_HIGH
+  ANN_URGENT
+}
+
+model Announcement {
+  id              String               @id @default(cuid())
+  title           String               @db.VarChar(255)
+  slug            String               @unique @db.VarChar(191)
+  summary         String?              @db.Text
+  content         String?              @db.LongText
+  announcementType AnnouncementType    @default(ANNOUNCEMENT)
+  categoryId      String?
+  category        AnnouncementCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  status          AnnouncementStatus   @default(ANN_DRAFT)
+  priority        AnnouncementPriority @default(ANN_NORMAL)
+  isPinned        Boolean              @default(false)
+  isImportant     Boolean              @default(false)
+  publishAt       DateTime?
+  expiresAt       DateTime?
+  publishedAt     DateTime?
+  archivedAt      DateTime?
+  seoTitle        String?              @db.VarChar(255)
+  seoDescription  String?              @db.Text
+  createdById     String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  deletedAt       DateTime?
+
+  @@index([slug])
+  @@index([status])
+  @@index([announcementType])
+  @@index([categoryId])
+  @@index([isPinned])
+  @@index([publishedAt])
+  @@index([deletedAt])
+  @@map("announcements")
+}
+
+model AnnouncementCategory {
+  id            String         @id @default(cuid())
+  name          String         @db.VarChar(191)
+  slug          String         @unique @db.VarChar(191)
+  description   String?        @db.Text
+  status        String         @default("ACTIVE") @db.VarChar(20)
+  sortOrder     Int            @default(0)
+  announcements Announcement[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+
+  @@index([slug])
+  @@index([status])
+  @@map("announcement_categories")
+}
