@@ -2432,3 +2432,99 @@ model GalleryImage {
   @@index([sortOrder])
   @@map("gallery_images")
 }
+
+// ============================================
+// Events / Calendar
+// ============================================
+
+enum EventStatus {
+  EVENT_DRAFT
+  EVENT_PUBLISHED
+  EVENT_CANCELLED
+  EVENT_COMPLETED
+  EVENT_ARCHIVED
+}
+
+enum EventType {
+  CONFERENCE
+  SEMINAR
+  WORKSHOP
+  WEBINAR
+  MEETING
+  CEREMONY
+  SPORTS
+  CULTURAL
+  TRAINING
+  OTHER_EVENT
+}
+
+model Event {
+  id               String          @id @default(cuid())
+  title            String          @db.VarChar(255)
+  slug             String          @unique @db.VarChar(191)
+  description      String?         @db.LongText
+  summary          String?         @db.Text
+  eventType        EventType       @default(OTHER_EVENT)
+  status           EventStatus     @default(EVENT_DRAFT)
+  startDate        DateTime
+  endDate          DateTime?
+  startTime        String?         @db.VarChar(10)
+  endTime          String?         @db.VarChar(10)
+  isAllDay         Boolean         @default(false)
+  venueName        String?         @db.VarChar(255)
+  venueAddress     String?         @db.Text
+  venueCity        String?         @db.VarChar(100)
+  venueState       String?         @db.VarChar(100)
+  isOnline         Boolean         @default(false)
+  onlineLink       String?         @db.VarChar(2048)
+  onlinePlatform   String?         @db.VarChar(100)
+  organizerName    String?         @db.VarChar(255)
+  organizerEmail   String?         @db.VarChar(191)
+  organizerPhone   String?         @db.VarChar(50)
+  departmentName   String?         @db.VarChar(255)
+  featuredImageUrl String?         @db.VarChar(2048)
+  attachmentUrl    String?         @db.VarChar(2048)
+  maxAttendees     Int?
+  isFeatured       Boolean         @default(false)
+  isRegistrationOpen Boolean       @default(false)
+  registrationDeadline DateTime?
+  metaTitle        String?         @db.VarChar(255)
+  metaDescription  String?         @db.Text
+  tagsJson         Json?           @db.Json
+  publishedAt      DateTime?
+  createdById      String?
+  deletedAt        DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  registrations    EventRegistration[]
+
+  @@index([status])
+  @@index([eventType])
+  @@index([startDate])
+  @@index([isFeatured])
+  @@index([isRegistrationOpen])
+  @@index([deletedAt])
+  @@index([createdById])
+  @@map("events")
+}
+
+model EventRegistration {
+  id            String   @id @default(cuid())
+  eventId       String
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name          String   @db.VarChar(191)
+  email         String   @db.VarChar(191)
+  phone         String?  @db.VarChar(50)
+  organization  String?  @db.VarChar(255)
+  designation   String?  @db.VarChar(255)
+  message       String?  @db.Text
+  status        String   @default("REGISTERED") @db.VarChar(30)
+  registeredAt  DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([eventId])
+  @@index([email])
+  @@index([status])
+  @@map("event_registrations")
+}

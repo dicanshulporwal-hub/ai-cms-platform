@@ -3,6 +3,7 @@ import {
   BarChart3,
   Bell,
   Box,
+  Calendar,
   ClipboardCheck,
   FileText,
   FolderTree,
@@ -61,6 +62,7 @@ export const adminMenuGroups: MenuGroup[] = [
       { href: '/documents', label: 'Documents', icon: FileText },
       { href: '/media', label: 'Media', icon: Images },
       { href: '/galleries', label: 'Photo Gallery', icon: Image },
+      { href: '/events', label: 'Events', icon: Calendar },
       { href: '/forms', label: 'Forms', icon: FileText },
       { href: '/faqs', label: 'FAQs', icon: FileText },
       {

@@ -18,6 +18,7 @@ import { validateEnvironment } from './config/env.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DeploymentModule } from './deployment/deployment.module';
 import { DocumentsModule } from './documents/documents.module';
+import { EventsModule } from './events/events.module';
 import { FormsModule } from './forms/forms.module';
 import { FaqsModule } from './faqs/faqs.module';
 import { GalleryModule } from './gallery/gallery.module';
@@ -60,6 +61,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     DashboardModule,
     DeploymentModule,
     DocumentsModule,
+    EventsModule,
     FormsModule,
     FaqsModule,
     GalleryModule,
