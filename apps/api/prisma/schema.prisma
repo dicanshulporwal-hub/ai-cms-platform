@@ -2375,3 +2375,60 @@ model TenderCorrigendum {
   @@index([status])
   @@map("tender_corrigenda")
 }
+
+// ============================================
+// Photo Gallery / Albums
+// ============================================
+
+enum GalleryStatus {
+  GALLERY_DRAFT
+  GALLERY_PUBLISHED
+  GALLERY_ARCHIVED
+}
+
+model Gallery {
+  id              String        @id @default(cuid())
+  title           String        @db.VarChar(255)
+  slug            String        @unique @db.VarChar(191)
+  description     String?       @db.Text
+  coverImageUrl   String?       @db.VarChar(2048)
+  status          GalleryStatus @default(GALLERY_DRAFT)
+  sortOrder       Int           @default(0)
+  isFeatured      Boolean       @default(false)
+  metaTitle       String?       @db.VarChar(255)
+  metaDescription String?       @db.Text
+  publishedAt     DateTime?
+  createdById     String?
+  deletedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  images          GalleryImage[]
+
+  @@index([status])
+  @@index([isFeatured])
+  @@index([deletedAt])
+  @@index([createdById])
+  @@map("galleries")
+}
+
+model GalleryImage {
+  id          String   @id @default(cuid())
+  galleryId   String
+  gallery     Gallery  @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  title       String?  @db.VarChar(255)
+  description String?  @db.Text
+  imageUrl    String   @db.VarChar(2048)
+  thumbnailUrl String? @db.VarChar(2048)
+  altText     String?  @db.VarChar(255)
+  width       Int?
+  height      Int?
+  fileSize    Int?
+  sortOrder   Int      @default(0)
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([galleryId])
+  @@index([sortOrder])
+  @@map("gallery_images")
+}

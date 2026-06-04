@@ -7,6 +7,7 @@ import {
   FileText,
   FolderTree,
   Globe,
+  Image,
   Images,
   Layout,
   LayoutDashboard,
@@ -59,6 +60,7 @@ export const adminMenuGroups: MenuGroup[] = [
       { href: '/tags', label: 'Tags', icon: Tags },
       { href: '/documents', label: 'Documents', icon: FileText },
       { href: '/media', label: 'Media', icon: Images },
+      { href: '/galleries', label: 'Photo Gallery', icon: Image },
       { href: '/forms', label: 'Forms', icon: FileText },
       { href: '/faqs', label: 'FAQs', icon: FileText },
       {

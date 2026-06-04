@@ -20,6 +20,7 @@ import { DeploymentModule } from './deployment/deployment.module';
 import { DocumentsModule } from './documents/documents.module';
 import { FormsModule } from './forms/forms.module';
 import { FaqsModule } from './faqs/faqs.module';
+import { GalleryModule } from './gallery/gallery.module';
 import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
 import { ModulesModule } from './modules/modules.module';
@@ -61,6 +62,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     DocumentsModule,
     FormsModule,
     FaqsModule,
+    GalleryModule,
     HealthModule,
     MediaModule,
     ModulesModule,

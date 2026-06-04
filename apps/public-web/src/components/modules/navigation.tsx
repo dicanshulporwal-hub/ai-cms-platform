@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
@@ -10,6 +10,8 @@ import type { ModuleComponentProps } from '@/types/template';
 interface NavLink {
   label: string;
   href: string;
+  target?: string;
+  children?: NavLink[];
 }
 
 const DEFAULT_LINKS: NavLink[] = [
@@ -22,12 +24,41 @@ const DEFAULT_LINKS: NavLink[] = [
 export function NavigationModule({ config, moduleKey, theme }: ModuleComponentProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [links, setLinks] = useState<NavLink[]>(
+    Array.isArray(config?.links) ? (config.links as NavLink[]) : DEFAULT_LINKS
+  );
 
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? 'AI CMS';
+  const siteName = theme?.siteName || process.env.NEXT_PUBLIC_SITE_NAME || 'AI CMS';
 
-  const links: NavLink[] = Array.isArray(config?.links)
-    ? (config.links as NavLink[])
-    : DEFAULT_LINKS;
+  // Fetch dynamic menu from API
+  useEffect(() => {
+    let cancelled = false;
+    async function loadMenu() {
+      try {
+        const res = await fetch('/api/menus/HEADER');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        if (data?.items?.length > 0) {
+          const mapped: NavLink[] = data.items.map((item: { label: string; url: string; target?: string; children?: { label: string; url: string; target?: string }[] }) => ({
+            label: item.label,
+            href: item.url,
+            target: item.target,
+            children: item.children?.map((child: { label: string; url: string; target?: string }) => ({
+              label: child.label,
+              href: child.url,
+              target: child.target,
+            })),
+          }));
+          setLinks(mapped);
+        }
+      } catch {
+        // Keep default links on error
+      }
+    }
+    loadMenu();
+    return () => { cancelled = true; };
+  }, []);
 
   const toggleMobileMenu = useCallback(() => {
     setMobileMenuOpen((prev) => !prev);
@@ -68,9 +99,10 @@ export function NavigationModule({ config, moduleKey, theme }: ModuleComponentPr
             {/* Desktop navigation */}
             <ul className="hidden md:flex md:items-center md:gap-1" role="list">
               {links.map((link) => (
-                <li key={link.href}>
+                <li key={link.href} className="relative group">
                   <Link
                     href={link.href}
+                    target={link.target || undefined}
                     aria-current={isActive(link.href) ? 'page' : undefined}
                     className={`
                       relative inline-block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200
@@ -93,6 +125,22 @@ export function NavigationModule({ config, moduleKey, theme }: ModuleComponentPr
                       />
                     )}
                   </Link>
+                  {/* Dropdown for children */}
+                  {link.children && link.children.length > 0 && (
+                    <ul className="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg rounded-lg py-2 min-w-[180px] z-50 border border-gray-200">
+                      {link.children.map((child) => (
+                        <li key={child.href}>
+                          <Link
+                            href={child.href}
+                            target={child.target || undefined}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          >
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>
@@ -129,6 +177,7 @@ export function NavigationModule({ config, moduleKey, theme }: ModuleComponentPr
               <li key={link.href}>
                 <Link
                   href={link.href}
+                  target={link.target || undefined}
                   aria-current={isActive(link.href) ? 'page' : undefined}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`
@@ -143,6 +192,23 @@ export function NavigationModule({ config, moduleKey, theme }: ModuleComponentPr
                 >
                   {link.label}
                 </Link>
+                {/* Mobile sub-links */}
+                {link.children && link.children.length > 0 && (
+                  <ul className="ml-4 mt-1 space-y-1">
+                    {link.children.map((child) => (
+                      <li key={child.href}>
+                        <Link
+                          href={child.href}
+                          target={child.target || undefined}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block rounded-lg px-3 py-2 text-sm text-foreground/60 hover:bg-accent hover:text-foreground transition-colors"
+                        >
+                          {child.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

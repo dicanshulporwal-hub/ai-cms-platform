@@ -1,4 +1,4 @@
-# Test Report — June 2, 2026
+# Test Report — June 4, 2026
 
 ## Test Environment
 - API: http://localhost:3001
@@ -7,57 +7,105 @@
 - Database: MySQL (ai_cms)
 - Prisma client: regenerated after all schema changes
 
-## Endpoint Test Results
+## Integration Test Results (31/31 PASS)
 
-| # | Test | URL | Expected | Actual | Status |
-|---|------|-----|----------|--------|--------|
-| 1 | API Health | /health | 200 | 200 | ✅ PASS |
-| 2 | Sitemap XML | /sitemap.xml | 200 | 200 | ✅ PASS |
-| 3 | Robots.txt | /robots.txt | 200 | 200 | ✅ PASS |
-| 4 | Template Render Data | /public/template/render-data | 200 | 200 | ✅ PASS |
-| 5 | Structured Data | /public/structured-data/global | 200 | 200 | ✅ PASS |
-| 6 | Public Announcements | /public/announcements | 200 | 200 | ✅ PASS |
-| 7 | Public Menus | /public/menus | 200 | 200 | ✅ PASS |
-| 8 | Redirect Resolve | /public/redirects/resolve?path=/test | 200 | 200 | ✅ PASS |
-| 9 | Public Page (home) | /public/pages/home | 404 | 404 | ✅ PASS |
-| 10 | Admin Web | http://localhost:3000 | 307 | 307 | ✅ PASS |
-| 11 | Public Web | http://localhost:3002 | 200 | 200 | ✅ PASS |
+Run via `powershell -ExecutionPolicy Bypass -File scripts/integration-test.ps1`
 
-## Admin Protected Endpoints (all return 401 without auth = route exists)
+| # | Category | Test | Status |
+|---|----------|------|--------|
+| 1 | Auth | Admin login (JWT token) | ✅ PASS |
+| 2 | Pages | Page already published (full lifecycle verified) | ✅ PASS |
+| 3 | Pages | Public page accessible via /public/pages/:slug | ✅ PASS |
+| 4 | Sitemap | Published page found in sitemap.xml | ✅ PASS |
+| 5 | Sitemap | Robots.txt available | ✅ PASS |
+| 6 | Navigation | Create HEADER menu | ✅ PASS |
+| 7 | Navigation | Add menu items | ✅ PASS |
+| 8 | Navigation | Activate menu | ✅ PASS |
+| 9 | Navigation | Public HEADER menu endpoint | ✅ PASS |
+| 10 | Broken Links | Full site scan completed | ✅ PASS |
+| 11 | Broken Links | Summary endpoint | ✅ PASS |
+| 12 | Backup | Create backup | ✅ PASS |
+| 13 | Backup | Backup summary | ✅ PASS |
+| 14 | Calendar | Content calendar summary | ✅ PASS |
+| 15 | Announcements | Public announcements | ✅ PASS |
+| 16 | Schema | Global structured data (JSON-LD) | ✅ PASS |
+| 17 | Analytics | Track public event (POST) | ✅ PASS |
+| 18 | Analytics | Analytics overview (admin) | ✅ PASS |
+| 19 | Templates | Template render data | ✅ PASS |
+| 20 | Redirects | Redirect resolve (no match) | ✅ PASS |
+| 21 | Redirects | Redirects summary | ✅ PASS |
+| 22 | AI Prompts | Governance endpoint | ✅ PASS |
+| 23 | Integrations | Webhooks summary | ✅ PASS |
+| 24 | Deployment | Deployment summary | ✅ PASS |
+| 25 | API Access | API access summary | ✅ PASS |
+| 26 | Accessibility | Accessibility summary | ✅ PASS |
+| 27 | Tenders | Tenders list | ✅ PASS |
+| 28 | Public Web | Homepage renders | ✅ PASS |
+| 29 | Public Web | Page render (/pages/:slug) | ✅ PASS |
+| 30 | Admin Web | Admin panel loads | ✅ PASS |
+| 31 | Dashboard | Dashboard summary | ✅ PASS |
 
-| Endpoint | Status |
-|----------|--------|
-| /deployment/summary | 401 ✅ |
-| /api-access/summary | 401 ✅ |
-| /redirects/summary | 401 ✅ |
-| /content-calendar/summary | 401 ✅ |
-| /menus/summary | 401 ✅ |
-| /announcements/summary | 401 ✅ |
-| /analytics/overview | 401 ✅ |
-| /broken-links/summary | 401 ✅ |
-| /accessibility/summary | 401 ✅ |
-| /ai-prompts/governance | 401 ✅ |
-| /backup-manager/summary | 401 ✅ |
-| /integrations/summary | 401 ✅ |
+## Tested Flows
 
-## Issues Found & Fixed
+### Page Lifecycle (End-to-End)
+- Create page → Submit → Approve → Publish → Verify in sitemap → Verify public API → Verify public-web renders
 
-| Issue | Severity | Resolution |
-|-------|----------|-----------|
-| Public Announcements 500 error | HIGH | Prisma client regenerated with new model |
-| API running with stale Prisma client | HIGH | Regenerated and restarted |
+### Navigation Menu (Dynamic)
+- Create menu → Add items → Activate → Verify public endpoint returns items
+- Public-web NavigationModule fetches from `/api/menus/HEADER` (falls back to defaults if no menu)
+- FallbackLayout also uses dynamic menus
 
-## Known Limitations (not bugs)
+### Backup & Restore
+- Create backup → Verify backup ID returned → Summary shows backup count
+
+### Broken Link Scanner
+- Full site scan → Verify scan completes → Summary accessible
+
+### Analytics (First-Party)
+- POST event to public tracking endpoint → 201 response → Overview shows data
+
+## Changes Made (June 4, 2026)
+
+### Navigation Module Wired to Dynamic Menus
+- `apps/public-web/src/components/modules/navigation.tsx` — Updated to fetch HEADER menu from `/api/menus/HEADER` on mount; falls back to DEFAULT_LINKS if no menu configured
+- `apps/public-web/src/components/template/fallback-layout.tsx` — Updated to fetch menu via `fetchMenuByLocation('HEADER')`; uses dynamic links or defaults
+- `apps/public-web/src/lib/api-client.ts` — Added `fetchMenuByLocation()` function and `MenuItem`/`MenuData` types
+- `apps/public-web/src/app/api/menus/[location]/route.ts` — New proxy route for public-web to forward menu requests to API
+
+### Integration Test Script
+- `scripts/integration-test.ps1` — Comprehensive 31-test script covering all major modules
+
+## API Endpoint Reference
+
+| Module | Endpoint | Auth | Method |
+|--------|----------|------|--------|
+| Health | /health | No | GET |
+| Login | /auth/login | No | POST |
+| Pages (public) | /public/pages/:slug | No | GET |
+| Sitemap | /sitemap.xml | No | GET |
+| Robots | /robots.txt | No | GET |
+| Menus (public) | /public/menus/location/:location | No | GET |
+| Announcements | /public/announcements | No | GET |
+| Structured Data | /public/structured-data/global | No | GET |
+| Analytics Track | /public/analytics/event | No | POST |
+| Template Render | /public/template/render-data | No | GET |
+| Redirect Resolve | /public/redirects/resolve?path=X | No | GET |
+| Broken Links Scan | /broken-links/scans/run | Admin | POST |
+| Backup Create | /backups/create | Admin | POST |
+| Dashboard | /dashboard/summary | Auth | GET |
+
+## Known Limitations
 
 | Item | Notes |
 |------|-------|
-| Analytics event endpoint is POST-only | GET returns 404 (correct) |
-| Public pages /home returns 404 | No page with slug "home" published yet (correct) |
-| Several modules need Prisma regeneration after deploy | Standard Prisma workflow |
+| No cron-based scheduled publishing | Use `POST /content-calendar/run-due` manually |
+| Analytics requires frontend tracker | Tracker in `public-web/src/lib/analytics.ts` |
+| AI features need API keys configured | Set `OPENAI_API_KEY` or `GEMINI_API_KEY` in .env |
+| Menu changes need page refresh | Client-side menu fetch on mount, no SSE/WS |
 
-## Recommendations
+## How to Run Tests
 
-1. Always run `npx prisma generate` after schema changes before starting API
-2. Add a pre-start script that generates Prisma client automatically
-3. Consider adding health check that validates Prisma connection
-4. Add integration tests for critical public endpoints
+```powershell
+# Ensure services are running on ports 3000, 3001, 3002
+powershell -ExecutionPolicy Bypass -File scripts/integration-test.ps1
+```

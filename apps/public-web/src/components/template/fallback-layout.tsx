@@ -1,15 +1,29 @@
 import Link from 'next/link';
 import { SkipLink } from '@/components/ui/skip-link';
 import { AccessibilityToolbar } from '@/components/ui/accessibility-toolbar';
-import { fetchRenderData } from '@/lib/api-client';
+import { fetchRenderData, fetchMenuByLocation } from '@/lib/api-client';
 
 interface FallbackLayoutProps {
   children: React.ReactNode;
 }
 
+const DEFAULT_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Documents', href: '/documents' },
+  { label: 'FAQs', href: '/faqs' },
+];
+
 export async function FallbackLayout({ children }: FallbackLayoutProps) {
-  const renderData = await fetchRenderData();
+  const [renderData, headerMenu] = await Promise.all([
+    fetchRenderData(),
+    fetchMenuByLocation('HEADER'),
+  ]);
   const siteName = renderData?.settings?.siteName || process.env.NEXT_PUBLIC_SITE_NAME || 'AI CMS';
+
+  const navLinks = headerMenu?.items?.length
+    ? headerMenu.items.map((item) => ({ label: item.label, href: item.url }))
+    : DEFAULT_LINKS;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -25,38 +39,16 @@ export async function FallbackLayout({ children }: FallbackLayoutProps) {
           </Link>
           <nav data-region="navigation" aria-label="Main navigation">
             <ul className="flex items-center gap-1">
-              <li>
-                <Link
-                  href="/"
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/documents"
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  Documents
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/faqs"
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  FAQs
-                </Link>
-              </li>
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>

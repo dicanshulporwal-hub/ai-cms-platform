@@ -68,3 +68,22 @@ export function fetchGlobalSchema(): Promise<object[] | null> {
 export function fetchContentSchema(sourceType: string, sourceId: string): Promise<object[] | null> {
   return apiFetch<object[]>(`/public/structured-data/${sourceType}/${sourceId}`);
 }
+
+export interface MenuItem {
+  id: string;
+  label: string;
+  url: string;
+  target?: string;
+  children?: MenuItem[];
+}
+
+export interface MenuData {
+  id: string;
+  name: string;
+  location: string;
+  items: MenuItem[];
+}
+
+export function fetchMenuByLocation(location: string): Promise<MenuData | null> {
+  return apiFetch<MenuData>(`/public/menus/location/${location}`);
+}
