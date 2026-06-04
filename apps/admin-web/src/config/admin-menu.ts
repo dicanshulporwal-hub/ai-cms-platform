@@ -29,6 +29,7 @@ export interface MenuItem {
   icon?: any;
   exact?: boolean;
   adminOnly?: boolean;
+  moduleKey?: string;
   children?: { href: string; label: string }[];
 }
 

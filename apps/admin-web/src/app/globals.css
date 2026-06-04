@@ -10,12 +10,38 @@
     --card-foreground: 220 24% 12%;
     --muted: 210 18% 93%;
     --muted-foreground: 218 12% 42%;
-    --primary: 173 76% 26%;
+    --primary: 220 75% 45%;
     --primary-foreground: 0 0% 100%;
     --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 16% 86%;
+    --border: 214 16% 89%;
     --radius: 0.5rem;
+
+    /* Admin sidebar tokens */
+    --sidebar-bg: 220 25% 14%;
+    --sidebar-text: 215 20% 75%;
+    --sidebar-text-active: 0 0% 100%;
+    --sidebar-hover: 220 20% 18%;
+    --sidebar-active: 220 75% 45%;
+    --sidebar-group-text: 215 15% 55%;
+    --sidebar-border: 220 20% 20%;
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 64px;
+
+    /* Topbar tokens */
+    --topbar-bg: 0 0% 100%;
+    --topbar-border: 214 16% 89%;
+    --topbar-height: 60px;
+
+    /* Status colors */
+    --status-success: 142 71% 40%;
+    --status-warning: 38 92% 50%;
+    --status-error: 0 72% 45%;
+    --status-info: 220 75% 45%;
+
+    /* Accent colors */
+    --accent: 210 18% 96%;
+    --accent-foreground: 220 24% 12%;
   }
 
   * {
@@ -24,6 +50,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
   }
 
   .cms-editor-content h1,
@@ -69,5 +96,22 @@
   .cms-editor-content img,
   .cms-rendered-html img {
     @apply my-4 max-w-full rounded-md border border-border;
+  }
+}
+
+@layer components {
+  /* Scrollbar styling for sidebar */
+  .admin-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .admin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .admin-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--sidebar-border));
+    border-radius: 4px;
+  }
+  .admin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--sidebar-group-text));
   }
 }
