@@ -2528,3 +2528,70 @@ model EventRegistration {
   @@index([status])
   @@map("event_registrations")
 }
+
+// ============================================
+// RTI (Right to Information)
+// ============================================
+
+enum RtiRequestStatus {
+  RTI_RECEIVED
+  RTI_UNDER_PROCESS
+  RTI_TRANSFERRED
+  RTI_RESPONSE_SENT
+  RTI_FIRST_APPEAL
+  RTI_SECOND_APPEAL
+  RTI_CLOSED
+  RTI_REJECTED
+}
+
+model RtiOfficer {
+  id            String   @id @default(cuid())
+  name          String   @db.VarChar(255)
+  designation   String?  @db.VarChar(255)
+  department    String?  @db.VarChar(255)
+  email         String?  @db.VarChar(191)
+  phone         String?  @db.VarChar(50)
+  address       String?  @db.Text
+  officerType   String   @default("PIO") @db.VarChar(30)
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([officerType])
+  @@index([isActive])
+  @@map("rti_officers")
+}
+
+model RtiRequest {
+  id                String           @id @default(cuid())
+  requestNumber     String           @unique @db.VarChar(50)
+  applicantName     String           @db.VarChar(255)
+  applicantEmail    String?          @db.VarChar(191)
+  applicantPhone    String?          @db.VarChar(50)
+  applicantAddress  String?          @db.Text
+  subject           String           @db.VarChar(500)
+  description       String           @db.Text
+  department        String?          @db.VarChar(255)
+  status            RtiRequestStatus @default(RTI_RECEIVED)
+  receivedDate      DateTime         @default(now())
+  dueDate           DateTime?
+  responseDate      DateTime?
+  responseText      String?          @db.LongText
+  attachmentUrl     String?          @db.VarChar(2048)
+  assignedOfficerId String?          @db.VarChar(191)
+  remarks           String?          @db.Text
+  isPublic          Boolean          @default(false)
+  createdById       String?
+  deletedAt         DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([status])
+  @@index([receivedDate])
+  @@index([dueDate])
+  @@index([assignedOfficerId])
+  @@index([isPublic])
+  @@index([deletedAt])
+  @@map("rti_requests")
+}

@@ -31,6 +31,7 @@ import { PagesModule } from './pages/pages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedirectsModule } from './redirects/redirects.module';
 import { RolesModule } from './roles/roles.module';
+import { RtiModule } from './rti/rti.module';
 import { SettingsModule } from './settings/settings.module';
 import { TemplatesModule } from './templates/templates.module';
 import { TendersModule } from './tenders/tenders.module';
@@ -74,6 +75,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     PrismaModule,
     RedirectsModule,
     RolesModule,
+    RtiModule,
     SchemaModule,
     SettingsModule,
     SitemapModule,

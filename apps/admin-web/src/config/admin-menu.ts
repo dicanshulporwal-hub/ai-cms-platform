@@ -223,6 +223,13 @@ export const adminMenuGroups: MenuGroup[] = [
           { href: '/tenders/categories', label: 'Categories' },
         ],
       },
+      {
+        href: '/rti', label: 'RTI', icon: FileText, adminOnly: true,
+        children: [
+          { href: '/rti', label: 'Requests' },
+          { href: '/rti/officers', label: 'Officers' },
+        ],
+      },
     ],
   },
   {
