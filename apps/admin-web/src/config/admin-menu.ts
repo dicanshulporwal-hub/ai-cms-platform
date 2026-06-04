@@ -231,6 +231,30 @@ export const adminMenuGroups: MenuGroup[] = [
           { href: '/rti/officers', label: 'Officers' },
         ],
       },
+      {
+        href: '/scheme-services', label: 'Schemes & Services', icon: FileText, adminOnly: true,
+        children: [
+          { href: '/scheme-services', label: 'All' },
+          { href: '/scheme-services/categories', label: 'Categories' },
+          { href: '/scheme-services/departments', label: 'Departments' },
+        ],
+      },
+      {
+        href: '/contact-directory', label: 'Depts & Contacts', icon: Users, adminOnly: true,
+        children: [
+          { href: '/contact-directory', label: 'Overview' },
+          { href: '/contact-directory/departments', label: 'Departments' },
+          { href: '/contact-directory/officers', label: 'Officers' },
+          { href: '/contact-directory/designations', label: 'Designations' },
+        ],
+      },
+      {
+        href: '/newsroom', label: 'Newsroom', icon: Newspaper, adminOnly: true,
+        children: [
+          { href: '/newsroom', label: 'All Items' },
+          { href: '/newsroom/categories', label: 'Categories' },
+        ],
+      },
     ],
   },
   {

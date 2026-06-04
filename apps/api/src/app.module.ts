@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { ContentCalendarModule } from './content-calendar/content-calendar.module';
+import { ContactDirectoryModule } from './contact-directory/contact-directory.module';
 import { validateEnvironment } from './config/env.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DeploymentModule } from './deployment/deployment.module';
@@ -26,12 +27,14 @@ import { HealthModule } from './health/health.module';
 import { MediaModule } from './media/media.module';
 import { ModulesModule } from './modules/modules.module';
 import { NavigationModule } from './navigation/navigation.module';
+import { NewsroomModule } from './newsroom/newsroom.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PagesModule } from './pages/pages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedirectsModule } from './redirects/redirects.module';
 import { RolesModule } from './roles/roles.module';
 import { RtiModule } from './rti/rti.module';
+import { SchemeServicesModule } from './scheme-services/scheme-services.module';
 import { SettingsModule } from './settings/settings.module';
 import { TemplatesModule } from './templates/templates.module';
 import { TendersModule } from './tenders/tenders.module';
@@ -59,6 +62,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     BrokenLinksModule,
     ChatbotModule,
     ContentCalendarModule,
+    ContactDirectoryModule,
     DashboardModule,
     DeploymentModule,
     DocumentsModule,
@@ -70,12 +74,14 @@ import { WorkflowModule } from './workflow/workflow.module';
     MediaModule,
     ModulesModule,
     NavigationModule,
+    NewsroomModule,
     NotificationsModule,
     PagesModule,
     PrismaModule,
     RedirectsModule,
     RolesModule,
     RtiModule,
+    SchemeServicesModule,
     SchemaModule,
     SettingsModule,
     SitemapModule,

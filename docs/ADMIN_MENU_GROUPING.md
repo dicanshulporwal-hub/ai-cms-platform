@@ -20,6 +20,16 @@ The admin sidebar is organized into collapsible groups based on module similarit
 | 10 | Operations | Modules, Integrations, Backup & Restore |
 | 11 | System | Users, Roles & Permissions, Settings |
 
+## Government Modules Group
+
+| Item | Path | Children |
+|------|------|----------|
+| Tenders | /tenders | All Tenders, Categories |
+| RTI | /rti | Requests, Officers |
+| Schemes & Services | /scheme-services | All, Categories, Departments |
+| Depts & Contacts | /contact-directory | Overview, Departments, Officers, Designations |
+| Newsroom | /newsroom | All Items, Categories |
+
 ## Behavior
 
 - **Collapsible**: Click group header to expand/collapse

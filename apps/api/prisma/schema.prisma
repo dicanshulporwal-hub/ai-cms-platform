@@ -2595,3 +2595,368 @@ model RtiRequest {
   @@index([deletedAt])
   @@map("rti_requests")
 }
+
+// ============================================
+// Schemes & Services
+// ============================================
+
+enum SchemeServiceType {
+  SCHEME
+  SERVICE
+}
+
+enum SchemeServiceStatus {
+  SS_DRAFT
+  SS_UNDER_REVIEW
+  SS_APPROVED
+  SS_PUBLISHED
+  SS_ARCHIVED
+  SS_EXPIRED
+}
+
+enum SchemeServiceApplicationMode {
+  ONLINE
+  OFFLINE
+  BOTH
+  EXTERNAL_PORTAL
+  NOT_APPLICABLE
+}
+
+enum SchemeServiceCategoryStatus {
+  SS_CAT_ACTIVE
+  SS_CAT_INACTIVE
+}
+
+enum DepartmentStatus {
+  DEPT_ACTIVE
+  DEPT_INACTIVE
+}
+
+model SchemeService {
+  id                    String                       @id @default(cuid())
+  title                 String                       @db.VarChar(250)
+  slug                  String                       @unique @db.VarChar(191)
+  summary               String?                      @db.Text
+  description           String?                      @db.LongText
+  type                  SchemeServiceType
+  categoryId            String?
+  category              SchemeServiceCategory?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  departmentId          String?
+  department            Department?                  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  status                SchemeServiceStatus          @default(SS_DRAFT)
+  targetAudience        String?                      @db.VarChar(500)
+  eligibilityCriteria   String?                      @db.LongText
+  benefits              String?                      @db.LongText
+  applicationProcess    String?                      @db.LongText
+  requiredDocumentsJson Json?                        @db.Json
+  feesJson              Json?                        @db.Json
+  timeline              String?                      @db.Text
+  applicationMode       SchemeServiceApplicationMode @default(NOT_APPLICABLE)
+  applicationUrl        String?                      @db.VarChar(2048)
+  formId                String?                      @db.VarChar(191)
+  documentIdsJson       Json?                        @db.Json
+  faqIdsJson            Json?                        @db.Json
+  contactName           String?                      @db.VarChar(255)
+  contactEmail          String?                      @db.VarChar(191)
+  contactPhone          String?                      @db.VarChar(50)
+  officeAddress         String?                      @db.Text
+  publishAt             DateTime?
+  publishedAt           DateTime?
+  expiresAt             DateTime?
+  archivedAt            DateTime?
+  seoTitle              String?                      @db.VarChar(60)
+  seoDescription        String?                      @db.VarChar(160)
+  metadataJson          Json?                        @db.Json
+  aiMetadataJson        Json?                        @db.Json
+  createdById           String?
+  updatedById           String?
+  approvedById          String?
+  deletedAt             DateTime?
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+
+  @@index([slug])
+  @@index([type])
+  @@index([status])
+  @@index([categoryId])
+  @@index([departmentId])
+  @@index([publishedAt])
+  @@index([expiresAt])
+  @@index([deletedAt])
+  @@map("scheme_services")
+}
+
+model SchemeServiceCategory {
+  id          String                      @id @default(cuid())
+  name        String                      @db.VarChar(191)
+  slug        String                      @unique @db.VarChar(191)
+  description String?                     @db.Text
+  status      SchemeServiceCategoryStatus  @default(SS_CAT_ACTIVE)
+  sortOrder   Int                         @default(0)
+  items       SchemeService[]
+  deletedAt   DateTime?
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([sortOrder])
+  @@index([deletedAt])
+  @@map("scheme_service_categories")
+}
+
+model Department {
+  id            String           @id @default(cuid())
+  name          String           @db.VarChar(191)
+  slug          String           @unique @db.VarChar(191)
+  shortName     String?          @db.VarChar(50)
+  description   String?          @db.Text
+  parentId      String?
+  parent        Department?      @relation("DepartmentHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children      Department[]     @relation("DepartmentHierarchy")
+  departmentType String          @default("DEPARTMENT") @db.VarChar(30)
+  contactEmail  String?          @db.VarChar(191)
+  contactPhone  String?          @db.VarChar(50)
+  officeAddress String?          @db.Text
+  websiteUrl    String?          @db.VarChar(2048)
+  headOfficerId String?          @db.VarChar(191)
+  status        DepartmentStatus @default(DEPT_ACTIVE)
+  sortOrder     Int              @default(0)
+  items         SchemeService[]
+  officers      OfficerProfile[]
+  offices       OfficeLocation[]
+  seoTitle      String?          @db.VarChar(60)
+  seoDescription String?         @db.VarChar(160)
+  createdById   String?
+  updatedById   String?
+  deletedAt     DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([slug])
+  @@index([parentId])
+  @@index([status])
+  @@index([sortOrder])
+  @@index([deletedAt])
+  @@map("departments")
+}
+
+// ============================================
+// Contact Directory: Designations, Officers, Offices
+// ============================================
+
+enum DesignationStatus {
+  DESIG_ACTIVE
+  DESIG_INACTIVE
+}
+
+enum OfficerStatus {
+  OFFICER_ACTIVE
+  OFFICER_INACTIVE
+  OFFICER_TRANSFERRED
+  OFFICER_RETIRED
+}
+
+enum OfficeLocationStatus {
+  OFFICE_ACTIVE
+  OFFICE_INACTIVE
+}
+
+model Designation {
+  id          String            @id @default(cuid())
+  name        String            @db.VarChar(191)
+  slug        String            @unique @db.VarChar(191)
+  description String?           @db.Text
+  level       Int?
+  sortOrder   Int               @default(0)
+  status      DesignationStatus @default(DESIG_ACTIVE)
+  officers    OfficerProfile[]
+  deletedAt   DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([sortOrder])
+  @@index([deletedAt])
+  @@map("designations")
+}
+
+model OfficerProfile {
+  id                  String        @id @default(cuid())
+  fullName            String        @db.VarChar(255)
+  slug                String        @unique @db.VarChar(191)
+  designationId       String?
+  designation         Designation?  @relation(fields: [designationId], references: [id], onDelete: SetNull)
+  departmentId        String?
+  department          Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  officeName          String?       @db.VarChar(255)
+  publicEmail         String?       @db.VarChar(191)
+  publicPhone         String?       @db.VarChar(50)
+  officePhone         String?       @db.VarChar(50)
+  extensionNumber     String?       @db.VarChar(20)
+  roomNumber          String?       @db.VarChar(50)
+  profilePhotoUrl     String?       @db.VarChar(2048)
+  bio                 String?       @db.Text
+  responsibilities    String?       @db.Text
+  displayOrder        Int           @default(0)
+  isPublic            Boolean       @default(true)
+  status              OfficerStatus @default(OFFICER_ACTIVE)
+  createdById         String?
+  updatedById         String?
+  deletedAt           DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([slug])
+  @@index([departmentId])
+  @@index([designationId])
+  @@index([status])
+  @@index([isPublic])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@map("officer_profiles")
+}
+
+model OfficeLocation {
+  id           String              @id @default(cuid())
+  name         String              @db.VarChar(255)
+  slug         String              @unique @db.VarChar(191)
+  departmentId String?
+  department   Department?         @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  address      String              @db.Text
+  city         String?             @db.VarChar(100)
+  state        String?             @db.VarChar(100)
+  pincode      String?             @db.VarChar(10)
+  phone        String?             @db.VarChar(50)
+  email        String?             @db.VarChar(191)
+  latitude     Float?
+  longitude    Float?
+  status       OfficeLocationStatus @default(OFFICE_ACTIVE)
+  sortOrder    Int                 @default(0)
+  deletedAt    DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@index([slug])
+  @@index([departmentId])
+  @@index([status])
+  @@index([sortOrder])
+  @@index([deletedAt])
+  @@map("office_locations")
+}
+
+model ContactDirectorySettings {
+  id                       String  @id @default("default_contact_settings")
+  isPublicDirectoryEnabled Boolean @default(true)
+  showOfficerEmail         Boolean @default(true)
+  showOfficerPhone         Boolean @default(true)
+  showOfficeAddress        Boolean @default(true)
+  enableOrgChart           Boolean @default(true)
+  enableDepartmentPages    Boolean @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("contact_directory_settings")
+}
+
+// ============================================
+// Newsroom / Press Releases
+// ============================================
+
+enum NewsroomItemType {
+  PRESS_RELEASE
+  MEDIA_COVERAGE
+  PHOTO_GALLERY_ITEM
+  VIDEO
+  SPEECH
+  INTERVIEW
+  NEWS_UPDATE
+  CUSTOM_NEWSROOM
+}
+
+enum NewsroomStatus {
+  NR_DRAFT
+  NR_UNDER_REVIEW
+  NR_APPROVED
+  NR_PUBLISHED
+  NR_ARCHIVED
+}
+
+enum NewsroomPriority {
+  NR_LOW
+  NR_NORMAL
+  NR_HIGH
+  NR_FEATURED
+}
+
+enum NewsroomCategoryStatus {
+  NR_CAT_ACTIVE
+  NR_CAT_INACTIVE
+}
+
+model NewsroomItem {
+  id                      String            @id @default(cuid())
+  title                   String            @db.VarChar(250)
+  slug                    String            @unique @db.VarChar(191)
+  summary                 String?           @db.Text
+  content                 String?           @db.LongText
+  itemType                NewsroomItemType
+  categoryId              String?
+  category                NewsroomCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  status                  NewsroomStatus    @default(NR_DRAFT)
+  priority                NewsroomPriority  @default(NR_NORMAL)
+  eventDate               DateTime?
+  publishAt               DateTime?
+  publishedAt             DateTime?
+  archivedAt              DateTime?
+  featuredImageUrl        String?           @db.VarChar(2048)
+  galleryMediaIdsJson     Json?             @db.Json
+  videoUrl                String?           @db.VarChar(2048)
+  videoEmbedCode          String?           @db.Text
+  attachmentMediaIdsJson  Json?             @db.Json
+  documentIdsJson         Json?             @db.Json
+  sourceName              String?           @db.VarChar(255)
+  sourceUrl               String?           @db.VarChar(2048)
+  location                String?           @db.VarChar(255)
+  speakerName             String?           @db.VarChar(255)
+  seoTitle                String?           @db.VarChar(60)
+  seoDescription          String?           @db.VarChar(160)
+  metadataJson            Json?             @db.Json
+  aiMetadataJson          Json?             @db.Json
+  createdById             String?
+  updatedById             String?
+  approvedById            String?
+  deletedAt               DateTime?
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+
+  @@index([slug])
+  @@index([itemType])
+  @@index([status])
+  @@index([categoryId])
+  @@index([priority])
+  @@index([eventDate])
+  @@index([publishedAt])
+  @@index([deletedAt])
+  @@map("newsroom_items")
+}
+
+model NewsroomCategory {
+  id          String                  @id @default(cuid())
+  name        String                  @db.VarChar(191)
+  slug        String                  @unique @db.VarChar(191)
+  description String?                 @db.Text
+  status      NewsroomCategoryStatus  @default(NR_CAT_ACTIVE)
+  sortOrder   Int                     @default(0)
+  items       NewsroomItem[]
+  deletedAt   DateTime?
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([sortOrder])
+  @@index([deletedAt])
+  @@map("newsroom_categories")
+}
