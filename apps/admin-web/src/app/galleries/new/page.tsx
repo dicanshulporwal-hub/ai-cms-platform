@@ -4,8 +4,17 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { ArrowLeft } from 'lucide-react';
+import { AdminPageShell } from '@/components/layout/admin-page-shell';
 
 export default function NewGalleryPage() {
+  return (
+    <AdminPageShell sectionTitle="Photo Gallery">
+      {() => <NewGalleryContent />}
+    </AdminPageShell>
+  );
+}
+
+function NewGalleryContent() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({

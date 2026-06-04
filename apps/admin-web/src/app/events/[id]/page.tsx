@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { ArrowLeft, Eye, Users, Calendar, MapPin, Globe } from 'lucide-react';
+import { AdminPageShell } from '@/components/layout/admin-page-shell';
 
 interface Registration {
   id: string;
@@ -48,6 +49,14 @@ interface EventDetail {
 }
 
 export default function EventDetailPage() {
+  return (
+    <AdminPageShell sectionTitle="Events">
+      {() => <EventDetailContent />}
+    </AdminPageShell>
+  );
+}
+
+function EventDetailContent() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { ArrowLeft, Plus, Trash2, Eye, GripVertical, Save } from 'lucide-react';
+import { AdminPageShell } from '@/components/layout/admin-page-shell';
 
 interface GalleryImage {
   id: string;
@@ -34,6 +35,14 @@ interface GalleryDetail {
 }
 
 export default function GalleryDetailPage() {
+  return (
+    <AdminPageShell sectionTitle="Photo Gallery">
+      {() => <GalleryDetailContent />}
+    </AdminPageShell>
+  );
+}
+
+function GalleryDetailContent() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;

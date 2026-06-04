@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { ArrowLeft } from 'lucide-react';
+import { AdminPageShell } from '@/components/layout/admin-page-shell';
 
 const EVENT_TYPES = [
   { value: 'CONFERENCE', label: 'Conference' },
@@ -19,6 +20,14 @@ const EVENT_TYPES = [
 ];
 
 export default function NewEventPage() {
+  return (
+    <AdminPageShell sectionTitle="Events">
+      {() => <NewEventContent />}
+    </AdminPageShell>
+  );
+}
+
+function NewEventContent() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({

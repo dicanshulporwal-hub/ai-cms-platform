@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { Plus, Search, Calendar, Eye, X, CheckCircle, Users } from 'lucide-react';
+import { AdminPageShell } from '@/components/layout/admin-page-shell';
 
 interface EventItem {
   id: string;
@@ -57,6 +58,14 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function EventsPage() {
+  return (
+    <AdminPageShell sectionTitle="Events">
+      {() => <EventsContent />}
+    </AdminPageShell>
+  );
+}
+
+function EventsContent() {
   const router = useRouter();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);

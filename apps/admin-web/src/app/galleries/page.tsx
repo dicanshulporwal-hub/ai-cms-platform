@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { Plus, Search, Image, Eye, Archive, Trash2 } from 'lucide-react';
+import { AdminPageShell } from '@/components/layout/admin-page-shell';
 
 interface Gallery {
   id: string;
@@ -20,6 +21,14 @@ interface Gallery {
 }
 
 export default function GalleriesPage() {
+  return (
+    <AdminPageShell sectionTitle="Photo Gallery">
+      {() => <GalleriesContent />}
+    </AdminPageShell>
+  );
+}
+
+function GalleriesContent() {
   const router = useRouter();
   const [galleries, setGalleries] = useState<Gallery[]>([]);
   const [loading, setLoading] = useState(true);
