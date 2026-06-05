@@ -92,6 +92,7 @@ export const adminMenuGroups: MenuGroup[] = [
         href: '/templates', label: 'Templates', icon: Layout, adminOnly: true,
         children: [
           { href: '/templates/onboarding', label: 'Select Template' },
+          { href: '/templates/builder', label: 'Layout Builder' },
           { href: '/templates/import-html', label: 'HTML Importer' },
           { href: '/templates/modules', label: 'Modules' },
           { href: '/templates/upload', label: 'Upload' },

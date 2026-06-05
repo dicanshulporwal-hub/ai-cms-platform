@@ -20,6 +20,17 @@ The admin sidebar is organized into collapsible groups based on module similarit
 | 10 | Operations | Modules, Integrations, Backup & Restore |
 | 11 | System | Users, Roles & Permissions, Settings |
 
+## Website Builder Group
+
+| Item | Path | Children |
+|------|------|----------|
+| Templates | /templates | Select Template, Layout Builder, HTML Importer, Modules, Upload, AI Generate |
+
+### Layout Builder
+- Route: `/templates/builder`
+- 3-panel visual builder: Module Palette + Canvas + Settings
+- Preview: `/templates/builder/preview` (responsive iframe)
+
 ## Government Modules Group
 
 | Item | Path | Children |

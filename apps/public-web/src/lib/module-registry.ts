@@ -13,6 +13,11 @@ import { ChatbotModule } from '@/components/modules/chatbot-module';
 import { SearchModule } from '@/components/modules/search-module';
 import { CustomHtmlModule } from '@/components/modules/custom-html';
 import { MediaGalleryModule } from '@/components/modules/media-gallery';
+import { AnnouncementListModule } from '@/components/modules/announcement-list';
+import { TenderListModule } from '@/components/modules/tender-list';
+import { SchemeListModule } from '@/components/modules/scheme-list';
+import { QuickLinksModule } from '@/components/modules/quick-links';
+import { NewsroomListModule } from '@/components/modules/newsroom-list';
 
 const MODULE_MAP: Record<string, ComponentType<ModuleComponentProps>> = {
   SITE_HEADER: SiteHeaderModule,
@@ -27,6 +32,13 @@ const MODULE_MAP: Record<string, ComponentType<ModuleComponentProps>> = {
   SEARCH: SearchModule,
   CUSTOM_HTML: CustomHtmlModule,
   MEDIA_GALLERY: MediaGalleryModule,
+  ANNOUNCEMENT_LIST: AnnouncementListModule as any,
+  TENDER_LIST: TenderListModule as any,
+  SCHEME_LIST: SchemeListModule as any,
+  SERVICE_LIST: SchemeListModule as any,
+  QUICK_LINKS: QuickLinksModule,
+  NEWSROOM_LIST: NewsroomListModule as any,
+  PRESS_RELEASE_LIST: NewsroomListModule as any,
 };
 
 export function resolveModule(moduleType: string): ComponentType<ModuleComponentProps> | null {
