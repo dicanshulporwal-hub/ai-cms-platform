@@ -29,7 +29,8 @@ export interface TemplateRegion {
   templateId: string;
   regionKey: string;
   regionName: string;
-  regionType: 'HEADER' | 'NAVIGATION' | 'CONTENT' | 'SIDEBAR' | 'FOOTER' | 'CHATBOT';
+  description?: string | null;
+  regionType: 'TOPBAR' | 'HEADER' | 'NAVIGATION' | 'HERO' | 'CONTENT' | 'SIDEBAR' | 'FOOTER' | 'CHATBOT';
   sortOrder: number;
   isRequired: boolean;
   isActive: boolean;

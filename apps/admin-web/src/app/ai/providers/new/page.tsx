@@ -82,7 +82,7 @@ function AddProviderContent({ user }: { user: AuthUser }) {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <Link href="/ai/providers"><Button size="sm" variant="ghost"><ArrowLeft className="h-4 w-4" /> Back</Button></Link>
+      <Link href="/ai/providers"><Button variant="ghost"><ArrowLeft className="h-4 w-4" /> Back</Button></Link>
       <div><h1 className="text-2xl font-semibold">Add AI Provider</h1><p className="mt-1 text-sm text-muted-foreground">Configure a new AI provider with API key and model settings.</p></div>
       {error && <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
 

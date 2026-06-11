@@ -72,9 +72,10 @@ function CustomizeContent({ user, templateId }: { user: AuthUser; templateId: st
   useEffect(() => {
     if (template?.configJson) {
       const config = template.configJson as Record<string, unknown>;
+      const savedThemeSettings = config.themeSettings as Partial<ThemeConfig> | undefined;
       const saved = config.theme as Partial<ThemeConfig> | undefined;
-      if (saved) {
-        setTheme({ ...DEFAULT_THEME, ...saved });
+      if (savedThemeSettings || saved) {
+        setTheme({ ...DEFAULT_THEME, ...savedThemeSettings, ...saved });
       }
     }
   }, [template]);
@@ -98,10 +99,33 @@ function CustomizeContent({ user, templateId }: { user: AuthUser; templateId: st
     setSuccess(null);
     try {
       const existingConfig = (template?.configJson as Record<string, unknown>) ?? {};
+      const existingThemeSettings = (existingConfig.themeSettings as Record<string, unknown>) ?? {};
+      const themeSettings = {
+        ...existingThemeSettings,
+        primaryColor: theme.primaryColor,
+        secondaryColor: theme.secondaryColor,
+        accentColor: theme.accentColor,
+        backgroundColor: theme.backgroundColor,
+        textColor: theme.textColor,
+        fontFamily: theme.bodyFont,
+        logoMediaId: existingThemeSettings.logoMediaId ?? '',
+        emblemMediaId: existingThemeSettings.emblemMediaId ?? '',
+        headerStyle: existingThemeSettings.headerStyle ?? 'official',
+        navigationStyle: existingThemeSettings.navigationStyle ?? 'horizontal',
+        footerStyle: existingThemeSettings.footerStyle ?? 'multi-column',
+        cardStyle: existingThemeSettings.cardStyle ?? 'bordered',
+        layoutWidth: theme.contentWidth,
+        borderRadius: theme.borderRadius,
+        showAccessibilityBar: existingThemeSettings.showAccessibilityBar ?? true,
+        showLanguageSwitcher: existingThemeSettings.showLanguageSwitcher ?? false,
+        showSearch: existingThemeSettings.showSearch ?? true,
+        showChatbot: existingThemeSettings.showChatbot ?? true,
+        highContrastEnabled: existingThemeSettings.highContrastEnabled ?? false,
+      };
       await apiClient(`/api/templates/${templateId}`, {
         method: 'PUT',
         body: JSON.stringify({
-          configJson: { ...existingConfig, theme },
+          configJson: { ...existingConfig, theme, themeSettings },
         }),
       });
       setSuccess('Customization saved successfully.');

@@ -36,6 +36,7 @@ import { RolesModule } from './roles/roles.module';
 import { RtiModule } from './rti/rti.module';
 import { SchemeServicesModule } from './scheme-services/scheme-services.module';
 import { SettingsModule } from './settings/settings.module';
+import { SocialMediaModule } from './social-media/social-media.module';
 import { TemplatesModule } from './templates/templates.module';
 import { TendersModule } from './tenders/tenders.module';
 import { TranslationsModule } from './translations/translations.module';
@@ -84,6 +85,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     SchemeServicesModule,
     SchemaModule,
     SettingsModule,
+    SocialMediaModule,
     SitemapModule,
     TemplatesModule,
     TendersModule,

@@ -27,9 +27,10 @@ export async function TemplateRenderer({ children }: TemplateRendererProps) {
 
   // Extract theme from template configJson, fall back to defaults based on template type
   const config = template.configJson as Record<string, unknown> | null;
+  const savedThemeSettings = (config?.themeSettings as Record<string, string>) ?? {};
   const savedTheme = (config?.theme as Record<string, string>) ?? {};
   const defaultTheme = DEFAULT_THEMES[template.templateType] ?? DEFAULT_THEMES.CORPORATE;
-  const theme = { ...defaultTheme, ...savedTheme };
+  const theme = { ...defaultTheme, ...savedThemeSettings, ...savedTheme };
 
   // Include site settings in theme for modules to use
   const settings = renderData.settings;
@@ -45,6 +46,16 @@ export async function TemplateRenderer({ children }: TemplateRendererProps) {
   if (theme.accentColor) themeStyles['--template-accent'] = theme.accentColor;
   if (theme.backgroundColor) themeStyles['--template-bg'] = theme.backgroundColor;
   if (theme.textColor) themeStyles['--template-text'] = theme.textColor;
+  if (theme.primaryColor) themeStyles['--public-primary'] = theme.primaryColor;
+  if (theme.secondaryColor) themeStyles['--public-secondary'] = theme.secondaryColor;
+  if (theme.accentColor) themeStyles['--public-accent'] = theme.accentColor;
+  if (theme.backgroundColor) themeStyles['--public-background'] = theme.backgroundColor;
+  if (theme.surfaceColor) themeStyles['--public-surface'] = theme.surfaceColor;
+  if (theme.textColor) themeStyles['--public-text'] = theme.textColor;
+  if (theme.mutedColor) themeStyles['--public-muted'] = theme.mutedColor;
+  if (theme.borderColor) themeStyles['--public-border'] = theme.borderColor;
+  if (theme.borderRadius) themeStyles['--public-radius'] = theme.borderRadius + 'px';
+  if (theme.fontFamily) themeStyles['--public-font-family'] = theme.fontFamily;
   if (theme.headingFont) themeStyles['--template-heading-font'] = theme.headingFont;
   if (theme.bodyFont) themeStyles['--template-body-font'] = theme.bodyFont;
   if (theme.baseFontSize) themeStyles['--template-font-size'] = theme.baseFontSize + 'px';
@@ -57,7 +68,7 @@ export async function TemplateRenderer({ children }: TemplateRendererProps) {
       className="flex min-h-screen flex-col"
       style={{
         ...themeStyles,
-        fontFamily: theme.bodyFont || undefined,
+        fontFamily: theme.fontFamily || theme.bodyFont || undefined,
         fontSize: theme.baseFontSize ? theme.baseFontSize + 'px' : undefined,
         color: theme.textColor || undefined,
         backgroundColor: theme.backgroundColor || undefined,

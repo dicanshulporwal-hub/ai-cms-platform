@@ -965,6 +965,58 @@ curl -X PUT http://localhost:3001/settings \
   -d '{"siteName":"My AI CMS","aiEnabled":true}'
 ```
 
+## Social Media Publishing
+
+The Social Media module provides an MVP workflow for managing social accounts and preparing posts for publishing.
+
+Admin screen:
+
+```text
+/social-media
+```
+
+Backend endpoints:
+
+```text
+GET    /social-media/summary
+GET    /social-media/accounts
+GET    /social-media/accounts/:id
+POST   /social-media/accounts
+PUT    /social-media/accounts/:id
+DELETE /social-media/accounts/:id
+
+GET    /social-media/posts
+GET    /social-media/posts/:id
+POST   /social-media/posts
+PUT    /social-media/posts/:id
+DELETE /social-media/posts/:id
+POST   /social-media/posts/:id/submit
+POST   /social-media/posts/:id/approve
+POST   /social-media/posts/:id/queue
+POST   /social-media/posts/:id/publish
+POST   /social-media/posts/:id/cancel
+
+GET    /social-media/settings
+PUT    /social-media/settings
+```
+
+Workflow:
+
+```text
+Draft -> Pending Approval -> Approved -> Queued -> Published
+```
+
+For the MVP, `publish` records a simulated publish result and writes publish logs. It does not call Facebook, LinkedIn, X, Instagram, or other external social APIs yet. Real provider integrations can be added later behind a provider service without changing the admin workflow.
+
+Manual testing:
+
+1. Login as Super Admin or Admin.
+2. Open `http://localhost:3000/social-media`.
+3. Add a social account with platform key like `linkedin`.
+4. Create a draft post and select that account.
+5. Submit, approve, and publish the post.
+6. Verify the post status changes and target publish status is shown.
+
 ## Green Code & Performance
 
 This project follows Green Code principles for energy-efficient, resource-conscious development. See the documentation in `docs/` for full details:

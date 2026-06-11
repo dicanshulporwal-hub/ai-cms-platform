@@ -13,7 +13,7 @@ export default function ContactDirectoryPage() {
 function Content() {
   const router = useRouter();
   const [summary, setSummary] = useState<any>(null);
-  useEffect(() => { apiClient('/contact-directory/summary').then((d: any) => setSummary(d)).catch(() => {}); }, []);
+  useEffect(() => { apiClient('/api/contact-directory/summary').then((d: any) => setSummary(d)).catch(() => {}); }, []);
 
   const cards = [
     { label: 'Departments', value: summary?.departments ?? '-', icon: Building2, href: '/contact-directory/departments', color: 'text-blue-600' },

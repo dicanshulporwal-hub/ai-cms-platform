@@ -10,9 +10,9 @@ import { AdminPageShell } from '@/components/layout/admin-page-shell';
 import { apiClient } from '@/lib/api-client';
 
 // Types
-interface Region { id: string; regionKey: string; regionName: string; regionType: string; sortOrder: number; isActive: boolean; isRequired: boolean; modules: RegionModule[]; }
+interface Region { id: string; regionKey: string; regionName: string; description: string | null; regionType: string; sortOrder: number; isActive: boolean; isRequired: boolean; modules: RegionModule[]; }
 interface RegionModule { id: string; moduleType: string; moduleKey: string; displayTitle: string; sortOrder: number; isVisible: boolean; configJson: any; }
-interface PaletteModule { id: string; moduleKey: string; moduleName: string; moduleType: string; category: string; description: string | null; isActive: boolean; isPublicEnabled: boolean; }
+interface PaletteModule { id: string; moduleKey: string; moduleName: string; moduleType: string; category: string; description: string | null; isActive: boolean; isPublicEnabled: boolean; defaultConfigJson?: any; supportedRegionTypesJson?: string[] | null; }
 
 // Module palette categories
 const CATEGORY_ICONS: Record<string, string> = {
@@ -29,6 +29,7 @@ function BuilderContent() {
   const [saving, setSaving] = useState(false);
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState('');
+  const [supportedModules, setSupportedModules] = useState<string[] | null>(null);
   const [regions, setRegions] = useState<Region[]>([]);
   const [paletteModules, setPaletteModules] = useState<PaletteModule[]>([]);
   const [selectedModule, setSelectedModule] = useState<RegionModule | null>(null);
@@ -44,12 +45,21 @@ function BuilderContent() {
       if (!active) { setLoading(false); return; }
       setTemplateId(active.id);
       setTemplateName(active.name);
+      const activeConfig = (active.configJson || {}) as Record<string, unknown>;
+      const activeSupportedModules = Array.isArray(activeConfig.supportedModules)
+        ? activeConfig.supportedModules.filter((value: unknown): value is string => typeof value === 'string')
+        : null;
+      setSupportedModules(activeSupportedModules);
 
       const regs: any = await apiClient(`/templates/${active.id}/regions`);
       setRegions(regs || []);
 
       const palette: any = await apiClient('/template-modules');
-      setPaletteModules((palette || []).filter((m: PaletteModule) => m.isActive && m.isPublicEnabled));
+      setPaletteModules((palette || []).filter((m: PaletteModule) => {
+        if (!m.isActive || !m.isPublicEnabled) return false;
+        if (activeSupportedModules?.length && !activeSupportedModules.includes(m.moduleType)) return false;
+        return true;
+      }));
     } catch (e) { console.error(e); }
     setLoading(false);
   }, []);
@@ -62,7 +72,12 @@ function BuilderContent() {
     try {
       await apiClient(`/templates/${templateId}/regions/${regionId}/modules`, {
         method: 'POST',
-        body: JSON.stringify({ moduleType: mod.moduleType, moduleKey: mod.moduleKey + '-' + Date.now().toString(36), displayTitle: mod.moduleName }),
+        body: JSON.stringify({
+          moduleType: mod.moduleType,
+          moduleKey: mod.moduleKey.toLowerCase() + '-' + Date.now().toString(36),
+          displayTitle: mod.moduleName,
+          configJson: mod.defaultConfigJson || {},
+        }),
       });
       loadData();
     } catch (e: any) { alert(e.message || 'Failed to add module'); }
@@ -106,18 +121,37 @@ function BuilderContent() {
   };
 
   // Update module config
-  const handleUpdateConfig = async (regionId: string, moduleId: string, configJson: any) => {
+  const handleUpdateConfig = async (regionId: string, moduleId: string, configJson: any, displayTitle?: string) => {
     if (!templateId) return;
     setSaving(true);
     try {
       await apiClient(`/templates/${templateId}/regions/${regionId}/modules/${moduleId}`, {
         method: 'PUT',
-        body: JSON.stringify({ configJson }),
+        body: JSON.stringify({ displayTitle, configJson }),
       });
       loadData();
     } catch (e: any) { alert(e.message); }
     setSaving(false);
   };
+
+  const handleUpdateRegion = async (regionId: string, data: Partial<Pick<Region, 'regionName' | 'description' | 'sortOrder' | 'isActive'>>) => {
+    if (!templateId) return;
+    setSaving(true);
+    try {
+      await apiClient(`/templates/${templateId}/regions/${regionId}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+      loadData();
+    } catch (e: any) { alert(e.message); }
+    setSaving(false);
+  };
+
+  const getModulesForRegion = (region: Region) => paletteModules.filter((mod) => {
+    const supportedRegions = Array.isArray(mod.supportedRegionTypesJson) ? mod.supportedRegionTypesJson : [];
+    if (!supportedRegions.length) return true;
+    return supportedRegions.includes(region.regionType);
+  });
 
   // Group palette modules by category
   const paletteGroups = paletteModules.reduce((acc, mod) => {
@@ -153,7 +187,7 @@ function BuilderContent() {
           <Layout className="h-5 w-5 text-primary" />
           <div>
             <h1 className="text-sm font-semibold">{templateName}</h1>
-            <p className="text-xs text-muted-foreground">Public Template Builder</p>
+            <p className="text-xs text-muted-foreground">Public Template Builder{supportedModules?.length ? ` - ${supportedModules.length} supported modules` : ''}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -196,7 +230,7 @@ function BuilderContent() {
                       <span className="flex-1 truncate font-medium">{mod.moduleName}</span>
                       <button
                         onClick={() => {
-                          const firstRegion = regions.find(r => r.regionType === 'CONTENT') || regions[0];
+                          const firstRegion = regions.find(r => getModulesForRegion(r).some((candidate) => candidate.id === mod.id)) || regions[0];
                           if (firstRegion) handleAddModule(firstRegion.id, mod);
                         }}
                         className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-primary/10 text-primary transition-opacity"
@@ -235,6 +269,13 @@ function BuilderContent() {
                       <span className="text-xs font-semibold text-blue-700">{region.regionName}</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">{region.regionType}</span>
                     </div>
+                    <button
+                      onClick={() => handleUpdateRegion(region.id, { isActive: !region.isActive })}
+                      className="text-[10px] text-muted-foreground hover:text-foreground"
+                      title={region.isActive ? 'Disable section' : 'Enable section'}
+                    >
+                      {region.isActive ? 'Enabled' : 'Disabled'}
+                    </button>
                     <button
                       onClick={() => {
                         setSelectedRegionId(region.id);
@@ -280,7 +321,7 @@ function BuilderContent() {
                     <div className="mt-2 rounded-md border bg-white p-2 shadow-sm">
                       <p className="text-[10px] font-medium text-muted-foreground mb-1.5">Add module to {region.regionName}:</p>
                       <div className="grid grid-cols-2 gap-1 max-h-40 overflow-y-auto">
-                        {paletteModules.map((pm) => (
+                        {getModulesForRegion(region).map((pm) => (
                           <button
                             key={pm.id}
                             onClick={() => { handleAddModule(region.id, pm); setSelectedRegionId(null); }}
@@ -289,6 +330,9 @@ function BuilderContent() {
                             {pm.moduleName}
                           </button>
                         ))}
+                        {getModulesForRegion(region).length === 0 && (
+                          <p className="col-span-2 px-2 py-3 text-center text-[11px] text-muted-foreground">No compatible modules available for this section.</p>
+                        )}
                       </div>
                     </div>
                   )}
@@ -314,6 +358,12 @@ function BuilderContent() {
                 onSave={handleUpdateConfig}
                 saving={saving}
               />
+            ) : selectedRegionId ? (
+              <RegionSettingsPanel
+                region={regions.find((region) => region.id === selectedRegionId) || null}
+                onSave={handleUpdateRegion}
+                saving={saving}
+              />
             ) : (
               <div className="text-center py-8">
                 <Settings className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -328,11 +378,52 @@ function BuilderContent() {
   );
 }
 
-// Module Settings Panel
-function ModuleSettingsPanel({ module, regionId, templateId, onSave, saving }: { module: RegionModule; regionId: string; templateId: string; onSave: (regionId: string, moduleId: string, config: any) => void; saving: boolean }) {
-  const [config, setConfig] = useState<Record<string, any>>(module.configJson || {});
+function RegionSettingsPanel({ region, onSave, saving }: { region: Region | null; onSave: (regionId: string, data: Partial<Pick<Region, 'regionName' | 'description' | 'sortOrder' | 'isActive'>>) => void; saving: boolean }) {
+  const [draft, setDraft] = useState({ regionName: '', description: '', sortOrder: 0, isActive: true });
 
-  useEffect(() => { setConfig(module.configJson || {}); }, [module.id, module.configJson]);
+  useEffect(() => {
+    if (!region) return;
+    setDraft({
+      regionName: region.regionName,
+      description: region.description || '',
+      sortOrder: region.sortOrder,
+      isActive: region.isActive,
+    });
+  }, [region]);
+
+  if (!region) return <p className="text-xs text-muted-foreground">Select a section to configure it.</p>;
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-sm font-semibold">Section Settings</p>
+        <p className="text-[10px] text-muted-foreground">{region.regionKey} - {region.regionType}</p>
+      </div>
+      <TextField label="Section Title" value={draft.regionName} onChange={(value) => setDraft((prev) => ({ ...prev, regionName: value }))} />
+      <TextAreaField label="Section Subtitle" value={draft.description} onChange={(value) => setDraft((prev) => ({ ...prev, description: value }))} />
+      <NumberField label="Sort Order" value={draft.sortOrder} min={0} max={100} onChange={(value) => setDraft((prev) => ({ ...prev, sortOrder: value }))} />
+      <CheckField label="Section visible" checked={draft.isActive} onChange={(value) => setDraft((prev) => ({ ...prev, isActive: value }))} />
+      <button
+        onClick={() => onSave(region.id, draft)}
+        disabled={saving}
+        className="w-full rounded-md bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-1.5"
+      >
+        <Save className="h-3.5 w-3.5" />
+        {saving ? 'Saving...' : 'Save Section'}
+      </button>
+    </div>
+  );
+}
+
+// Module Settings Panel
+function ModuleSettingsPanel({ module, regionId, onSave, saving }: { module: RegionModule; regionId: string; templateId: string | null; onSave: (regionId: string, moduleId: string, config: any, displayTitle?: string) => void; saving: boolean }) {
+  const [config, setConfig] = useState<Record<string, any>>(module.configJson || {});
+  const [displayTitle, setDisplayTitle] = useState(module.displayTitle);
+
+  useEffect(() => {
+    setConfig(module.configJson || {});
+    setDisplayTitle(module.displayTitle);
+  }, [module.id, module.configJson, module.displayTitle]);
 
   const updateField = (key: string, value: any) => setConfig((prev) => ({ ...prev, [key]: value }));
 
@@ -344,66 +435,154 @@ function ModuleSettingsPanel({ module, regionId, templateId, onSave, saving }: {
       </div>
 
       <div className="space-y-3">
-        <div>
-          <label className="block text-xs font-medium mb-1">Display Title</label>
-          <input
-            type="text"
-            value={config.displayTitle || module.displayTitle}
-            onChange={(e) => updateField('displayTitle', e.target.value)}
-            className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium mb-1">Items Limit</label>
-          <input
-            type="number"
-            value={config.limit || 5}
-            onChange={(e) => updateField('limit', parseInt(e.target.value) || 5)}
-            min={1}
-            max={50}
-            className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium mb-1">Display Mode</label>
-          <select
-            value={config.displayMode || 'list'}
-            onChange={(e) => updateField('displayMode', e.target.value)}
-            className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs"
-          >
-            <option value="list">List</option>
-            <option value="card">Cards</option>
-            <option value="grid">Grid</option>
-            <option value="table">Table</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input type="checkbox" id="showTitle" checked={config.showTitle !== false} onChange={(e) => updateField('showTitle', e.target.checked)} className="rounded" />
-          <label htmlFor="showTitle" className="text-xs">Show Section Title</label>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input type="checkbox" id="showImage" checked={config.showImage !== false} onChange={(e) => updateField('showImage', e.target.checked)} className="rounded" />
-          <label htmlFor="showImage" className="text-xs">Show Images</label>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input type="checkbox" id="showDate" checked={config.showDate !== false} onChange={(e) => updateField('showDate', e.target.checked)} className="rounded" />
-          <label htmlFor="showDate" className="text-xs">Show Dates</label>
-        </div>
+        <TextField label="Display Title" value={displayTitle} onChange={setDisplayTitle} />
+        <CheckField label="Show Title" checked={config.showTitle !== false} onChange={(value) => updateField('showTitle', value)} />
+        <NumberField label="Items Limit" value={Number(config.limit || 5)} min={1} max={50} onChange={(value) => updateField('limit', value)} />
+        <SelectField label="Display Mode" value={config.displayMode || 'list'} options={['list', 'card', 'cards', 'grid', 'table', 'ticker', 'compact', 'columns', 'accordion']} onChange={(value) => updateField('displayMode', value)} />
+        <TextField label="Category ID" value={config.categoryId || ''} onChange={(value) => updateField('categoryId', value)} />
+        <TextField label="Department ID" value={config.departmentId || ''} onChange={(value) => updateField('departmentId', value)} />
+        <CheckField label="Show Date" checked={config.showDate !== false} onChange={(value) => updateField('showDate', value)} />
+        <CheckField label="Show Image" checked={config.showImage !== false} onChange={(value) => updateField('showImage', value)} />
+        <CheckField label="Show CTA" checked={config.showCTA !== false} onChange={(value) => updateField('showCTA', value)} />
+        <CheckField label="Show Search" checked={config.showSearch === true} onChange={(value) => updateField('showSearch', value)} />
+        <CheckField label="Show Filters" checked={config.showFilters === true} onChange={(value) => updateField('showFilters', value)} />
+        <TextField label="Custom CSS Class" value={config.customCssClass || ''} onChange={(value) => updateField('customCssClass', value)} />
+        <ModuleSpecificFields moduleType={module.moduleType} config={config} updateField={updateField} />
       </div>
 
       <button
-        onClick={() => onSave(regionId, module.id, config)}
+        onClick={() => onSave(regionId, module.id, { ...config, displayTitle }, displayTitle)}
         disabled={saving}
         className="w-full rounded-md bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-1.5"
       >
         <Save className="h-3.5 w-3.5" />
         {saving ? 'Saving...' : 'Save Configuration'}
       </button>
+    </div>
+  );
+}
+
+function ModuleSpecificFields({ moduleType, config, updateField }: { moduleType: string; config: Record<string, any>; updateField: (key: string, value: any) => void }) {
+  if (moduleType === 'ANNOUNCEMENT_LIST') {
+    return (
+      <>
+        <SelectField label="Announcement Type" value={config.announcementType || 'all'} options={['all', 'notice', 'alert', 'event']} onChange={(value) => updateField('announcementType', value)} />
+        <CheckField label="Pinned First" checked={config.showPinnedFirst !== false} onChange={(value) => updateField('showPinnedFirst', value)} />
+        <CheckField label="Important Only" checked={config.showImportantOnly === true} onChange={(value) => updateField('showImportantOnly', value)} />
+        <CheckField label="Ticker Mode" checked={config.tickerMode === true} onChange={(value) => updateField('tickerMode', value)} />
+      </>
+    );
+  }
+
+  if (moduleType === 'TENDER_LIST') {
+    return (
+      <>
+        <TextField label="Procurement Type" value={config.procurementType || ''} onChange={(value) => updateField('procurementType', value)} />
+        <CheckField label="Active Only" checked={config.showActiveOnly !== false} onChange={(value) => updateField('showActiveOnly', value)} />
+        <CheckField label="Show Closing Date" checked={config.showClosingDate !== false} onChange={(value) => updateField('showClosingDate', value)} />
+        <CheckField label="Corrigendum Badge" checked={config.showCorrigendumBadge !== false} onChange={(value) => updateField('showCorrigendumBadge', value)} />
+      </>
+    );
+  }
+
+  if (moduleType === 'SCHEME_LIST' || moduleType === 'SERVICE_LIST') {
+    return (
+      <>
+        <CheckField label="Show Apply Button" checked={config.showApplyButton !== false} onChange={(value) => updateField('showApplyButton', value)} />
+        <CheckField label="Show Application Mode" checked={config.showApplicationMode !== false} onChange={(value) => updateField('showApplicationMode', value)} />
+      </>
+    );
+  }
+
+  if (moduleType === 'NEWSROOM_LIST' || moduleType === 'PRESS_RELEASE_LIST') {
+    return (
+      <>
+        <SelectField label="Item Type" value={config.itemType || 'all'} options={['all', 'news', 'press_release', 'gallery']} onChange={(value) => updateField('itemType', value)} />
+        <CheckField label="Featured Only" checked={config.showFeaturedOnly === true} onChange={(value) => updateField('showFeaturedOnly', value)} />
+        <CheckField label="Show Gallery" checked={config.showGallery !== false} onChange={(value) => updateField('showGallery', value)} />
+      </>
+    );
+  }
+
+  if (moduleType === 'CONTACT_DIRECTORY') {
+    return (
+      <>
+        <TextField label="Designation ID" value={config.designationId || ''} onChange={(value) => updateField('designationId', value)} />
+      </>
+    );
+  }
+
+  if (moduleType === 'NAVIGATION_MENU' || moduleType === 'NAVIGATION') {
+    return (
+      <>
+        <TextField label="Menu ID" value={config.menuId || ''} onChange={(value) => updateField('menuId', value)} />
+        <TextField label="Location" value={config.location || 'primary'} onChange={(value) => updateField('location', value)} />
+        <CheckField label="Sticky Navigation" checked={config.sticky !== false} onChange={(value) => updateField('sticky', value)} />
+      </>
+    );
+  }
+
+  if (moduleType === 'CUSTOM_HTML') {
+    return <TextAreaField label="Sanitized HTML" value={config.html || ''} onChange={(value) => updateField('html', value)} />;
+  }
+
+  if (moduleType === 'STATISTICS_COUNTERS') {
+    return (
+      <>
+        <SelectField label="Stat Source" value={config.statSource || 'manual'} options={['manual', 'auto']} onChange={(value) => updateField('statSource', value)} />
+        <TextAreaField label="Manual Counters JSON" value={JSON.stringify(config.manualCounters || [], null, 2)} onChange={(value) => {
+          try { updateField('manualCounters', JSON.parse(value)); } catch { updateField('manualCountersRaw', value); }
+        }} />
+      </>
+    );
+  }
+
+  return null;
+}
+
+function TextField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1">{label}</label>
+      <input type="text" value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs" />
+    </div>
+  );
+}
+
+function TextAreaField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1">{label}</label>
+      <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={4} className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs" />
+    </div>
+  );
+}
+
+function NumberField({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1">{label}</label>
+      <input type="number" value={value} min={min} max={max} onChange={(event) => onChange(parseInt(event.target.value, 10) || min)} className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs" />
+    </div>
+  );
+}
+
+function SelectField({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1">{label}</label>
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs">
+        {options.map((option) => <option key={option} value={option}>{option}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function CheckField({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
+  return (
+    <div className="flex items-center gap-2">
+      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} className="rounded" />
+      <label className="text-xs">{label}</label>
     </div>
   );
 }

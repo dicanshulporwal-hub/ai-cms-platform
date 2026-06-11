@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { TemplateModuleRegistryService } from './template-module-registry.service';
 
 const DEFAULT_REGIONS = [
   { regionKey: 'header', regionName: 'Header', regionType: 'HEADER', sortOrder: 0, isRequired: true },
@@ -13,7 +14,10 @@ const DEFAULT_REGIONS = [
 
 @Injectable()
 export class TemplateLayoutService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly moduleRegistryService: TemplateModuleRegistryService,
+  ) {}
 
   async getRegions(templateId: string) {
     await this.ensureTemplateExists(templateId);
@@ -33,10 +37,10 @@ export class TemplateLayoutService {
     return region;
   }
 
-  async updateRegion(templateId: string, regionId: string, dto: { regionName?: string; regionType?: string; sortOrder?: number; isActive?: boolean }, user: AuthenticatedUser) {
+  async updateRegion(templateId: string, regionId: string, dto: { regionName?: string; description?: string; regionType?: string; sortOrder?: number; isActive?: boolean }, user: AuthenticatedUser) {
     const region = await this.prisma.templateRegion.findFirst({ where: { id: regionId, templateId } });
     if (!region) throw new NotFoundException('Region not found.');
-    const updated = await this.prisma.templateRegion.update({ where: { id: regionId }, data: { regionName: dto.regionName, regionType: dto.regionType, sortOrder: dto.sortOrder, isActive: dto.isActive } });
+    const updated = await this.prisma.templateRegion.update({ where: { id: regionId }, data: { regionName: dto.regionName, description: dto.description, regionType: dto.regionType, sortOrder: dto.sortOrder, isActive: dto.isActive } });
     await this.audit('template.region_updated', templateId, user.id, { regionId });
     return updated;
   }
@@ -94,9 +98,15 @@ export class TemplateLayoutService {
   async getPublicRenderData() {
     const template = await this.prisma.websiteTemplate.findFirst({ where: { isActive: true, deletedAt: null } });
     if (!template) return { template: null, regions: [], modules: [], settings: null };
+    const allowedModules = await this.moduleRegistryService.findActivePublic();
+    const allowedModuleTypes = new Set(allowedModules.map((mod) => mod.moduleType));
     const regions = await this.prisma.templateRegion.findMany({ where: { templateId: template.id, isActive: true }, include: { modules: { where: { isVisible: true }, orderBy: { sortOrder: 'asc' } } }, orderBy: { sortOrder: 'asc' } });
+    const filteredRegions = regions.map((region) => ({
+      ...region,
+      modules: region.modules.filter((mod) => allowedModuleTypes.has(mod.moduleType)),
+    }));
     const settings = await this.prisma.settings.findFirst();
-    return { template, regions, settings: settings ? { siteName: settings.siteName, siteDescription: settings.siteDescription, siteLogo: settings.siteLogo, supportEmail: settings.supportEmail } : null };
+    return { template, regions: filteredRegions, settings: settings ? { siteName: settings.siteName, siteDescription: settings.siteDescription, siteLogo: settings.siteLogo, supportEmail: settings.supportEmail } : null };
   }
 
   async ensureDefaultRegions(templateId: string, configRegions?: Array<{ key: string; name: string; type: string; required?: boolean }>) {

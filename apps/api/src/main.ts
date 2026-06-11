@@ -5,7 +5,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { resolveMediaUploadDir } from './media/media-storage';
 
+function normalizeProcessEnv() {
+  for (const key of ['DATABASE_URL']) {
+    const value = process.env[key];
+    if (!value) continue;
+    process.env[key] = value.trim().replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
+  }
+}
+
 async function bootstrap() {
+  normalizeProcessEnv();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = Number(process.env.PORT ?? 3001);
   const uploadDir = process.env.MEDIA_UPLOAD_DIR ?? 'uploads/media';

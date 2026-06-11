@@ -17,7 +17,7 @@ import type { AuthUser } from '@/types/auth';
 
 interface Region { id: string; regionKey: string; regionName: string; regionType: string; sortOrder: number; isActive: boolean; modules: Module[]; }
 interface Module { id: string; moduleType: string; moduleKey: string; displayTitle: string; configJson: any; sortOrder: number; isVisible: boolean; }
-interface RegistryModule { id: string; moduleKey: string; moduleName: string; moduleType: string; category: string; isActive: boolean; isPublicEnabled: boolean; }
+interface RegistryModule { id: string; moduleKey: string; moduleName: string; moduleType: string; category: string; isActive: boolean; isPublicEnabled: boolean; defaultConfigJson?: any; supportedRegionTypesJson?: string[] | null; }
 
 function LayoutContent({ user, templateId }: { user: AuthUser; templateId: string }) {
   const { data: template } = useTemplate(templateId);
@@ -47,10 +47,11 @@ function LayoutContent({ user, templateId }: { user: AuthUser; templateId: strin
 
   async function handleAddModule(regionId: string) {
     if (!newModuleType || !newModuleTitle) return;
+    const selectedRegistryModule = registryModules.find((mod) => mod.moduleType === newModuleType);
     setError(null); setSuccess(null);
     try {
       await apiClient(`/api/templates/${templateId}/regions/${regionId}/modules`, {
-        method: 'POST', body: JSON.stringify({ moduleType: newModuleType, moduleKey: `${newModuleType.toLowerCase()}-${Date.now()}`, displayTitle: newModuleTitle, configJson: {} }),
+        method: 'POST', body: JSON.stringify({ moduleType: newModuleType, moduleKey: `${newModuleType.toLowerCase()}-${Date.now()}`, displayTitle: newModuleTitle, configJson: selectedRegistryModule?.defaultConfigJson ?? {} }),
       });
       setAddingTo(null); setNewModuleType(''); setNewModuleTitle('');
       await loadData(); setSuccess('Module added.');
@@ -86,7 +87,15 @@ function LayoutContent({ user, templateId }: { user: AuthUser; templateId: strin
 
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
-  const activeModules = registryModules.filter(m => m.isActive);
+  const templateConfig = (template?.configJson as Record<string, unknown> | undefined) ?? {};
+  const supportedModules = Array.isArray(templateConfig.supportedModules)
+    ? templateConfig.supportedModules.filter((value: unknown): value is string => typeof value === 'string')
+    : null;
+  const activeModules = registryModules.filter((m) => m.isActive && (!supportedModules?.length || supportedModules.includes(m.moduleType)));
+  const getModulesForRegion = (region: Region) => activeModules.filter((m) => {
+    const supportedRegions = Array.isArray(m.supportedRegionTypesJson) ? m.supportedRegionTypesJson : [];
+    return !supportedRegions.length || supportedRegions.includes(region.regionType);
+  });
 
   return (
     <div className="space-y-6">
@@ -132,7 +141,7 @@ function LayoutContent({ user, templateId }: { user: AuthUser; templateId: strin
                         <Label className="text-xs">Module Type</Label>
                         <Select value={newModuleType} onChange={(e) => setNewModuleType(e.target.value)}>
                           <option value="">Select module...</option>
-                          {activeModules.map(m => <option key={m.id} value={m.moduleType}>{m.moduleName} ({m.category})</option>)}
+                          {getModulesForRegion(region).map(m => <option key={m.id} value={m.moduleType}>{m.moduleName} ({m.category})</option>)}
                         </Select>
                       </div>
                       <div className="space-y-1">

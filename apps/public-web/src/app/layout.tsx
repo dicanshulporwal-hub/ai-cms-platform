@@ -17,7 +17,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
-        {/* @ts-expect-error Async Server Component */}
         <StructuredDataInjector />
       </head>
       <body>

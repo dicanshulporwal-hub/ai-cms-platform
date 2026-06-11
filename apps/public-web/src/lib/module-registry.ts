@@ -18,16 +18,19 @@ import { TenderListModule } from '@/components/modules/tender-list';
 import { SchemeListModule } from '@/components/modules/scheme-list';
 import { QuickLinksModule } from '@/components/modules/quick-links';
 import { NewsroomListModule } from '@/components/modules/newsroom-list';
+import { StatisticsCountersModule } from '@/components/modules/statistics-counters';
 
 const MODULE_MAP: Record<string, ComponentType<ModuleComponentProps>> = {
   SITE_HEADER: SiteHeaderModule,
   NAVIGATION: NavigationModule,
+  NAVIGATION_MENU: NavigationModule,
   PAGE_CONTENT: PageContentModule,
   BLOG_LIST: BlogListModule,
   DOCUMENT_LIST: DocumentListModule,
   FAQ_LIST: FaqListModule,
   FORM_EMBED: FormEmbedModule,
   FOOTER: FooterModule,
+  FOOTER_LINKS: FooterModule,
   CHATBOT: ChatbotModule,
   SEARCH: SearchModule,
   CUSTOM_HTML: CustomHtmlModule,
@@ -37,6 +40,7 @@ const MODULE_MAP: Record<string, ComponentType<ModuleComponentProps>> = {
   SCHEME_LIST: SchemeListModule as any,
   SERVICE_LIST: SchemeListModule as any,
   QUICK_LINKS: QuickLinksModule,
+  STATISTICS_COUNTERS: StatisticsCountersModule,
   NEWSROOM_LIST: NewsroomListModule as any,
   PRESS_RELEASE_LIST: NewsroomListModule as any,
 };

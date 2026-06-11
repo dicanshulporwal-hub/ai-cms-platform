@@ -6,6 +6,10 @@ import { apiClient } from '@/lib/api-client';
 import { ArrowLeft } from 'lucide-react';
 import { AdminPageShell } from '@/components/layout/admin-page-shell';
 
+interface CreatedGallery {
+  id: string;
+}
+
 export default function NewGalleryPage() {
   return (
     <AdminPageShell sectionTitle="Photo Gallery">
@@ -52,7 +56,7 @@ function NewGalleryContent() {
     }
     setSaving(true);
     try {
-      const gallery = await apiClient('/galleries', {
+      const gallery = await apiClient<CreatedGallery>('/galleries', {
         method: 'POST',
         body: JSON.stringify(form),
       });

@@ -58,7 +58,7 @@ function GalleryDetailContent() {
   const fetchGallery = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiClient(`/galleries/${id}`);
+      const data = await apiClient<GalleryDetail>(`/galleries/${id}`);
       setGallery(data);
     } catch (e: any) {
       alert(e.message || 'Failed to load gallery');

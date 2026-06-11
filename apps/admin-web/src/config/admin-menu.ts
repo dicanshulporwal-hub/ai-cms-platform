@@ -16,6 +16,7 @@ import {
   MessageCircle,
   Newspaper,
   Settings,
+  Share2,
   Shield,
   Sparkles,
   Tags,
@@ -190,6 +191,7 @@ export const adminMenuGroups: MenuGroup[] = [
     defaultCollapsed: true,
     items: [
       { href: '/modules', label: 'Modules', icon: Box, adminOnly: true },
+      { href: '/social-media', label: 'Social Media', icon: Share2, adminOnly: true },
       { href: '/integrations', label: 'Integrations', icon: Webhook, adminOnly: true },
       { href: '/backup-manager', label: 'Backup & Restore', icon: Archive, adminOnly: true },
       {

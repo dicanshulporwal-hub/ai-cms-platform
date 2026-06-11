@@ -2,8 +2,10 @@ import { ModuleRenderer } from './module-renderer';
 import type { TemplateRegion } from '@/types/template';
 
 const REGION_ELEMENT_MAP: Record<string, keyof JSX.IntrinsicElements> = {
+  TOPBAR: 'section',
   HEADER: 'header',
   NAVIGATION: 'nav',
+  HERO: 'section',
   CONTENT: 'main',
   SIDEBAR: 'aside',
   FOOTER: 'footer',
@@ -11,6 +13,8 @@ const REGION_ELEMENT_MAP: Record<string, keyof JSX.IntrinsicElements> = {
 };
 
 const REGION_CLASS_MAP: Record<string, string> = {
+  TOPBAR: 'text-sm',
+  HERO: 'public-hero-region',
   CONTENT: 'flex-1',
 };
 
@@ -30,9 +34,15 @@ export function RegionRenderer({ region, theme, children }: RegionRendererProps)
   // Apply theme-based styles to specific regions
   const regionStyle: React.CSSProperties = {};
   if (theme) {
-    if (region.regionType === 'HEADER') {
+    if (region.regionType === 'TOPBAR') {
+      regionStyle.backgroundColor = theme.secondaryColor;
+      regionStyle.color = '#ffffff';
+    } else if (region.regionType === 'HEADER') {
       regionStyle.backgroundColor = theme.primaryColor;
       regionStyle.color = '#ffffff';
+    } else if (region.regionType === 'HERO') {
+      regionStyle.backgroundColor = theme.backgroundColor;
+      regionStyle.color = theme.textColor;
     } else if (region.regionType === 'NAVIGATION') {
       regionStyle.backgroundColor = theme.secondaryColor;
       regionStyle.color = '#ffffff';

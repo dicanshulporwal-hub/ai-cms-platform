@@ -20,6 +20,18 @@ interface Gallery {
   _count: { images: number };
 }
 
+interface GalleriesResponse {
+  data?: Gallery[];
+  meta?: { totalPages?: number };
+}
+
+interface GallerySummary {
+  total: number;
+  published: number;
+  draft: number;
+  totalImages: number;
+}
+
 export default function GalleriesPage() {
   return (
     <AdminPageShell sectionTitle="Photo Gallery">
@@ -36,7 +48,7 @@ function GalleriesContent() {
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [summary, setSummary] = useState<{ total: number; published: number; draft: number; totalImages: number } | null>(null);
+  const [summary, setSummary] = useState<GallerySummary | null>(null);
 
   const fetchGalleries = useCallback(async () => {
     setLoading(true);
@@ -47,7 +59,7 @@ function GalleriesContent() {
       if (search) params.set('search', search);
       if (statusFilter) params.set('status', statusFilter);
 
-      const data = await apiClient(`/galleries?${params.toString()}`);
+      const data = await apiClient<GalleriesResponse>(`/galleries?${params.toString()}`);
       setGalleries(data.data || []);
       setTotalPages(data.meta?.totalPages || 1);
     } catch (e) {
@@ -59,7 +71,7 @@ function GalleriesContent() {
 
   const fetchSummary = useCallback(async () => {
     try {
-      const data = await apiClient('/galleries/summary');
+      const data = await apiClient<GallerySummary>('/galleries/summary');
       setSummary(data);
     } catch {}
   }, []);

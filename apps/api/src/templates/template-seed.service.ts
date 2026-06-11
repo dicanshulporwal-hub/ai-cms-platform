@@ -2,7 +2,161 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, TemplateStatus, TemplateType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
+const GOVERNMENT_MODERN_SUPPORTED_MODULES = [
+  'NAVIGATION_MENU',
+  'PAGE_CONTENT',
+  'BLOG_LIST',
+  'DOCUMENT_LIST',
+  'FAQ_LIST',
+  'FORM_EMBED',
+  'SEARCH',
+  'CHATBOT',
+  'FOOTER_LINKS',
+  'MEDIA_GALLERY',
+  'ANNOUNCEMENT_LIST',
+  'TENDER_LIST',
+  'SCHEME_LIST',
+  'SERVICE_LIST',
+  'GRIEVANCE_SUBMIT',
+  'GRIEVANCE_TRACK',
+  'RTI_DISCLOSURE',
+  'DEPARTMENT_LIST',
+  'CONTACT_DIRECTORY',
+  'ORGANIZATION_CHART',
+  'NEWSROOM_LIST',
+  'PRESS_RELEASE_LIST',
+  'ACCESSIBILITY_CONTROLS',
+  'LANGUAGE_SWITCHER',
+  'STATISTICS_COUNTERS',
+  'QUICK_LINKS',
+  'SOCIAL_LINKS',
+  'NEWSLETTER_SUBSCRIBE',
+  'CUSTOM_HTML',
+];
+
+const GOVERNMENT_MODERN_SECTIONS = [
+  'topbar',
+  'header',
+  'navigation',
+  'hero',
+  'quick_access',
+  'latest_updates',
+  'services',
+  'tenders',
+  'newsroom',
+  'departments',
+  'documents',
+  'statistics',
+  'gallery',
+  'footer',
+  'chatbot',
+];
+
+const GOVERNMENT_MODERN_CONFIG = {
+  entry: 'builder',
+  type: 'GOVERNMENT',
+  templateCompatibilityVersion: '1.0.0',
+  supportedRegions: GOVERNMENT_MODERN_SECTIONS,
+  supportedModules: GOVERNMENT_MODERN_SUPPORTED_MODULES,
+  defaultLayout: {
+    regions: GOVERNMENT_MODERN_SECTIONS,
+    sectionModel: 'TemplateRegion',
+    moduleModel: 'TemplateRegionModule',
+  },
+  themePresets: [
+    { name: 'Official Blue', primaryColor: '#123c69', secondaryColor: '#0b2447', accentColor: '#f5b301' },
+    { name: 'Civic Green', primaryColor: '#14532d', secondaryColor: '#064e3b', accentColor: '#facc15' },
+    { name: 'High Contrast', primaryColor: '#111827', secondaryColor: '#000000', accentColor: '#f59e0b' },
+  ],
+  themeSettings: {
+    primaryColor: '#123c69',
+    secondaryColor: '#0b2447',
+    accentColor: '#f5b301',
+    backgroundColor: '#ffffff',
+    surfaceColor: '#f8fafc',
+    textColor: '#111827',
+    mutedColor: '#64748b',
+    borderColor: '#dbe3ef',
+    fontFamily: 'Inter',
+    logoMediaId: '',
+    emblemMediaId: '',
+    headerStyle: 'official',
+    navigationStyle: 'horizontal',
+    footerStyle: 'multi-column',
+    cardStyle: 'bordered',
+    layoutWidth: '1200',
+    borderRadius: '8',
+    showAccessibilityBar: true,
+    showLanguageSwitcher: false,
+    showSearch: true,
+    showChatbot: true,
+    highContrastEnabled: false,
+  },
+  theme: {
+    primaryColor: '#123c69',
+    secondaryColor: '#0b2447',
+    accentColor: '#f5b301',
+    backgroundColor: '#ffffff',
+    textColor: '#111827',
+    headingFont: 'Inter',
+    bodyFont: 'Inter',
+    fontFamily: 'Inter',
+    baseFontSize: '16',
+    borderRadius: '8',
+    contentWidth: '1200',
+    sectionSpacing: '48',
+  },
+  previewPageTypes: [
+    'homepage',
+    'page_detail',
+    'blog_listing',
+    'blog_detail',
+    'document_listing',
+    'faq_listing',
+    'form_page',
+    'search_page',
+    'tender_listing',
+    'tender_detail',
+    'scheme_listing',
+    'scheme_detail',
+    'service_listing',
+    'service_detail',
+    'announcement_listing',
+    'announcement_detail',
+    'newsroom_listing',
+    'newsroom_detail',
+    'department_contact_directory',
+    'grievance_submit',
+    'grievance_track',
+    'rti_disclosure',
+  ],
+};
+
+const GOVERNMENT_MODERN_TEMPLATE = {
+  name: 'Government Modern',
+  slug: 'government-modern',
+  description: 'A configurable government portal template built for the Public Template Builder with official sections, module placement, theme settings, preview, and activation support.',
+  version: '1.0.0',
+  templateType: TemplateType.GOVERNMENT,
+  thumbnailUrl: '/templates/previews/government-modern.png',
+  configJson: GOVERNMENT_MODERN_CONFIG,
+  previewHtml: `<div style="font-family:Inter,system-ui,sans-serif;background:#f8fafc;color:#111827">
+    <div style="background:#0b2447;color:#fff;padding:8px 32px;font-size:12px;display:flex;justify-content:space-between"><span>Official Government Portal</span><span>Search | Accessibility | Language</span></div>
+    <header style="background:#123c69;color:#fff;padding:18px 32px;display:flex;align-items:center;gap:16px">
+      <div style="width:54px;height:54px;background:#fff;border-radius:6px"></div>
+      <div><h1 style="margin:0;font-size:22px">Government Modern</h1><p style="margin:2px 0 0;font-size:13px;opacity:.85">Configurable public service portal</p></div>
+    </header>
+    <nav style="background:#0b2447;color:#fff;padding:10px 32px;display:flex;gap:24px;font-size:14px"><span>Home</span><span>Services</span><span>Departments</span><span>Documents</span><span>Contact</span></nav>
+    <main style="max-width:1200px;margin:0 auto;padding:32px">
+      <section style="background:#fff;border:1px solid #dbe3ef;border-radius:8px;padding:40px;margin-bottom:24px"><h2 style="margin:0 0 10px;color:#123c69;font-size:30px">Citizen services, updates, and public information</h2><p style="margin:0;color:#475569">Designed to be edited, previewed, published, and activated from the Public Template Builder.</p></section>
+      <section style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px"><div style="background:#fff;border:1px solid #dbe3ef;border-radius:8px;padding:20px"><strong>Quick Access</strong><p style="color:#64748b">Important links and services.</p></div><div style="background:#fff;border:1px solid #dbe3ef;border-radius:8px;padding:20px"><strong>Latest Updates</strong><p style="color:#64748b">News, announcements, and notices.</p></div><div style="background:#fff;border:1px solid #dbe3ef;border-radius:8px;padding:20px"><strong>Documents</strong><p style="color:#64748b">Published public documents.</p></div></section>
+    </main>
+    <footer style="background:#0b2447;color:#fff;padding:24px 32px;text-align:center;font-size:12px">Government Modern footer links and public policies</footer>
+  </div>`,
+};
+
 const DUMMY_TEMPLATES = [
+  GOVERNMENT_MODERN_TEMPLATE,
   {
     name: 'Government Portal',
     slug: 'government-portal',
@@ -116,12 +270,30 @@ export class TemplateSeedService {
         where: { slug: tpl.slug },
       });
       if (existing && !existing.deletedAt) {
+        if (tpl.slug === 'government-modern') {
+          await this.prisma.websiteTemplate.update({
+            where: { id: existing.id },
+            data: {
+              name: tpl.name,
+              description: tpl.description,
+              version: tpl.version,
+              templateType: tpl.templateType,
+              thumbnailUrl: tpl.thumbnailUrl,
+              configJson: { previewHtml: tpl.previewHtml, ...((tpl as any).configJson ?? {}) } as unknown as Prisma.InputJsonValue,
+            },
+          });
+          await this.ensureGovernmentModernRegions(existing.id);
+        }
         // Ensure regions exist for previously seeded templates
         const regionCount = await this.prisma.templateRegion.count({
           where: { templateId: existing.id },
         });
         if (regionCount === 0) {
-          await this.createDefaultRegions(existing.id);
+          if (tpl.slug === 'government-modern') {
+            await this.ensureGovernmentModernRegions(existing.id);
+          } else {
+            await this.createDefaultRegions(existing.id);
+          }
         }
         created.push(existing);
         continue;
@@ -137,18 +309,256 @@ export class TemplateSeedService {
           status: TemplateStatus.DRAFT,
           isActive: false,
           thumbnailUrl: tpl.thumbnailUrl,
-          configJson: { previewHtml: tpl.previewHtml } as unknown as Prisma.InputJsonValue,
+          configJson: { previewHtml: tpl.previewHtml, ...((tpl as any).configJson ?? {}) } as unknown as Prisma.InputJsonValue,
           storageProvider: 'local',
         },
       });
 
       // Create default regions with modules for each template
-      await this.createDefaultRegions(template.id);
+      if (tpl.slug === 'government-modern') {
+        await this.ensureGovernmentModernRegions(template.id);
+      } else {
+        await this.createDefaultRegions(template.id);
+      }
 
       created.push(template);
     }
 
     return { message: `Seeded ${created.length} templates.`, templates: created };
+  }
+
+  private async ensureGovernmentModernRegions(templateId: string) {
+    const sections = [
+      {
+        regionKey: 'topbar',
+        regionName: 'Topbar',
+        description: 'Utility strip for search, accessibility, language, and official links.',
+        regionType: 'TOPBAR',
+        sortOrder: 0,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          { moduleType: 'SEARCH', moduleKey: 'topbar-search', displayTitle: 'Portal Search', sortOrder: 0, configJson: { showTitle: false, placeholder: 'Search the portal' } },
+        ],
+      },
+      {
+        regionKey: 'header',
+        regionName: 'Header',
+        description: 'Official logo, emblem, department name, and header actions.',
+        regionType: 'HEADER',
+        sortOrder: 1,
+        isRequired: true,
+        isActive: true,
+        modules: [
+          { moduleType: 'SITE_HEADER', moduleKey: 'government-modern-header', displayTitle: 'Official Header', sortOrder: 0, configJson: { showSearch: true, headerStyle: 'official' } },
+        ],
+      },
+      {
+        regionKey: 'navigation',
+        regionName: 'Navigation',
+        description: 'Primary public navigation menu.',
+        regionType: 'NAVIGATION',
+        sortOrder: 2,
+        isRequired: true,
+        isActive: true,
+        modules: [
+          { moduleType: 'NAVIGATION_MENU', moduleKey: 'government-modern-navigation', displayTitle: 'Main Navigation', sortOrder: 0, configJson: { location: 'primary', sticky: true, displayMode: 'horizontal' } },
+        ],
+      },
+      {
+        regionKey: 'hero',
+        regionName: 'Hero',
+        description: 'Homepage hero and key public calls to action.',
+        regionType: 'HERO',
+        sortOrder: 3,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          {
+            moduleType: 'CUSTOM_HTML',
+            moduleKey: 'government-modern-hero',
+            displayTitle: 'Hero',
+            sortOrder: 0,
+            configJson: {
+              title: 'Citizen services, updates, and public information',
+              subtitle: 'A configurable public portal powered by the CMS template builder.',
+              primaryCTA: { label: 'Explore Services', url: '/services' },
+              secondaryCTA: { label: 'View Documents', url: '/documents' },
+              html: '<section class="public-hero"><h1>Citizen services, updates, and public information</h1><p>A configurable public portal powered by the CMS template builder.</p></section>',
+            },
+          },
+        ],
+      },
+      {
+        regionKey: 'quick_access',
+        regionName: 'Quick Access',
+        description: 'High-priority links for citizens.',
+        regionType: 'CONTENT',
+        sortOrder: 4,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          { moduleType: 'QUICK_LINKS', moduleKey: 'government-modern-quick-links', displayTitle: 'Quick Access', sortOrder: 0, configJson: { displayMode: 'grid', limit: 8, showTitle: true } },
+        ],
+      },
+      {
+        regionKey: 'latest_updates',
+        regionName: 'Latest Updates',
+        description: 'Latest public posts and updates.',
+        regionType: 'CONTENT',
+        sortOrder: 5,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          { moduleType: 'BLOG_LIST', moduleKey: 'government-modern-latest-updates', displayTitle: 'Latest Updates', sortOrder: 0, configJson: { limit: 4, displayMode: 'cards', showDate: true, showImage: true } },
+        ],
+      },
+      {
+        regionKey: 'services',
+        regionName: 'Services',
+        description: 'Configurable service or scheme module placement.',
+        regionType: 'CONTENT',
+        sortOrder: 6,
+        isRequired: false,
+        isActive: false,
+        modules: [],
+      },
+      {
+        regionKey: 'tenders',
+        regionName: 'Tenders',
+        description: 'Tender and procurement module placement.',
+        regionType: 'CONTENT',
+        sortOrder: 7,
+        isRequired: false,
+        isActive: false,
+        modules: [],
+      },
+      {
+        regionKey: 'newsroom',
+        regionName: 'Newsroom',
+        description: 'Newsroom, press releases, and featured updates.',
+        regionType: 'CONTENT',
+        sortOrder: 8,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          { moduleType: 'NEWSROOM_LIST', moduleKey: 'government-modern-newsroom', displayTitle: 'Newsroom', sortOrder: 0, configJson: { itemType: 'all', limit: 4, showFeaturedOnly: false, showGallery: true } },
+        ],
+      },
+      {
+        regionKey: 'departments',
+        regionName: 'Departments',
+        description: 'Department list, contact directory, and organization chart placement.',
+        regionType: 'CONTENT',
+        sortOrder: 9,
+        isRequired: false,
+        isActive: false,
+        modules: [],
+      },
+      {
+        regionKey: 'documents',
+        regionName: 'Documents',
+        description: 'Published documents and public downloads.',
+        regionType: 'CONTENT',
+        sortOrder: 10,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          { moduleType: 'DOCUMENT_LIST', moduleKey: 'government-modern-documents', displayTitle: 'Documents', sortOrder: 0, configJson: { limit: 6, showFilters: true, displayMode: 'list' } },
+        ],
+      },
+      {
+        regionKey: 'statistics',
+        regionName: 'Statistics',
+        description: 'Manual or automatic counters for public services.',
+        regionType: 'CONTENT',
+        sortOrder: 11,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          { moduleType: 'STATISTICS_COUNTERS', moduleKey: 'government-modern-statistics', displayTitle: 'Key Statistics', sortOrder: 0, configJson: { statSource: 'manual', manualCounters: [] } },
+        ],
+      },
+      {
+        regionKey: 'gallery',
+        regionName: 'Gallery',
+        description: 'Published media gallery placement.',
+        regionType: 'CONTENT',
+        sortOrder: 12,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          { moduleType: 'MEDIA_GALLERY', moduleKey: 'government-modern-gallery', displayTitle: 'Gallery', sortOrder: 0, configJson: { limit: 8, displayMode: 'grid', showImage: true } },
+        ],
+      },
+      {
+        regionKey: 'footer',
+        regionName: 'Footer',
+        description: 'Footer links, policies, contact information, and social links.',
+        regionType: 'FOOTER',
+        sortOrder: 13,
+        isRequired: true,
+        isActive: true,
+        modules: [
+          { moduleType: 'FOOTER_LINKS', moduleKey: 'government-modern-footer', displayTitle: 'Footer Links', sortOrder: 0, configJson: { displayMode: 'columns' } },
+        ],
+      },
+      {
+        regionKey: 'chatbot',
+        regionName: 'Chatbot',
+        description: 'Public chatbot placement.',
+        regionType: 'CHATBOT',
+        sortOrder: 14,
+        isRequired: false,
+        isActive: true,
+        modules: [
+          { moduleType: 'CHATBOT', moduleKey: 'government-modern-chatbot', displayTitle: 'Chatbot', sortOrder: 0, configJson: { showTitle: false } },
+        ],
+      },
+    ];
+
+    for (const section of sections) {
+      const region = await this.prisma.templateRegion.upsert({
+        where: { templateId_regionKey: { templateId, regionKey: section.regionKey } },
+        update: {
+          regionName: section.regionName,
+          description: section.description,
+          regionType: section.regionType,
+          sortOrder: section.sortOrder,
+          isRequired: section.isRequired,
+        },
+        create: {
+          templateId,
+          regionKey: section.regionKey,
+          regionName: section.regionName,
+          description: section.description,
+          regionType: section.regionType,
+          sortOrder: section.sortOrder,
+          isRequired: section.isRequired,
+          isActive: section.isActive,
+        },
+      });
+
+      for (const moduleDef of section.modules) {
+        const existingModule = await this.prisma.templateRegionModule.findFirst({
+          where: { templateId, regionId: region.id, moduleKey: moduleDef.moduleKey },
+        });
+        if (existingModule) continue;
+
+        await this.prisma.templateRegionModule.create({
+          data: {
+            templateId,
+            regionId: region.id,
+            moduleType: moduleDef.moduleType,
+            moduleKey: moduleDef.moduleKey,
+            displayTitle: moduleDef.displayTitle,
+            configJson: moduleDef.configJson as unknown as Prisma.InputJsonValue,
+            sortOrder: moduleDef.sortOrder,
+            isVisible: true,
+          },
+        });
+      }
+    }
   }
 
   private async createDefaultRegions(templateId: string) {

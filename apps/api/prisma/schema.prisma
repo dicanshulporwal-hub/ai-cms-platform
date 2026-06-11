@@ -2960,3 +2960,157 @@ model NewsroomCategory {
   @@index([deletedAt])
   @@map("newsroom_categories")
 }
+
+// ============================================
+// Social Media Publishing
+// ============================================
+
+enum SocialAccountStatus {
+  SOCIAL_CONNECTED
+  SOCIAL_DISCONNECTED
+  SOCIAL_TOKEN_EXPIRED
+  SOCIAL_ERROR
+  SOCIAL_DISABLED
+}
+
+enum SocialPostStatus {
+  SOCIAL_POST_DRAFT
+  SOCIAL_POST_PENDING_APPROVAL
+  SOCIAL_POST_APPROVED
+  SOCIAL_POST_QUEUED
+  SOCIAL_POST_PUBLISHING
+  SOCIAL_POST_PUBLISHED
+  SOCIAL_POST_PARTIALLY_PUBLISHED
+  SOCIAL_POST_FAILED
+  SOCIAL_POST_CANCELLED
+}
+
+enum SocialPostTargetStatus {
+  TARGET_PENDING
+  TARGET_QUEUED
+  TARGET_PUBLISHING
+  TARGET_PUBLISHED
+  TARGET_FAILED
+  TARGET_RETRY_SCHEDULED
+  TARGET_CANCELLED
+}
+
+model SocialAccount {
+  id                    String              @id @default(cuid())
+  platformKey           String              @db.VarChar(30)
+  accountName           String              @db.VarChar(255)
+  accountHandle         String?             @db.VarChar(191)
+  accountIdExternal     String?             @db.VarChar(191)
+  profileUrl            String?             @db.VarChar(2048)
+  profileImageUrl       String?             @db.VarChar(2048)
+  status                SocialAccountStatus @default(SOCIAL_CONNECTED)
+  connectionType        String              @default("MANUAL_TOKEN") @db.VarChar(30)
+  accessTokenEncrypted  String?             @db.Text
+  refreshTokenEncrypted String?             @db.Text
+  tokenExpiresAt        DateTime?
+  scopesJson            Json?               @db.Json
+  settingsJson          Json?               @db.Json
+  connectedById         String?
+  lastConnectedAt       DateTime?
+  lastUsedAt            DateTime?
+  deletedAt             DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  targets               SocialPostTarget[]
+
+  @@index([platformKey])
+  @@index([status])
+  @@index([connectedById])
+  @@index([deletedAt])
+  @@map("social_accounts")
+}
+
+model SocialPost {
+  id             String           @id @default(cuid())
+  sourceType     String?          @db.VarChar(30)
+  sourceId       String?          @db.VarChar(191)
+  title          String           @db.VarChar(500)
+  content        String           @db.Text
+  linkUrl        String?          @db.VarChar(2048)
+  mediaIdsJson   Json?            @db.Json
+  hashtagsJson   Json?            @db.Json
+  utmJson        Json?            @db.Json
+  status         SocialPostStatus @default(SOCIAL_POST_DRAFT)
+  createdById    String?
+  approvedById   String?
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  targets        SocialPostTarget[]
+
+  @@index([sourceType, sourceId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([deletedAt])
+  @@map("social_posts")
+}
+
+model SocialPostTarget {
+  id                  String                 @id @default(cuid())
+  socialPostId        String
+  socialPost          SocialPost             @relation(fields: [socialPostId], references: [id], onDelete: Cascade)
+  socialAccountId     String
+  socialAccount       SocialAccount          @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  platformKey         String                 @db.VarChar(30)
+  platformCaption     String?                @db.Text
+  platformMediaJson   Json?                  @db.Json
+  status              SocialPostTargetStatus @default(TARGET_PENDING)
+  externalPostId      String?                @db.VarChar(500)
+  externalPostUrl     String?                @db.VarChar(2048)
+  errorMessage        String?                @db.Text
+  attemptCount        Int                    @default(0)
+  lastAttemptAt       DateTime?
+  publishedAt         DateTime?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  logs                SocialPublishLog[]
+
+  @@index([socialPostId])
+  @@index([socialAccountId])
+  @@index([platformKey])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("social_post_targets")
+}
+
+model SocialPublishLog {
+  id                  String   @id @default(cuid())
+  socialPostTargetId  String
+  target              SocialPostTarget @relation(fields: [socialPostTargetId], references: [id], onDelete: Cascade)
+  platformKey         String   @db.VarChar(30)
+  socialAccountId     String
+  status              String   @db.VarChar(30)
+  statusCode          Int?
+  errorMessage        String?  @db.Text
+  responsePreview     String?  @db.Text
+  createdAt           DateTime @default(now())
+
+  @@index([socialPostTargetId])
+  @@index([platformKey])
+  @@index([createdAt])
+  @@map("social_publish_logs")
+}
+
+model SocialSettings {
+  id                              String  @id @default("default_social_settings")
+  isEnabled                       Boolean @default(true)
+  autoPostBlogsEnabled            Boolean @default(false)
+  autoPostNewsroomEnabled         Boolean @default(false)
+  autoPostAnnouncementsEnabled    Boolean @default(false)
+  requireApprovalBeforeSocialPost Boolean @default(true)
+  defaultHashtagsJson             Json?   @db.Json
+  defaultUtmJson                  Json?   @db.Json
+  maxRetries                      Int     @default(3)
+  retryBackoffSeconds             Int     @default(60)
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @updatedAt
+
+  @@map("social_settings")
+}

@@ -1,7 +1,12 @@
 type Environment = Record<string, unknown>;
 
+function normalizeEnvString(value: unknown) {
+  if (typeof value !== 'string') return value;
+  return value.trim().replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
+}
+
 export function validateEnvironment(config: Environment) {
-  const databaseUrl = config.DATABASE_URL;
+  const databaseUrl = normalizeEnvString(config.DATABASE_URL);
   const aiProvider = String(config.AI_PROVIDER ?? 'openai')
     .trim()
     .toLowerCase();
@@ -49,6 +54,7 @@ export function validateEnvironment(config: Environment) {
     AI_PROVIDER: aiProvider,
     AI_TEMPERATURE: aiTemperature,
     GEMINI_MODEL: config.GEMINI_MODEL ?? 'gemini-2.5-flash',
+    DATABASE_URL: databaseUrl,
     JWT_EXPIRES_IN: config.JWT_EXPIRES_IN ?? '1d',
     MAX_UPLOAD_SIZE_MB: maxUploadSizeMb,
     MEDIA_UPLOAD_DIR: config.MEDIA_UPLOAD_DIR ?? 'uploads/media',
