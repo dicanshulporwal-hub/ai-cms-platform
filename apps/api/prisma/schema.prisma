@@ -129,6 +129,106 @@ enum FormSubmissionStatus {
   SPAM
 }
 
+enum ContentImportJobStatus {
+  UPLOADED
+  VALIDATING
+  FETCHING
+  EXTRACTING
+  EXTRACTED
+  ANALYZING
+  ANALYZED
+  REVIEW_REQUIRED
+  APPROVED
+  IMPORTING
+  COMPLETED
+  PARTIALLY_COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ContentImportSourceType {
+  WORD_DOCX
+  WORD_DOC
+  WEB_URL
+  WEB_SITEMAP
+  WEB_PAGE_BATCH
+  PDF_READY_FUTURE
+  HTML_READY_FUTURE
+  TEXT_READY_FUTURE
+}
+
+enum ContentImportExtractionMode {
+  BASIC_EXTRACTION
+  AI_ASSISTED
+  RULE_BASED
+  HYBRID
+}
+
+enum ContentImportMode {
+  EXTRACT_AS_IS
+  SUMMARIZE_REWRITE
+  CLASSIFY_INTO_MODULES
+}
+
+enum DetectedContentType {
+  PAGE
+  BLOG
+  FAQ
+  ANNOUNCEMENT
+  NOTICE
+  CIRCULAR
+  OFFICE_ORDER
+  TENDER
+  SCHEME
+  SERVICE
+  NEWSROOM
+  PRESS_RELEASE
+  RTI_DISCLOSURE
+  DEPARTMENT_PAGE
+  DOCUMENT
+  MEDIA_GALLERY
+  UNKNOWN
+}
+
+enum ContentImportItemStatus {
+  DRAFT_MAPPING
+  REVIEW_REQUIRED
+  APPROVED_FOR_IMPORT
+  IMPORTED
+  SKIPPED
+  FAILED
+}
+
+enum ContentImportAssetType {
+  IMAGE
+  TABLE
+  DOCUMENT
+  LINK
+  UNKNOWN
+}
+
+enum ContentImportAssetStatus {
+  EXTRACTED
+  SAVED_TO_MEDIA
+  LINKED_TO_CONTENT
+  SKIPPED
+  FAILED
+}
+
+enum ContentImportRuleMatchType {
+  HEADING_CONTAINS
+  TEXT_CONTAINS
+  REGEX
+  DOCUMENT_TITLE
+  SECTION_PATTERN
+  URL_CONTAINS
+  DOMAIN_EQUALS
+  PATH_CONTAINS
+  META_TYPE
+  OPEN_GRAPH_TYPE
+  AI_CLASSIFICATION
+}
+
 enum FaqStatus {
   DRAFT
   PUBLISHED
@@ -3113,4 +3213,166 @@ model SocialSettings {
   updatedAt                       DateTime @updatedAt
 
   @@map("social_settings")
+}
+
+model ContentImportJob {
+  id                   String                      @id @default(cuid())
+  fileName             String?                     @db.VarChar(500)
+  originalFileName     String?                     @db.VarChar(500)
+  fileMimeType         String?                     @db.VarChar(191)
+  fileSize             Int?
+  uploadedMediaId      String?                     @db.VarChar(191)
+  sourceType           ContentImportSourceType
+  sourceUrl            String?                     @db.VarChar(2048)
+  sourceDomain         String?                     @db.VarChar(255)
+  sourceUrlsJson       Json?                       @db.Json
+  sourceHash           String?                     @db.VarChar(191)
+  status               ContentImportJobStatus      @default(UPLOADED)
+  extractionMode       ContentImportExtractionMode  @default(BASIC_EXTRACTION)
+  importMode           ContentImportMode?
+  aiProvider           String?                     @db.VarChar(100)
+  aiModel              String?                     @db.VarChar(191)
+  extractedTextPreview String?                     @db.Text
+  extractedJson        Json?                       @db.Json
+  analysisJson         Json?                       @db.Json
+  mappingJson          Json?                       @db.Json
+  warningsJson         Json?                       @db.Json
+  robotsPolicyJson     Json?                       @db.Json
+  scrapeSettingsJson   Json?                       @db.Json
+  attributionJson      Json?                       @db.Json
+  errorMessage         String?                     @db.Text
+  createdById          String?                     @db.VarChar(191)
+  reviewedById         String?                     @db.VarChar(191)
+  completedAt          DateTime?
+  createdAt            DateTime                    @default(now())
+  updatedAt            DateTime                    @updatedAt
+  deletedAt            DateTime?
+  items                ContentImportItem[]
+  assets               ContentImportAsset[]
+  logs                 ContentImportLog[]
+
+  @@index([status])
+  @@index([sourceType])
+  @@index([sourceDomain])
+  @@index([sourceUrl(length: 191)])
+  @@index([sourceHash])
+  @@index([createdById])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("content_import_jobs")
+}
+
+model ContentImportItem {
+  id                    String                  @id @default(cuid())
+  importJobId           String
+  importJob             ContentImportJob        @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  sourceSectionId       String?                 @db.VarChar(191)
+  sourceUrl             String?                 @db.VarChar(2048)
+  sourceTitle           String?                 @db.VarChar(500)
+  sourceCanonicalUrl    String?                 @db.VarChar(2048)
+  sourcePublishedAt     DateTime?
+  sourceAuthor          String?                 @db.VarChar(255)
+  sourceHash            String?                 @db.VarChar(191)
+  importedFromWeb       Boolean                 @default(false)
+  detectedContentType   DetectedContentType     @default(UNKNOWN)
+  targetModuleKey       String?                 @db.VarChar(100)
+  targetEntityType      String?                 @db.VarChar(100)
+  targetEntityId        String?                 @db.VarChar(191)
+  title                 String                  @db.VarChar(500)
+  slug                  String?                 @db.VarChar(191)
+  summary               String?                 @db.Text
+  bodyJson              Json?                   @db.Json
+  extractedImagesJson   Json?                   @db.Json
+  extractedTablesJson   Json?                   @db.Json
+  extractedLinksJson    Json?                   @db.Json
+  sourceAttributionJson Json?                   @db.Json
+  fieldMappingJson      Json?                   @db.Json
+  metadataJson          Json?                   @db.Json
+  confidenceScore       Float?
+  status                ContentImportItemStatus @default(DRAFT_MAPPING)
+  reviewNotes           String?                 @db.Text
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  deletedAt             DateTime?
+  assets                ContentImportAsset[]
+  logs                  ContentImportLog[]
+
+  @@index([importJobId])
+  @@index([sourceUrl(length: 191)])
+  @@index([sourceHash])
+  @@index([detectedContentType])
+  @@index([targetModuleKey])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("content_import_items")
+}
+
+model ContentImportAsset {
+  id                String                   @id @default(cuid())
+  importJobId       String
+  importJob         ContentImportJob         @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  importItemId      String?
+  importItem        ContentImportItem?       @relation(fields: [importItemId], references: [id], onDelete: SetNull)
+  originalFileName  String?                  @db.VarChar(500)
+  assetType         ContentImportAssetType   @default(UNKNOWN)
+  mediaId           String?                  @db.VarChar(191)
+  extractedPath     String?                  @db.VarChar(2048)
+  sourceUrl         String?                  @db.VarChar(2048)
+  sourceAltText     String?                  @db.VarChar(500)
+  sourceCaption     String?                  @db.Text
+  sourceLicenseInfo String?                  @db.Text
+  altText           String?                  @db.VarChar(500)
+  caption           String?                  @db.Text
+  status            ContentImportAssetStatus @default(EXTRACTED)
+  metadataJson      Json?                    @db.Json
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+
+  @@index([importJobId])
+  @@index([importItemId])
+  @@index([assetType])
+  @@index([status])
+  @@map("content_import_assets")
+}
+
+model ContentImportRule {
+  id                String                     @id @default(cuid())
+  name              String                     @db.VarChar(255)
+  description       String?                    @db.Text
+  isEnabled         Boolean                    @default(true)
+  priority          Int                        @default(100)
+  matchType         ContentImportRuleMatchType
+  matchPattern      String                     @db.VarChar(1000)
+  targetModuleKey   String                     @db.VarChar(100)
+  targetEntityType  String                     @db.VarChar(100)
+  mappingConfigJson Json?                      @db.Json
+  createdById       String?                    @db.VarChar(191)
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  deletedAt         DateTime?
+
+  @@index([isEnabled])
+  @@index([targetModuleKey])
+  @@index([priority])
+  @@index([deletedAt])
+  @@map("content_import_rules")
+}
+
+model ContentImportLog {
+  id           String             @id @default(cuid())
+  importJobId  String
+  importJob    ContentImportJob   @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  importItemId String?
+  importItem   ContentImportItem? @relation(fields: [importItemId], references: [id], onDelete: SetNull)
+  action       String             @db.VarChar(191)
+  status       String             @db.VarChar(50)
+  message      String?            @db.Text
+  metadataJson Json?              @db.Json
+  createdById  String?            @db.VarChar(191)
+  createdAt    DateTime           @default(now())
+
+  @@index([importJobId])
+  @@index([importItemId])
+  @@index([createdAt])
+  @@map("content_import_logs")
 }

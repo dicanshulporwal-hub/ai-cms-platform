@@ -128,6 +128,22 @@ export const adminMenuGroups: MenuGroup[] = [
       { href: '/ai/usage', label: 'AI Usage', icon: Sparkles },
       { href: '/ai/providers', label: 'AI Providers', icon: Sparkles, adminOnly: true },
       { href: '/ai/prompts', label: 'AI Prompts', icon: Sparkles, adminOnly: true },
+      {
+        href: '/ai/content-importer',
+        label: 'Content Importer',
+        icon: Sparkles,
+        adminOnly: true,
+        moduleKey: 'content_importer',
+        children: [
+          { href: '/ai/content-importer', label: 'Content Importer' },
+          { href: '/ai/content-importer/word-import', label: 'Word Import' },
+          { href: '/ai/content-importer/web-import', label: 'Web Import' },
+          { href: '/ai/content-importer/jobs', label: 'Import Jobs' },
+          { href: '/ai/content-importer/review', label: 'Review Generated Content' },
+          { href: '/ai/content-importer/rules', label: 'Import Rules' },
+          { href: '/ai/content-importer/logs', label: 'Import Logs' },
+        ],
+      },
     ],
   },
   {

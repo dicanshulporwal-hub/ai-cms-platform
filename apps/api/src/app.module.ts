@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { ContentCalendarModule } from './content-calendar/content-calendar.module';
+import { ContentImporterModule } from './content-importer/content-importer.module';
 import { ContactDirectoryModule } from './contact-directory/contact-directory.module';
 import { validateEnvironment } from './config/env.validation';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -63,6 +64,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     BrokenLinksModule,
     ChatbotModule,
     ContentCalendarModule,
+    ContentImporterModule,
     ContactDirectoryModule,
     DashboardModule,
     DeploymentModule,

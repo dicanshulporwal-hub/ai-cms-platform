@@ -12,7 +12,7 @@ The admin sidebar is organized into collapsible groups based on module similarit
 | 2 | Content | Pages, Blogs, Categories, Tags, Documents, Media, Forms, FAQs |
 | 3 | Website Builder | Templates (with sub-items) |
 | 4 | Workflow | Workflow, Notifications |
-| 5 | AI | AI Usage, AI Providers, AI Prompts |
+| 5 | AI | AI Usage, AI Providers, AI Prompts, Content Importer |
 | 6 | Search & Chatbot | Chatbot, Leads |
 | 7 | Accessibility | Accessibility |
 | 8 | SEO & Quality | Sitemap, Robots.txt, Structured Data, Broken Links |
@@ -30,6 +30,18 @@ The admin sidebar is organized into collapsible groups based on module similarit
 - Route: `/templates/builder`
 - 3-panel visual builder: Module Palette + Canvas + Settings
 - Preview: `/templates/builder/preview` (responsive iframe)
+
+## AI Group
+
+| Item | Path | Children |
+|------|------|----------|
+| Content Importer | /ai/content-importer | Content Importer, Word Import, Web Import, Import Jobs, Review Generated Content, Import Rules, Import Logs |
+
+### Content Importer
+- Module key: `content_importer`
+- Route: `/ai/content-importer`
+- Visibility: hidden when the module is disabled or not admin-visible.
+- Backend APIs require Content Importer permissions such as `content_importer.view`, `content_importer.word_import`, and `content_importer.web_import`.
 
 ## Government Modules Group
 

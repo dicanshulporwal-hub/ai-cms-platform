@@ -1,4 +1,5 @@
-interface ApiClientOptions extends RequestInit {
+interface ApiClientOptions extends Omit<RequestInit, 'body'> {
+  body?: unknown;
   redirectOnUnauthorized?: boolean;
 }
 
@@ -17,17 +18,34 @@ export async function apiClient<T>(
   path: string,
   options: ApiClientOptions = {},
 ): Promise<T> {
-  const { redirectOnUnauthorized = true, ...requestOptions } = options;
+  const { body, redirectOnUnauthorized = true, ...requestOptions } = options;
   const headers = new Headers(requestOptions.headers);
-  const isFormData =
-    typeof FormData !== 'undefined' && requestOptions.body instanceof FormData;
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+  const isUrlEncoded =
+    typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams;
+  const isBlob = typeof Blob !== 'undefined' && body instanceof Blob;
+  const isArrayBuffer = typeof ArrayBuffer !== 'undefined' && body instanceof ArrayBuffer;
+  const isArrayBufferView = typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView(body);
+  const isRawBody =
+    typeof body === 'string' ||
+    isFormData ||
+    isUrlEncoded ||
+    isBlob ||
+    isArrayBuffer ||
+    isArrayBufferView;
 
-  if (requestOptions.body && !headers.has('Content-Type') && !isFormData) {
+  if (
+    body !== undefined &&
+    !headers.has('Content-Type') &&
+    !isFormData &&
+    (typeof body === 'string' || !isRawBody)
+  ) {
     headers.set('Content-Type', 'application/json');
   }
 
   const response = await fetch(getPublicApiUrl(path), {
     ...requestOptions,
+    body: body === undefined ? undefined : isRawBody ? (body as BodyInit) : JSON.stringify(body),
     credentials: 'include',
     headers,
   });
