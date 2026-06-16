@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design System — public theme tokens */
+@import '../design-system/styles/public-theme.css';
+
 :root {
   --background: 0 0% 100%;
   --foreground: 222 47% 11%;

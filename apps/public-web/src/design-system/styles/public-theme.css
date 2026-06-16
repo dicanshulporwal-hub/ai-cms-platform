@@ -1,0 +1,107 @@
+/**
+ * Public Website Design System — CSS Custom Properties
+ * UX4G/GIGW-aligned government design tokens.
+ * These are the defaults; theme overrides are injected by TemplateRenderer
+ * as inline CSS variables on the root wrapper element.
+ */
+
+:root {
+  /* === Colors === */
+  --public-primary: #1a3d7c;
+  --public-primary-hover: #15326a;
+  --public-primary-light: #e8eef8;
+  --public-secondary: #2c5282;
+  --public-secondary-hover: #2a4a77;
+  --public-accent: #2b7ee0;
+  --public-accent-hover: #2163b5;
+  --public-background: #ffffff;
+  --public-surface: #f4f7fb;
+  --public-surface-muted: #eef2f8;
+  --public-text: #1a1a2e;
+  --public-text-muted: #4a5568;
+  --public-text-inverse: #ffffff;
+  --public-border: #d2daea;
+  --public-border-strong: #b0bdd4;
+  --public-success: #276749;
+  --public-success-light: #e6f4ed;
+  --public-warning: #b45309;
+  --public-warning-light: #fef3c7;
+  --public-error: #c53030;
+  --public-error-light: #fff5f5;
+  --public-info: #2b6cb0;
+  --public-info-light: #ebf4ff;
+  --public-link: #1a3d7c;
+  --public-link-hover: #0f2a5c;
+  --public-focus-ring: #fbbf24;
+
+  /* === Typography === */
+  --public-font-family: 'Noto Sans', Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --public-font-heading: 'Noto Sans', Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --public-font-size-xs: 0.75rem;
+  --public-font-size-sm: 0.875rem;
+  --public-font-size-base: 1rem;
+  --public-font-size-lg: 1.125rem;
+  --public-font-size-xl: 1.25rem;
+  --public-font-size-2xl: 1.5rem;
+  --public-font-size-3xl: 1.875rem;
+  --public-font-weight-regular: 400;
+  --public-font-weight-medium: 500;
+  --public-font-weight-semibold: 600;
+  --public-font-weight-bold: 700;
+  --public-line-height-tight: 1.25;
+  --public-line-height-normal: 1.5;
+  --public-line-height-relaxed: 1.75;
+
+  /* === Spacing === */
+  --public-space-1: 0.25rem;
+  --public-space-2: 0.5rem;
+  --public-space-3: 0.75rem;
+  --public-space-4: 1rem;
+  --public-space-6: 1.5rem;
+  --public-space-8: 2rem;
+  --public-space-12: 3rem;
+  --public-space-16: 4rem;
+
+  /* === Layout === */
+  --public-container-width: 1200px;
+  --public-section-spacing: 3rem;
+  --public-header-height: 72px;
+  --public-topbar-height: 40px;
+
+  /* === Radius === */
+  --public-radius: 0.375rem;
+
+  /* === Shadows === */
+  --public-shadow-sm: 0 1px 2px 0 rgba(26,61,124,0.06);
+  --public-shadow-md: 0 2px 8px 0 rgba(26,61,124,0.10);
+  --public-shadow-lg: 0 4px 16px 0 rgba(26,61,124,0.14);
+  --public-shadow-card: 0 1px 4px 0 rgba(26,61,124,0.08);
+  --public-shadow-focus: 0 0 0 3px rgba(251,191,36,0.5);
+
+  /* === Accessibility === */
+  --public-min-touch-target: 44px;
+  --public-focus-width: 3px;
+}
+
+/* === High Contrast Theme === */
+.public-high-contrast {
+  --public-primary: #003399;
+  --public-secondary: #001a66;
+  --public-accent: #0044cc;
+  --public-background: #ffffff;
+  --public-text: #000000;
+  --public-text-muted: #222222;
+  --public-border: #000000;
+  --public-link: #000099;
+  --public-focus-ring: #ff6600;
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

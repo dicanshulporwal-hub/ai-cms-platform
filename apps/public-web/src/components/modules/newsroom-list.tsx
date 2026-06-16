@@ -1,4 +1,8 @@
 import Link from 'next/link';
+import { PublicSection } from '@/design-system/components/PublicSection';
+import { PublicCard } from '@/design-system/components/PublicCard';
+import { PublicBadge } from '@/design-system/components/PublicBadge';
+import { PublicGrid } from '@/design-system/components/PublicGrid';
 import type { ModuleComponentProps } from '@/types/template';
 
 const API_BASE = process.env.PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
@@ -15,39 +19,82 @@ interface NewsItem {
 
 async function fetchNews(limit: number) {
   try {
-    const res = await fetch(`${API_BASE}/public/newsroom?limit=${limit}`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE}/public/newsroom?limit=${limit}`, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
+    });
     if (!res.ok) return [];
     const data = await res.json();
-    return data.data || [];
-  } catch { return []; }
+    return data.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
-export async function NewsroomListModule({ config, theme }: ModuleComponentProps) {
-  const limit = (config?.limit as number) || 4;
-  const items: NewsItem[] = await fetchNews(limit);
+function typeLabel(type: string) {
+  return type?.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
+export async function NewsroomListModule({ config, moduleKey }: ModuleComponentProps) {
+  const limit = Number(config?.limit) || 4;
+  const showTitle = config?.showTitle !== false;
+  const displayTitle = (config?.displayTitle as string) || 'Newsroom';
+  const displayMode = (config?.displayMode as string) || 'cards';
+
+  const items: NewsItem[] = await fetchNews(limit);
   if (items.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold" style={{ color: theme?.primaryColor }}>News & Press Releases</h2>
-        <Link href="/newsroom" className="text-sm text-blue-600 hover:underline">View All →</Link>
+    <PublicSection
+      title={showTitle ? displayTitle : undefined}
+      spacingVariant="md"
+      id={`module-${moduleKey}`}
+      actionLink={
+        <Link href="/newsroom" className="text-sm font-medium text-[var(--public-primary)] hover:underline">
+          View all →
+        </Link>
+      }
+    >
+      <div data-module-type="NEWSROOM_LIST">
+        <PublicGrid cols={displayMode === 'grid' ? 3 : 2} gap="md">
+          {items.map((item) => (
+            <PublicCard
+              key={item.id}
+              variant="bordered"
+              image={
+                item.featuredImageUrl
+                  ? { src: item.featuredImageUrl, alt: item.title }
+                  : undefined
+              }
+              badge={<PublicBadge variant="info">{typeLabel(item.itemType)}</PublicBadge>}
+              footer={
+                item.publishedAt ? (
+                  <time
+                    dateTime={item.publishedAt}
+                    className="text-xs text-[var(--public-text-muted)]"
+                  >
+                    {new Date(item.publishedAt).toLocaleDateString('en-IN', {
+                      day: 'numeric', month: 'short', year: 'numeric',
+                    })}
+                  </time>
+                ) : undefined
+              }
+            >
+              <Link
+                href={`/newsroom/${item.slug}`}
+                className="block text-sm font-semibold text-[var(--public-text)] hover:text-[var(--public-primary)] line-clamp-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--public-focus-ring)]"
+              >
+                {item.title}
+              </Link>
+              {item.summary && (
+                <p className="mt-1 text-xs text-[var(--public-text-muted)] line-clamp-2">
+                  {item.summary}
+                </p>
+              )}
+            </PublicCard>
+          ))}
+        </PublicGrid>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {items.map((item) => (
-          <Link key={item.id} href={`/newsroom/${item.slug}`} className="group flex gap-3 rounded-lg border bg-white p-4 hover:shadow-md transition-shadow">
-            {item.featuredImageUrl && (
-              <img src={item.featuredImageUrl} alt="" className="w-20 h-16 rounded object-cover flex-shrink-0" />
-            )}
-            <div className="flex-1 min-w-0">
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">{item.itemType.replace(/_/g, ' ')}</span>
-              <h3 className="font-medium text-sm mt-1 group-hover:text-blue-600 transition-colors line-clamp-2">{item.title}</h3>
-              {item.publishedAt && <p className="text-xs text-gray-400 mt-1">{new Date(item.publishedAt).toLocaleDateString()}</p>}
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
+    </PublicSection>
   );
 }

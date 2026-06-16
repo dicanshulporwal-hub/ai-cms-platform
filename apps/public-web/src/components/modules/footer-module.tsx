@@ -1,102 +1,79 @@
+import { PublicFooter } from '@/design-system/layout/PublicFooter';
+import { PublicLinkList } from '@/design-system/components/PublicLinkList';
+import { PublicGrid } from '@/design-system/components/PublicGrid';
 import type { ModuleComponentProps } from '@/types/template';
 
 interface FooterLink {
   label: string;
   href: string;
+  external?: boolean;
 }
 
-interface FooterContactInfo {
-  email?: string;
-  phone?: string;
-  address?: string;
+interface FooterColumnConfig {
+  title: string;
+  links: FooterLink[];
 }
 
 export function FooterModule({ config, moduleKey, theme }: ModuleComponentProps) {
-  const links = (config?.links as FooterLink[] | undefined) ?? [];
-  const contactInfo = (config?.contactInfo as FooterContactInfo | undefined) ?? null;
-  const copyright =
-    (config?.copyright as string | undefined) ??
-    `© ${new Date().getFullYear()} ${process.env.NEXT_PUBLIC_SITE_NAME ?? 'AI CMS'}. All rights reserved.`;
+  const siteName = theme?.siteName ?? (process.env.NEXT_PUBLIC_SITE_NAME ?? 'Government Portal');
+  const logoUrl = theme?.siteLogo ?? undefined;
+  const description = theme?.siteDescription ?? undefined;
+  const displayMode = (config?.displayMode as string) || 'columns';
+
+  // Build column link lists from config or defaults
+  const columns: FooterColumnConfig[] = Array.isArray(config?.columns)
+    ? (config.columns as FooterColumnConfig[])
+    : [
+        {
+          title: 'About',
+          links: [
+            { label: 'About Us', href: '/about' },
+            { label: 'Vision & Mission', href: '/about/vision' },
+            { label: 'Organisation Structure', href: '/about/structure' },
+          ],
+        },
+        {
+          title: 'Citizen Services',
+          links: [
+            { label: 'Schemes', href: '/schemes' },
+            { label: 'Services', href: '/services' },
+            { label: 'Tenders', href: '/tenders' },
+            { label: 'Grievance', href: '/grievances' },
+          ],
+        },
+        {
+          title: 'Information',
+          links: [
+            { label: 'RTI Disclosure', href: '/rti' },
+            { label: 'Documents', href: '/documents' },
+            { label: 'Newsroom', href: '/newsroom' },
+            { label: 'Contact Us', href: '/contact' },
+          ],
+        },
+      ];
+
+  const columnsSlot =
+    displayMode !== 'minimal' ? (
+      <PublicGrid cols={Math.min(columns.length, 4) as 2 | 3 | 4} gap="lg">
+        {columns.map((col) => (
+          <PublicLinkList
+            key={col.title}
+            title={col.title}
+            items={col.links}
+            orientation="vertical"
+          />
+        ))}
+      </PublicGrid>
+    ) : null;
 
   return (
-    <footer
-      role="contentinfo"
-      data-module={moduleKey}
-      data-module-type="FOOTER"
-      style={{
-        backgroundColor: theme?.secondaryColor || undefined,
-        color: theme?.secondaryColor ? 'rgba(255,255,255,0.8)' : undefined,
-        padding: '32px',
-      }}
-    >
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Footer links */}
-          {links.length > 0 && (
-            <nav aria-label="Footer navigation">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
-                Quick Links
-              </h3>
-              <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link.href}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
-
-          {/* Contact info */}
-          {contactInfo && (
-            <section aria-label="Contact information">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
-                Contact
-              </h3>
-              <div className="space-y-3">
-                {contactInfo.email && (
-                  <p className="text-sm text-muted-foreground">
-                    <span className="block text-xs font-medium uppercase text-foreground/60">Email</span>
-                    <a
-                      href={`mailto:${contactInfo.email}`}
-                      className="transition-colors hover:text-primary"
-                    >
-                      {contactInfo.email}
-                    </a>
-                  </p>
-                )}
-                {contactInfo.phone && (
-                  <p className="text-sm text-muted-foreground">
-                    <span className="block text-xs font-medium uppercase text-foreground/60">Phone</span>
-                    <a
-                      href={`tel:${contactInfo.phone}`}
-                      className="transition-colors hover:text-primary"
-                    >
-                      {contactInfo.phone}
-                    </a>
-                  </p>
-                )}
-                {contactInfo.address && (
-                  <p className="text-sm text-muted-foreground">
-                    <span className="block text-xs font-medium uppercase text-foreground/60">Address</span>
-                    {contactInfo.address}
-                  </p>
-                )}
-              </div>
-            </section>
-          )}
-        </div>
-
-        {/* Copyright */}
-        <div className="mt-10 border-t border-border pt-6">
-          <p className="text-center text-sm text-muted-foreground">{copyright}</p>
-        </div>
-      </div>
-    </footer>
+    <div data-module={moduleKey} data-module-type="FOOTER">
+      <PublicFooter
+        siteName={siteName}
+        description={description}
+        logoUrl={logoUrl}
+        columnsSlot={columnsSlot}
+      />
+    </div>
   );
 }

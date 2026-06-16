@@ -53,10 +53,14 @@ const FONT_OPTIONS = [
 ];
 
 const PRESET_THEMES: { name: string; colors: Partial<ThemeConfig> }[] = [
+  { name: 'Digital India Blue', colors: { primaryColor: '#1a3d7c', secondaryColor: '#2c5282', accentColor: '#2b7ee0' } },
+  { name: 'Government Green', colors: { primaryColor: '#1a5e3a', secondaryColor: '#145230', accentColor: '#2d9e5f' } },
+  { name: 'Neutral Ministry', colors: { primaryColor: '#1e293b', secondaryColor: '#334155', accentColor: '#3b82f6' } },
+  { name: 'High Contrast', colors: { primaryColor: '#003399', secondaryColor: '#001a66', accentColor: '#0044cc' } },
+  { name: 'Service Portal', colors: { primaryColor: '#065f46', secondaryColor: '#047857', accentColor: '#10b981' } },
+  { name: 'News Portal', colors: { primaryColor: '#7f1d1d', secondaryColor: '#991b1b', accentColor: '#ef4444' } },
   { name: 'Default Blue', colors: { primaryColor: '#2563eb', secondaryColor: '#1f2937', accentColor: '#10b981' } },
-  { name: 'Government', colors: { primaryColor: '#1e3a5f', secondaryColor: '#2c5282', accentColor: '#63b3ed' } },
   { name: 'Corporate Dark', colors: { primaryColor: '#0f172a', secondaryColor: '#334155', accentColor: '#f59e0b' } },
-  { name: 'Nature Green', colors: { primaryColor: '#065f46', secondaryColor: '#064e3b', accentColor: '#34d399' } },
   { name: 'Royal Purple', colors: { primaryColor: '#7c3aed', secondaryColor: '#4c1d95', accentColor: '#a78bfa' } },
   { name: 'Warm Red', colors: { primaryColor: '#dc2626', secondaryColor: '#7f1d1d', accentColor: '#fbbf24' } },
 ];

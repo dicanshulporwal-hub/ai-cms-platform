@@ -155,7 +155,181 @@ const GOVERNMENT_MODERN_TEMPLATE = {
   </div>`,
 };
 
+// ============================================================
+// Government Design System Template
+// ============================================================
+const GOVERNMENT_DS_SUPPORTED_MODULES = [
+  'SITE_HEADER',
+  'NAVIGATION_MENU',
+  'NAVIGATION',
+  'PAGE_CONTENT',
+  'BLOG_LIST',
+  'DOCUMENT_LIST',
+  'FAQ_LIST',
+  'FORM_EMBED',
+  'SEARCH',
+  'CHATBOT',
+  'FOOTER_LINKS',
+  'FOOTER',
+  'MEDIA_GALLERY',
+  'ANNOUNCEMENT_LIST',
+  'TENDER_LIST',
+  'SCHEME_LIST',
+  'SERVICE_LIST',
+  'GRIEVANCE_SUBMIT',
+  'GRIEVANCE_TRACK',
+  'RTI_DISCLOSURE',
+  'DEPARTMENT_LIST',
+  'CONTACT_DIRECTORY',
+  'ORGANIZATION_CHART',
+  'NEWSROOM_LIST',
+  'PRESS_RELEASE_LIST',
+  'ACCESSIBILITY_CONTROLS',
+  'LANGUAGE_SWITCHER',
+  'STATISTICS_COUNTERS',
+  'QUICK_LINKS',
+  'SOCIAL_LINKS',
+  'NEWSLETTER_SUBSCRIBE',
+  'CUSTOM_HTML',
+];
+
+const GOVERNMENT_DS_CONFIG = {
+  entry: 'builder',
+  type: 'GOVERNMENT',
+  templateType: 'GOVERNMENT',
+  templateCompatibilityVersion: '2.0.0',
+  designSystemVersion: '1.0.0',
+  supportedRegions: [
+    'topbar', 'header', 'navigation', 'hero', 'quick_access',
+    'announcements', 'latest_updates', 'services', 'schemes',
+    'tenders', 'newsroom', 'departments', 'documents', 'rti',
+    'statistics', 'gallery', 'footer', 'chatbot',
+  ],
+  supportedModules: GOVERNMENT_DS_SUPPORTED_MODULES,
+  defaultLayout: {
+    regions: ['topbar', 'header', 'navigation', 'hero', 'quick_access', 'latest_updates', 'newsroom', 'statistics', 'gallery', 'footer', 'chatbot'],
+    sectionModel: 'TemplateRegion',
+    moduleModel: 'TemplateRegionModule',
+  },
+  themePresets: [
+    { key: 'digital-india-blue', name: 'Digital India Blue', primaryColor: '#1a3d7c', secondaryColor: '#2c5282', accentColor: '#2b7ee0', backgroundColor: '#ffffff', textColor: '#1a1a2e' },
+    { key: 'government-green', name: 'Government Green', primaryColor: '#1a5e3a', secondaryColor: '#145230', accentColor: '#2d9e5f', backgroundColor: '#ffffff', textColor: '#1a2e1a' },
+    { key: 'neutral-ministry', name: 'Neutral Ministry', primaryColor: '#1e293b', secondaryColor: '#334155', accentColor: '#3b82f6', backgroundColor: '#ffffff', textColor: '#1e293b' },
+    { key: 'high-contrast', name: 'High Contrast', primaryColor: '#003399', secondaryColor: '#001a66', accentColor: '#0044cc', backgroundColor: '#ffffff', textColor: '#000000' },
+    { key: 'service-portal', name: 'Service Portal', primaryColor: '#065f46', secondaryColor: '#047857', accentColor: '#10b981', backgroundColor: '#ffffff', textColor: '#064e3b' },
+    { key: 'news-portal', name: 'News & Updates Portal', primaryColor: '#7f1d1d', secondaryColor: '#991b1b', accentColor: '#ef4444', backgroundColor: '#ffffff', textColor: '#111827' },
+  ],
+  themeSettings: {
+    primaryColor: '#1a3d7c',
+    secondaryColor: '#2c5282',
+    accentColor: '#2b7ee0',
+    backgroundColor: '#ffffff',
+    surfaceColor: '#f4f7fb',
+    textColor: '#1a1a2e',
+    mutedColor: '#4a5568',
+    borderColor: '#d2daea',
+    fontFamily: 'system-ui',
+    logoMediaId: '',
+    emblemMediaId: '',
+    headerStyle: 'official',
+    navigationStyle: 'horizontal',
+    footerStyle: 'multi-column',
+    cardStyle: 'government',
+    layoutWidth: '1200',
+    borderRadius: '6',
+    showAccessibilityBar: true,
+    showLanguageSwitcher: false,
+    showSearch: true,
+    showChatbot: true,
+    highContrastEnabled: false,
+    compactMode: false,
+    activeThemePreset: 'digital-india-blue',
+  },
+  theme: {
+    primaryColor: '#1a3d7c',
+    secondaryColor: '#2c5282',
+    accentColor: '#2b7ee0',
+    backgroundColor: '#ffffff',
+    textColor: '#1a1a2e',
+    headingFont: 'system-ui',
+    bodyFont: 'system-ui',
+    fontFamily: 'system-ui',
+    baseFontSize: '16',
+    borderRadius: '6',
+    contentWidth: '1200',
+    sectionSpacing: '48',
+  },
+  accessibilityReadiness: {
+    gigwAligned: true,
+    ux4gCompatible: true,
+    skipLink: true,
+    semanticLandmarks: true,
+    focusManagement: true,
+    ariaLabels: true,
+    highContrastSupport: true,
+    fontScaling: true,
+    reducedMotion: true,
+    mobileFirst: true,
+    disclaimer: 'This template uses GIGW-readiness aligned patterns. Official GIGW certification requires separate assessment.',
+  },
+  previewPageTypes: [
+    'homepage', 'page_detail', 'blog_listing', 'blog_detail',
+    'document_listing', 'faq_listing', 'form_page', 'search_page',
+    'tender_listing', 'tender_detail', 'scheme_listing', 'scheme_detail',
+    'service_listing', 'service_detail', 'announcement_listing',
+    'newsroom_listing', 'department_contact_directory',
+    'grievance_submit', 'grievance_track', 'rti_disclosure',
+  ],
+};
+
+const GOVERNMENT_DS_TEMPLATE = {
+  name: 'Government Design System Template',
+  slug: 'government-design-system',
+  description: 'A modern, accessible, design-system-based public website template for Government of India departments, ministries, schemes, services, tenders, disclosures, and citizen services. UX4G/GIGW-readiness aligned.',
+  version: '1.0.0',
+  templateType: TemplateType.GOVERNMENT,
+  thumbnailUrl: '/templates/previews/government-design-system.png',
+  configJson: GOVERNMENT_DS_CONFIG,
+  previewHtml: `<div style="font-family:system-ui,sans-serif;background:#f4f7fb;color:#1a1a2e">
+    <div style="background:#2c5282;color:#fff;padding:6px 24px;font-size:11px;display:flex;justify-content:space-between;align-items:center">
+      <span>Skip to main content | Screen Reader Access</span>
+      <span style="display:flex;gap:12px;align-items:center"><span>A- A A+</span><span>◑ Contrast</span><span>🌐 Language</span></span>
+    </div>
+    <header style="background:#1a3d7c;color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px">
+      <div style="width:46px;height:46px;background:rgba(255,255,255,0.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px">🏛</div>
+      <div><h1 style="margin:0;font-size:20px;font-weight:700">Government of India</h1><p style="margin:2px 0 0;font-size:11px;opacity:.8">Ministry / Department Name</p></div>
+      <div style="margin-left:auto;display:flex;align-items:center;background:rgba(255,255,255,0.12);border-radius:6px;overflow:hidden">
+        <input style="background:transparent;border:none;outline:none;color:#fff;padding:7px 12px;font-size:12px;width:180px" placeholder="Search the portal..." />
+        <button style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:7px 12px;cursor:pointer;font-size:12px">🔍</button>
+      </div>
+    </header>
+    <nav style="background:#2c5282;color:#fff;padding:0 24px;display:flex;gap:0;font-size:13px">
+      ${['Home','About','Services','Schemes','Tenders','Newsroom','Documents','RTI','Contact'].map(n=>`<span style="padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent;hover:border-bottom-color:#2b7ee0">${n}</span>`).join('')}
+    </nav>
+    <main style="max-width:1200px;margin:0 auto;padding:28px 24px">
+      <section style="background:linear-gradient(135deg,#1a3d7c 0%,#2b7ee0 100%);color:#fff;border-radius:8px;padding:40px;margin-bottom:24px">
+        <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.75">CITIZEN SERVICES PORTAL</p>
+        <h2 style="margin:0 0 12px;font-size:28px;font-weight:700;line-height:1.25">Accessible, transparent, and citizen-first government services</h2>
+        <p style="margin:0 0 20px;font-size:14px;opacity:.85;max-width:560px">Discover schemes, tenders, RTI disclosures, documents, and contact information for all departments.</p>
+        <div style="display:flex;gap:12px"><button style="background:#fff;color:#1a3d7c;border:none;padding:10px 22px;border-radius:6px;font-weight:600;font-size:13px;cursor:pointer">Explore Services</button><button style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);padding:10px 22px;border-radius:6px;font-weight:600;font-size:13px;cursor:pointer">View Documents</button></div>
+      </section>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
+        ${[['🏛','Schemes','Active programs'],['📋','Tenders','Active tenders'],['📄','Documents','Public docs'],['📞','Contacts','Departments']].map(([i,l,d])=>`<div style="background:#fff;border:1px solid #d2daea;border-top:4px solid #1a3d7c;border-radius:6px;padding:16px;text-align:center"><div style="font-size:24px;margin-bottom:6px">${i}</div><div style="font-weight:600;font-size:13px;color:#1a1a2e">${l}</div><div style="font-size:11px;color:#4a5568">${d}</div></div>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px">
+        <div style="background:#fff;border:1px solid #d2daea;border-radius:6px;padding:18px"><h3 style="margin:0 0 12px;font-size:15px;color:#1a3d7c">Latest Updates</h3>${['Cabinet approves new rural development scheme','NITI Aayog report on digital infrastructure released','New tender for solar energy project issued'].map(t=>`<div style="padding:8px 0;border-bottom:1px solid #eef2f8;font-size:12px;color:#4a5568">${t}</div>`).join('')}</div>
+        <div style="background:#fff;border:1px solid #d2daea;border-radius:6px;padding:18px"><h3 style="margin:0 0 12px;font-size:15px;color:#1a3d7c">Key Statistics</h3>${[['1,200+','Schemes Active'],['450','Tenders Open'],['8,000+','Documents']].map(([v,l])=>`<div style="text-align:center;padding:8px 0;border-bottom:1px solid #eef2f8"><div style="font-size:20px;font-weight:700;color:#1a3d7c">${v}</div><div style="font-size:11px;color:#4a5568">${l}</div></div>`).join('')}</div>
+      </div>
+    </main>
+    <footer style="background:#2c5282;color:rgba(255,255,255,0.85);padding:20px 24px;margin-top:28px">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:11px">${['Website Policies','Accessibility Statement','Sitemap','Help','Feedback','Contact Us','Terms of Use'].map(l=>`<span style="cursor:pointer;text-decoration:underline;opacity:.7">${l}</span>`).join('')}</div>
+      <div style="font-size:10px;opacity:.6">© ${new Date().getFullYear()} Government of India · GIGW-readiness aligned · UX4G-compatible layout</div>
+    </footer>
+  </div>`,
+};
+
 const DUMMY_TEMPLATES = [
+  GOVERNMENT_DS_TEMPLATE,
   GOVERNMENT_MODERN_TEMPLATE,
   {
     name: 'Government Portal',
@@ -284,6 +458,20 @@ export class TemplateSeedService {
           });
           await this.ensureGovernmentModernRegions(existing.id);
         }
+        if (tpl.slug === 'government-design-system') {
+          await this.prisma.websiteTemplate.update({
+            where: { id: existing.id },
+            data: {
+              name: tpl.name,
+              description: tpl.description,
+              version: tpl.version,
+              templateType: tpl.templateType,
+              thumbnailUrl: tpl.thumbnailUrl,
+              configJson: { previewHtml: tpl.previewHtml, ...((tpl as any).configJson ?? {}) } as unknown as Prisma.InputJsonValue,
+            },
+          });
+          await this.ensureGovernmentDSRegions(existing.id);
+        }
         // Ensure regions exist for previously seeded templates
         const regionCount = await this.prisma.templateRegion.count({
           where: { templateId: existing.id },
@@ -291,6 +479,8 @@ export class TemplateSeedService {
         if (regionCount === 0) {
           if (tpl.slug === 'government-modern') {
             await this.ensureGovernmentModernRegions(existing.id);
+          } else if (tpl.slug === 'government-design-system') {
+            await this.ensureGovernmentDSRegions(existing.id);
           } else {
             await this.createDefaultRegions(existing.id);
           }
@@ -317,6 +507,8 @@ export class TemplateSeedService {
       // Create default regions with modules for each template
       if (tpl.slug === 'government-modern') {
         await this.ensureGovernmentModernRegions(template.id);
+      } else if (tpl.slug === 'government-design-system') {
+        await this.ensureGovernmentDSRegions(template.id);
       } else {
         await this.createDefaultRegions(template.id);
       }
@@ -545,6 +737,193 @@ export class TemplateSeedService {
         });
         if (existingModule) continue;
 
+        await this.prisma.templateRegionModule.create({
+          data: {
+            templateId,
+            regionId: region.id,
+            moduleType: moduleDef.moduleType,
+            moduleKey: moduleDef.moduleKey,
+            displayTitle: moduleDef.displayTitle,
+            configJson: moduleDef.configJson as unknown as Prisma.InputJsonValue,
+            sortOrder: moduleDef.sortOrder,
+            isVisible: true,
+          },
+        });
+      }
+    }
+  }
+
+  private async ensureGovernmentDSRegions(templateId: string) {
+    // Full design-system-aligned region set
+    const sections = [
+      {
+        regionKey: 'topbar', regionName: 'Top Bar', regionType: 'TOPBAR', sortOrder: 0,
+        description: 'Skip link, accessibility controls, language switcher, social links.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'ACCESSIBILITY_CONTROLS', moduleKey: 'ds-accessibility-controls', displayTitle: 'Accessibility Controls', sortOrder: 0, configJson: { showTitle: false } },
+          { moduleType: 'SOCIAL_LINKS', moduleKey: 'ds-social-links', displayTitle: 'Social Links', sortOrder: 1, configJson: { showTitle: false } },
+        ],
+      },
+      {
+        regionKey: 'header', regionName: 'Header', regionType: 'HEADER', sortOrder: 1,
+        description: 'Government emblem, logo, site name, tagline, search box.',
+        isRequired: true, isActive: true,
+        modules: [
+          { moduleType: 'SITE_HEADER', moduleKey: 'ds-site-header', displayTitle: 'Official Header', sortOrder: 0, configJson: { showSearch: true, headerStyle: 'official' } },
+          { moduleType: 'SEARCH', moduleKey: 'ds-header-search', displayTitle: 'Header Search', sortOrder: 1, configJson: { showTitle: false, placeholder: 'Search the portal' } },
+        ],
+      },
+      {
+        regionKey: 'navigation', regionName: 'Navigation', regionType: 'NAVIGATION', sortOrder: 2,
+        description: 'Primary site navigation with keyboard accessibility.',
+        isRequired: true, isActive: true,
+        modules: [
+          { moduleType: 'NAVIGATION_MENU', moduleKey: 'ds-navigation', displayTitle: 'Main Navigation', sortOrder: 0, configJson: { location: 'primary', sticky: true, displayMode: 'horizontal' } },
+        ],
+      },
+      {
+        regionKey: 'hero', regionName: 'Hero', regionType: 'HERO', sortOrder: 3,
+        description: 'Configurable hero banner with headline, CTAs.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'CUSTOM_HTML', moduleKey: 'ds-hero', displayTitle: 'Hero Banner', sortOrder: 0, configJson: { html: '', title: 'Welcome to the Official Portal', subtitle: '', primaryCTA: { label: 'Explore Services', url: '/services' }, secondaryCTA: { label: 'View Documents', url: '/documents' } } },
+        ],
+      },
+      {
+        regionKey: 'announcements', regionName: 'Announcements', regionType: 'CONTENT', sortOrder: 4,
+        description: 'Notice board, announcements, and important alerts.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'ANNOUNCEMENT_LIST', moduleKey: 'ds-announcements', displayTitle: 'Latest Announcements', sortOrder: 0, configJson: { limit: 5, showPinnedFirst: true, tickerMode: false, displayMode: 'list' } },
+        ],
+      },
+      {
+        regionKey: 'quick_access', regionName: 'Quick Access', regionType: 'CONTENT', sortOrder: 5,
+        description: 'Citizen quick-access grid for most-used services.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'QUICK_LINKS', moduleKey: 'ds-quick-access', displayTitle: 'Quick Access', sortOrder: 0, configJson: { displayMode: 'grid', limit: 8 } },
+        ],
+      },
+      {
+        regionKey: 'latest_updates', regionName: 'Latest Updates', regionType: 'CONTENT', sortOrder: 6,
+        description: 'Latest blog posts, news, and publications.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'BLOG_LIST', moduleKey: 'ds-latest-updates', displayTitle: 'Latest Updates', sortOrder: 0, configJson: { limit: 4, displayMode: 'cards', showDate: true, showImage: true } },
+        ],
+      },
+      {
+        regionKey: 'services', regionName: 'Services', regionType: 'CONTENT', sortOrder: 7,
+        description: 'Citizen services and e-governance applications.',
+        isRequired: false, isActive: false,
+        modules: [
+          { moduleType: 'SERVICE_LIST', moduleKey: 'ds-services', displayTitle: 'Services & Applications', sortOrder: 0, configJson: { limit: 6, displayMode: 'cards', showApplyButton: true } },
+        ],
+      },
+      {
+        regionKey: 'schemes', regionName: 'Schemes', regionType: 'CONTENT', sortOrder: 8,
+        description: 'Government schemes and programs.',
+        isRequired: false, isActive: false,
+        modules: [
+          { moduleType: 'SCHEME_LIST', moduleKey: 'ds-schemes', displayTitle: 'Government Schemes', sortOrder: 0, configJson: { limit: 6, displayMode: 'cards', showApplyButton: true } },
+        ],
+      },
+      {
+        regionKey: 'tenders', regionName: 'Tenders', regionType: 'CONTENT', sortOrder: 9,
+        description: 'Active tenders and procurement notices.',
+        isRequired: false, isActive: false,
+        modules: [
+          { moduleType: 'TENDER_LIST', moduleKey: 'ds-tenders', displayTitle: 'Tenders & Procurement', sortOrder: 0, configJson: { showActiveOnly: true, showClosingDate: true, showCorrigendumBadge: true, displayMode: 'table' } },
+        ],
+      },
+      {
+        regionKey: 'newsroom', regionName: 'Newsroom', regionType: 'CONTENT', sortOrder: 10,
+        description: 'Press releases, media coverage, gallery shortcut.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'NEWSROOM_LIST', moduleKey: 'ds-newsroom', displayTitle: 'Newsroom', sortOrder: 0, configJson: { itemType: 'all', limit: 4, showGallery: true } },
+        ],
+      },
+      {
+        regionKey: 'departments', regionName: 'Departments', regionType: 'CONTENT', sortOrder: 11,
+        description: 'Department cards, contact directory, org chart.',
+        isRequired: false, isActive: false,
+        modules: [
+          { moduleType: 'CONTACT_DIRECTORY', moduleKey: 'ds-contacts', displayTitle: 'Contact Directory', sortOrder: 0, configJson: { showSearch: true, showFilters: true, displayMode: 'card' } },
+        ],
+      },
+      {
+        regionKey: 'documents', regionName: 'Documents & RTI', regionType: 'CONTENT', sortOrder: 12,
+        description: 'Public documents, policies, manuals, RTI disclosure.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'DOCUMENT_LIST', moduleKey: 'ds-documents', displayTitle: 'Documents', sortOrder: 0, configJson: { limit: 6, showFilters: true, displayMode: 'list' } },
+          { moduleType: 'RTI_DISCLOSURE', moduleKey: 'ds-rti', displayTitle: 'RTI Disclosure', sortOrder: 1, configJson: { displayMode: 'list' } },
+        ],
+      },
+      {
+        regionKey: 'statistics', regionName: 'Statistics', regionType: 'CONTENT', sortOrder: 13,
+        description: 'Department, scheme, service, and grievance counters.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'STATISTICS_COUNTERS', moduleKey: 'ds-statistics', displayTitle: 'Key Statistics', sortOrder: 0, configJson: { statSource: 'manual', manualCounters: [] } },
+        ],
+      },
+      {
+        regionKey: 'gallery', regionName: 'Gallery', regionType: 'CONTENT', sortOrder: 14,
+        description: 'Photo and video gallery.',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'MEDIA_GALLERY', moduleKey: 'ds-gallery', displayTitle: 'Gallery', sortOrder: 0, configJson: { limit: 8, displayMode: 'grid' } },
+        ],
+      },
+      {
+        regionKey: 'footer', regionName: 'Footer', regionType: 'FOOTER', sortOrder: 15,
+        description: 'Policy links, about, accessibility statement, sitemap, social, last updated.',
+        isRequired: true, isActive: true,
+        modules: [
+          { moduleType: 'FOOTER_LINKS', moduleKey: 'ds-footer', displayTitle: 'Footer Links', sortOrder: 0, configJson: { displayMode: 'columns' } },
+        ],
+      },
+      {
+        regionKey: 'chatbot', regionName: 'Chatbot', regionType: 'CHATBOT', sortOrder: 16,
+        description: 'Floating chatbot widget (lazy-loaded).',
+        isRequired: false, isActive: true,
+        modules: [
+          { moduleType: 'CHATBOT', moduleKey: 'ds-chatbot', displayTitle: 'Chatbot', sortOrder: 0, configJson: { showTitle: false } },
+        ],
+      },
+    ];
+
+    for (const section of sections) {
+      const region = await this.prisma.templateRegion.upsert({
+        where: { templateId_regionKey: { templateId, regionKey: section.regionKey } },
+        update: {
+          regionName: section.regionName,
+          description: section.description,
+          regionType: section.regionType,
+          sortOrder: section.sortOrder,
+          isRequired: section.isRequired,
+        },
+        create: {
+          templateId,
+          regionKey: section.regionKey,
+          regionName: section.regionName,
+          description: section.description,
+          regionType: section.regionType,
+          sortOrder: section.sortOrder,
+          isRequired: section.isRequired,
+          isActive: section.isActive,
+        },
+      });
+
+      for (const moduleDef of section.modules) {
+        const existingModule = await this.prisma.templateRegionModule.findFirst({
+          where: { templateId, regionId: region.id, moduleKey: moduleDef.moduleKey },
+        });
+        if (existingModule) continue;
         await this.prisma.templateRegionModule.create({
           data: {
             templateId,

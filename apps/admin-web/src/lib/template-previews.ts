@@ -334,4 +334,73 @@ export const TEMPLATE_PREVIEWS: Record<string, string> = {
         <div style="max-width:1100px;margin:20px auto 0;padding-top:16px;border-top:1px solid rgba(255,255,255,0.15);text-align:center;color:#6ee7b7">© 2025 EduLearn Academy. All rights reserved. | NAAC A++ Accredited</div>
       </footer>
     </div>`,
+
+  'government-design-system': `
+    <div style="font-family:system-ui,-apple-system,sans-serif;color:#1a1a2e;background:#f4f7fb">
+      <div style="background:#2c5282;color:#fff;padding:5px 24px;font-size:11px;display:flex;justify-content:space-between;align-items:center">
+        <span style="opacity:.75">Skip to main content | Screen Reader Access</span>
+        <span style="display:flex;gap:10px;align-items:center"><span style="opacity:.7">A- A A+</span><span style="opacity:.7">◑</span><span style="opacity:.7">🌐 Language</span></span>
+      </div>
+      <header style="background:#1a3d7c;color:#fff;padding:12px 24px;display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;background:rgba(255,255,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏛</div>
+        <div style="flex:1">
+          <p style="margin:0;font-size:17px;font-weight:700">Government of India</p>
+          <p style="margin:2px 0 0;font-size:11px;opacity:.75">Ministry / Department Name</p>
+        </div>
+        <div style="display:flex;align-items:center;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden">
+          <span style="padding:6px 10px;font-size:11px;opacity:.7">🔍 Search portal...</span>
+        </div>
+      </header>
+      <nav style="background:#2c5282;color:#fff;padding:0 24px;display:flex;gap:0;font-size:12px">
+        <span style="padding:9px 14px;border-bottom:2px solid #2b7ee0;cursor:pointer">Home</span>
+        <span style="padding:9px 14px;border-bottom:2px solid transparent;opacity:.8;cursor:pointer">About</span>
+        <span style="padding:9px 14px;border-bottom:2px solid transparent;opacity:.8;cursor:pointer">Services</span>
+        <span style="padding:9px 14px;border-bottom:2px solid transparent;opacity:.8;cursor:pointer">Schemes</span>
+        <span style="padding:9px 14px;border-bottom:2px solid transparent;opacity:.8;cursor:pointer">Tenders</span>
+        <span style="padding:9px 14px;border-bottom:2px solid transparent;opacity:.8;cursor:pointer">Newsroom</span>
+        <span style="padding:9px 14px;border-bottom:2px solid transparent;opacity:.8;cursor:pointer">Documents</span>
+        <span style="padding:9px 14px;border-bottom:2px solid transparent;opacity:.8;cursor:pointer">RTI</span>
+        <span style="padding:9px 14px;border-bottom:2px solid transparent;opacity:.8;cursor:pointer">Contact</span>
+      </nav>
+      <main style="max-width:1200px;margin:0 auto;padding:20px 20px">
+        <section style="background:linear-gradient(135deg,#1a3d7c,#2b7ee0);color:#fff;border-radius:6px;padding:32px;margin-bottom:18px">
+          <p style="margin:0 0 5px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7">CITIZEN SERVICES PORTAL</p>
+          <h2 style="margin:0 0 10px;font-size:22px;font-weight:700;line-height:1.3">Accessible, transparent, and citizen-first government services</h2>
+          <p style="margin:0 0 16px;font-size:12px;opacity:.85;max-width:500px">Discover schemes, tenders, RTI, documents, and department contacts for all ministries and departments.</p>
+          <div style="display:flex;gap:10px">
+            <span style="background:#fff;color:#1a3d7c;padding:8px 18px;border-radius:5px;font-weight:600;font-size:12px;cursor:pointer">Explore Services</span>
+            <span style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);padding:8px 18px;border-radius:5px;font-weight:600;font-size:12px;cursor:pointer">View Documents</span>
+          </div>
+        </section>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px">
+          ${['🏛 Schemes','📋 Tenders','📄 Documents','📞 Contacts','📝 Grievance'].map(l=>`<div style="background:#fff;border:1px solid #d2daea;border-top:3px solid #1a3d7c;border-radius:5px;padding:12px 10px;text-align:center;font-size:11px;font-weight:600;color:#1a1a2e;cursor:pointer">${l}</div>`).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px">
+          <div style="background:#fff;border:1px solid #d2daea;border-radius:5px;padding:14px">
+            <h3 style="margin:0 0 10px;font-size:13px;font-weight:700;color:#1a3d7c">📢 Announcements</h3>
+            ${['Cabinet approves rural development scheme','NITI Aayog digital infrastructure report published','Solar energy tender: Last date extended'].map(t=>`<div style="padding:6px 0;border-bottom:1px solid #eef2f8;font-size:11px;color:#4a5568">${t}</div>`).join('')}
+            <a style="display:block;margin-top:8px;font-size:11px;font-weight:600;color:#1a3d7c;text-decoration:none;cursor:pointer">View all →</a>
+          </div>
+          <div style="background:#fff;border:1px solid #d2daea;border-radius:5px;padding:14px">
+            <h3 style="margin:0 0 10px;font-size:13px;font-weight:700;color:#1a3d7c">📊 Key Statistics</h3>
+            ${[['1,200+','Schemes'],['450','Open Tenders'],['8,000+','Documents']].map(([v,l])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #eef2f8"><span style="font-size:10px;color:#4a5568">${l}</span><span style="font-size:14px;font-weight:700;color:#1a3d7c">${v}</span></div>`).join('')}
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #d2daea;border-radius:5px;padding:14px;margin-bottom:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h3 style="margin:0;font-size:13px;font-weight:700;color:#1a3d7c">🗞️ Newsroom</h3>
+            <a style="font-size:11px;font-weight:600;color:#1a3d7c;text-decoration:none;cursor:pointer">View all →</a>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            ${['Press release: Budget allocation for rural schemes','Media coverage: Digital India initiative milestones','Photo gallery: Swachh Bharat campaign drives'].map(t=>`<div style="border:1px solid #d2daea;border-radius:5px;padding:10px"><div style="height:50px;background:#e8eef8;border-radius:3px;margin-bottom:7px"></div><p style="margin:0;font-size:11px;font-weight:500;color:#1a1a2e;line-clamp:2">${t}</p></div>`).join('')}
+          </div>
+        </div>
+      </main>
+      <footer style="background:#2c5282;color:rgba(255,255,255,.8);padding:16px 24px;margin-top:4px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:10px;max-width:1200px;margin:0 auto 8px">
+          ${['Website Policies','Accessibility Statement','Sitemap','Help','Feedback','Contact Us','Terms of Use'].map(l=>`<span style="cursor:pointer;text-decoration:underline;opacity:.7">${l}</span>`).join('')}
+        </div>
+        <p style="margin:0;font-size:10px;opacity:.55;max-width:1200px;margin:0 auto">© 2026 Government of India · GIGW-readiness aligned · UX4G-compatible layout · Design System v1.0</p>
+      </footer>
+    </div>`,
 };

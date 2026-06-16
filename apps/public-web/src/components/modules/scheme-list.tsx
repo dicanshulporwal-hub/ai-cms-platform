@@ -1,4 +1,9 @@
 import Link from 'next/link';
+import { PublicSection } from '@/design-system/components/PublicSection';
+import { PublicCard } from '@/design-system/components/PublicCard';
+import { PublicBadge } from '@/design-system/components/PublicBadge';
+import { PublicGrid } from '@/design-system/components/PublicGrid';
+import { PublicButton } from '@/design-system/components/PublicButton';
 import type { ModuleComponentProps } from '@/types/template';
 
 const API_BASE = process.env.PUBLIC_API_BASE_URL ?? 'http://localhost:3001';
@@ -13,52 +18,90 @@ interface SchemeItem {
   category: { name: string } | null;
 }
 
-async function fetchSchemes(limit: number, type?: string) {
+async function fetchSchemes(limit: number, moduleType: string) {
   try {
-    const url = type === 'SERVICE'
-      ? `${API_BASE}/public/services?limit=${limit}`
-      : `${API_BASE}/public/schemes?limit=${limit}`;
-    const res = await fetch(url, { cache: 'no-store' });
+    const url =
+      moduleType === 'SERVICE_LIST'
+        ? `${API_BASE}/public/services?limit=${limit}`
+        : `${API_BASE}/public/schemes?limit=${limit}`;
+    const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
     if (!res.ok) return [];
     const data = await res.json();
-    return data.data || [];
-  } catch { return []; }
+    return data.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
-export async function SchemeListModule({ config, theme }: ModuleComponentProps) {
-  const limit = (config?.limit as number) || 6;
-  const type = (config?.type as string) || 'SCHEME';
-  const items: SchemeItem[] = await fetchSchemes(limit, type);
+export async function SchemeListModule({ config, moduleKey }: ModuleComponentProps) {
+  const limit = Number(config?.limit) || 6;
+  const showTitle = config?.showTitle !== false;
+  const isService = moduleKey?.toLowerCase().includes('service') || (config as any)?._moduleType === 'SERVICE_LIST';
+  const displayTitle = (config?.displayTitle as string) || (isService ? 'Citizen Services' : 'Government Schemes');
+  const showApplyButton = config?.showApplyButton !== false;
+  const displayMode = (config?.displayMode as string) || 'cards';
+  const listPath = isService ? '/services' : '/schemes';
 
+  const items: SchemeItem[] = await fetchSchemes(limit, isService ? 'SERVICE_LIST' : 'SCHEME_LIST');
   if (items.length === 0) return null;
 
-  const heading = type === 'SERVICE' ? 'Citizen Services' : 'Government Schemes';
-
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h2 className="text-xl font-bold mb-4" style={{ color: theme?.primaryColor }}>
-        {heading}
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((item) => (
-          <Link
-            key={item.id}
-            href={type === 'SERVICE' ? `/services/${item.slug}` : `/schemes/${item.slug}`}
-            className="block rounded-lg border bg-white p-4 hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${item.type === 'SERVICE' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                {item.type}
-              </span>
-              {item.applicationMode !== 'NOT_APPLICABLE' && (
-                <span className="px-2 py-0.5 text-[10px] rounded-full bg-green-50 text-green-700">{item.applicationMode}</span>
+    <PublicSection
+      title={showTitle ? displayTitle : undefined}
+      spacingVariant="md"
+      id={`module-${moduleKey}`}
+      actionLink={
+        <Link href={listPath} className="text-sm font-medium text-[var(--public-primary)] hover:underline">
+          View all →
+        </Link>
+      }
+    >
+      <div data-module-type="SCHEME_LIST">
+        <PublicGrid cols={3} gap="md">
+          {items.map((item) => (
+            <PublicCard
+              key={item.id}
+              variant="government"
+              badge={
+                <PublicBadge variant={item.type === 'SERVICE' ? 'info' : 'new'}>
+                  {item.type}
+                </PublicBadge>
+              }
+              header={
+                <Link
+                  href={`${listPath}/${item.slug}`}
+                  className="hover:text-[var(--public-primary)] hover:underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--public-focus-ring)]"
+                >
+                  {item.title}
+                </Link>
+              }
+              cta={
+                showApplyButton ? (
+                  <Link href={`${listPath}/${item.slug}`} tabIndex={-1} aria-hidden="true">
+                    <PublicButton variant="outline" size="sm" className="w-full">
+                      {isService ? 'Access Service' : 'Know More'}
+                    </PublicButton>
+                  </Link>
+                ) : undefined
+              }
+              footer={
+                item.category ? (
+                  <span className="text-xs text-[var(--public-text-muted)]">{item.category.name}</span>
+                ) : undefined
+              }
+            >
+              {item.summary && (
+                <p className="text-sm text-[var(--public-text-muted)] line-clamp-2">{item.summary}</p>
               )}
-            </div>
-            <h3 className="font-medium text-sm">{item.title}</h3>
-            {item.summary && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.summary}</p>}
-          </Link>
-        ))}
+              {item.applicationMode && item.applicationMode !== 'NOT_APPLICABLE' && (
+                <div className="mt-2">
+                  <PublicBadge variant="success">{item.applicationMode}</PublicBadge>
+                </div>
+              )}
+            </PublicCard>
+          ))}
+        </PublicGrid>
       </div>
-    </section>
+    </PublicSection>
   );
 }

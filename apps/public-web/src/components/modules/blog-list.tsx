@@ -1,71 +1,76 @@
+import Link from 'next/link';
+import { PublicSection } from '@/design-system/components/PublicSection';
+import { PublicCard } from '@/design-system/components/PublicCard';
+import { PublicGrid } from '@/design-system/components/PublicGrid';
 import type { ModuleComponentProps } from '@/types/template';
 import { fetchBlogPosts } from '@/lib/api-client';
 
 export async function BlogListModule({ config, moduleKey }: ModuleComponentProps) {
-  const page = (config?.page as number) ?? 1;
-  const limit = (config?.limit as number) ?? 10;
+  const page = Number(config?.page) || 1;
+  const limit = Number(config?.limit) || 6;
+  const showTitle = config?.showTitle !== false;
+  const displayTitle = (config?.displayTitle as string) || 'Latest Updates';
+  const showDate = config?.showDate !== false;
+  const showImage = config?.showImage !== false;
+  const displayMode = (config?.displayMode as string) || 'cards';
 
   const result = await fetchBlogPosts(page, limit);
   const posts = result?.data ?? [];
 
-  if (posts.length === 0) {
-    return (
-      <section data-module={moduleKey} data-module-type="BLOG_LIST" className="px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <p className="text-muted-foreground">No blog posts available</p>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section data-module={moduleKey} data-module-type="BLOG_LIST" className="px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <article
-              key={post.id}
-              className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-soft transition-all duration-300 hover:shadow-soft-lg hover:-translate-y-0.5"
-            >
-              {post.featuredImage && (
-                <div className="aspect-[16/10] overflow-hidden">
-                  <img
-                    src={post.featuredImage}
-                    alt={post.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-              )}
-              <div className="flex flex-1 flex-col p-5">
-                <time
-                  dateTime={post.publishedAt}
-                  className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
+    <PublicSection
+      title={showTitle ? displayTitle : undefined}
+      spacingVariant="md"
+      id={`module-${moduleKey}`}
+      actionLink={
+        <Link href="/blog" className="text-sm font-medium text-[var(--public-primary)] hover:underline">
+          View all →
+        </Link>
+      }
+    >
+      <div data-module={moduleKey} data-module-type="BLOG_LIST">
+        {posts.length === 0 ? (
+          <p className="py-8 text-center text-sm text-[var(--public-text-muted)]">No posts available.</p>
+        ) : (
+          <PublicGrid cols={displayMode === 'grid' ? 3 : 2} gap="md">
+            {posts.map((post) => (
+              <PublicCard
+                key={post.id}
+                variant="bordered"
+                image={
+                  showImage && post.featuredImage
+                    ? { src: post.featuredImage, alt: post.title }
+                    : undefined
+                }
+                footer={
+                  showDate && post.publishedAt ? (
+                    <time
+                      dateTime={post.publishedAt}
+                      className="text-xs text-[var(--public-text-muted)]"
+                    >
+                      {new Date(post.publishedAt).toLocaleDateString('en-IN', {
+                        year: 'numeric', month: 'long', day: 'numeric',
+                      })}
+                    </time>
+                  ) : undefined
+                }
+              >
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="block text-sm font-semibold text-[var(--public-text)] hover:text-[var(--public-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--public-focus-ring)]"
                 >
-                  {new Date(post.publishedAt).toLocaleDateString(undefined, {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </time>
-                <h2 className="mt-2 text-lg font-semibold leading-snug text-card-foreground">
-                  <a
-                    href={`/blog/${post.slug}`}
-                    className="transition-colors hover:text-primary"
-                  >
-                    {post.title}
-                  </a>
-                </h2>
+                  {post.title}
+                </Link>
                 {post.excerpt && (
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">
+                  <p className="mt-1 text-xs text-[var(--public-text-muted)] line-clamp-3">
                     {post.excerpt}
                   </p>
                 )}
-              </div>
-            </article>
-          ))}
-        </div>
+              </PublicCard>
+            ))}
+          </PublicGrid>
+        )}
       </div>
-    </section>
+    </PublicSection>
   );
 }

@@ -15,6 +15,7 @@ import {
   Link2,
   MessageCircle,
   Newspaper,
+  Palette,
   Settings,
   Share2,
   Shield,
@@ -94,10 +95,19 @@ export const adminMenuGroups: MenuGroup[] = [
         children: [
           { href: '/templates/onboarding', label: 'Select Template' },
           { href: '/templates/builder', label: 'Layout Builder' },
-          { href: '/templates/import-html', label: 'HTML Importer' },
+          { href: '/templates/html-importer', label: 'HTML Importer' },
           { href: '/templates/modules', label: 'Modules' },
           { href: '/templates/upload', label: 'Upload' },
           { href: '/templates/ai-generate', label: 'AI Generate' },
+        ],
+      },
+      {
+        href: '/templates/design-system', label: 'Design System', icon: Palette, adminOnly: true,
+        children: [
+          { href: '/templates/design-system', label: 'Overview' },
+          { href: '/templates/design-system/tokens', label: 'Theme Tokens' },
+          { href: '/templates/design-system/components', label: 'Component Library' },
+          { href: '/templates/design-system/presets', label: 'Theme Presets' },
         ],
       },
     ],

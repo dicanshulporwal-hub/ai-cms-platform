@@ -1,23 +1,46 @@
+import { PublicSection } from '@/design-system/components/PublicSection';
+import { PublicAccordion } from '@/design-system/components/PublicAccordion';
 import type { ModuleComponentProps } from '@/types/template';
 import { fetchFaqs } from '@/lib/api-client';
-import { FaqAccordion } from './faq-accordion';
 
 export async function FaqListModule({ config, moduleKey }: ModuleComponentProps) {
   const faqs = await fetchFaqs();
+  const showTitle = config?.showTitle !== false;
+  const displayTitle = (config?.displayTitle as string) || 'Frequently Asked Questions';
+  const displayMode = (config?.displayMode as string) || 'accordion';
+
+  if (!faqs || faqs.length === 0) return null;
+
+  const items = faqs.map((faq) => ({
+    question: faq.question,
+    answer: faq.answer,
+  }));
 
   return (
-    <section
-      data-module={moduleKey}
-      data-module-type="FAQ_LIST"
-      aria-label="Frequently Asked Questions"
-      className="px-4 py-12 sm:px-6 lg:px-8"
+    <PublicSection
+      title={showTitle ? displayTitle : undefined}
+      layoutVariant="contained"
+      spacingVariant="md"
+      id={`module-${moduleKey}`}
     >
-      <div className="mx-auto max-w-3xl">
-        <h2 className="mb-8 text-2xl font-bold tracking-tight text-foreground">
-          Frequently Asked Questions
-        </h2>
-        <FaqAccordion faqs={faqs ?? []} />
+      <div
+        data-module={moduleKey}
+        data-module-type="FAQ_LIST"
+        className="mx-auto max-w-3xl"
+      >
+        {displayMode === 'accordion' ? (
+          <PublicAccordion items={items} allowMultiple />
+        ) : (
+          <div className="space-y-4">
+            {items.map((item, idx) => (
+              <div key={idx} className="rounded-[var(--public-radius)] border border-[var(--public-border)] p-4">
+                <h3 className="text-sm font-semibold text-[var(--public-text)]">{item.question}</h3>
+                <div className="mt-2 text-sm text-[var(--public-text-muted)]">{item.answer}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </section>
+    </PublicSection>
   );
 }

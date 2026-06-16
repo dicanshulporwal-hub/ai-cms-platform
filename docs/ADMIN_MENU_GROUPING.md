@@ -25,11 +25,18 @@ The admin sidebar is organized into collapsible groups based on module similarit
 | Item | Path | Children |
 |------|------|----------|
 | Templates | /templates | Select Template, Layout Builder, HTML Importer, Modules, Upload, AI Generate |
+| Design System | /templates/design-system | Overview, Theme Tokens, Component Library, Theme Presets |
 
 ### Layout Builder
 - Route: `/templates/builder`
 - 3-panel visual builder: Module Palette + Canvas + Settings
 - Preview: `/templates/builder/preview` (responsive iframe)
+
+### Design System
+- Route: `/templates/design-system`
+- Sub-pages: tokens, components, presets
+- Visibility: always shown when Website Builder group is visible
+- Purpose: Reference for design tokens, public component library, and theme presets for the Government Design System Template
 
 ## AI Group
 
